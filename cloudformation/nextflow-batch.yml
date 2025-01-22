@@ -1,0 +1,179 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates an AWS Batch environment for Nextflow pipelines, including
+  IAM resources, S3, and Batch.
+Parameters:
+  VPC:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID to boot compute into
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: List of Subnets to boot into
+  InstanceConnectEndpointSubnet:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet in which to place EC2 Instance Connect Endpoint
+Resources:
+  NextflowWorkBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: tracer-nxf-work
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 30
+            Id: DeleteAfter30Days
+            Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+  NextflowBatchInstanceIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+      Policies:
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:getObject
+                  - s3:getObjectVersions
+                  - s3:headObject
+                  - s3:putObject
+                Resource: !Sub ${NextflowWorkBucket.Arn}/*
+              - Effect: Allow
+                Action:
+                  - s3:listBucket
+                Resource: !GetAtt NextflowWorkBucket.Arn
+  InstanceConnectEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EC2 Instance Connect Endpoint Security Group
+      # SecurityGroupEgress:
+      #   - IpProtocol: tcp
+      #     FromPort: 22
+      #     ToPort: 22
+      #     DestinationSecurityGroupId: !Ref NextflowBatchSecurityGroup
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: '-1'
+      VpcId: !Ref VPC
+  InstanceConnectEndpoint:
+    Type: AWS::EC2::InstanceConnectEndpoint
+    Properties:
+      SecurityGroupIds:
+        - !Ref InstanceConnectEndpointSecurityGroup
+      SubnetId: !Ref InstanceConnectEndpointSubnet
+  NextflowBatchInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref NextflowBatchInstanceIAMRole
+  NextflowBatchSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Nextflow Batch EC2 Security Group
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: '-1'
+      # SecurityGroupIngress:
+      #   - IpProtocol: tcp
+      #     FromPort: 22
+      #     ToPort: 22
+      #     SourceSecurityGroupId: !Ref InstanceConnectEndpointSecurityGroup
+      VpcId: !Ref VPC
+  EICEToInstanceRule:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref InstanceConnectEndpointSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      DestinationSecurityGroupId: !Ref NextflowBatchSecurityGroup
+  InstanceFromEICERule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref NextflowBatchSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      SourceSecurityGroupId: !Ref InstanceConnectEndpointSecurityGroup
+  NextflowLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs:
+              DeleteOnTermination: true
+              Encrypted: false
+              VolumeSize: 500
+              VolumeType: gp2
+        NetworkInterfaces:
+          - AssociatePublicIpAddress: true
+            DeleteOnTermination: true
+            DeviceIndex: 0
+            Groups:
+              - !Ref NextflowBatchSecurityGroup
+        UserData: !Base64 |
+          MIME-Version: 1.0
+          Content-Type: multipart/mixed; boundary="==BOUNDARY=="
+
+          --==BOUNDARY==
+          MIME-Version: 1.0
+          Content-Type: text/cloud-config; charset="us-ascii"
+
+          packages:
+            - ec2-instance-connect
+            - groff
+            - less
+            - unzip
+            - which
+          runcmd:
+            - curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
+            - unzip awscliv2.zip
+            - ./aws/install
+          --==BOUNDARY==--
+
+  NextflowCPUComputeEnvironment:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      ComputeEnvironmentName: NextflowOptimalCPU
+      State: ENABLED
+      Type: MANAGED
+      ComputeResources:
+        AllocationStrategy: BEST_FIT_PROGRESSIVE
+        DesiredvCpus: 0
+        InstanceRole: !Ref NextflowBatchInstanceProfile
+        InstanceTypes:
+          - optimal
+        LaunchTemplate:
+          LaunchTemplateId: !Ref NextflowLaunchTemplate
+          Version: $Latest
+        MinvCpus: 0
+        MaxvCpus: 256
+        Subnets: !Ref Subnets
+        Type: EC2
+        UpdateToLatestImageVersion: true
+  NextflowBatchCPUQueue:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref NextflowCPUComputeEnvironment
+          Order: 1
+      JobQueueName: NextflowCPU
+      Priority: 1
+      State: ENABLED
