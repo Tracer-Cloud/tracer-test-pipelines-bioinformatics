@@ -167,6 +167,27 @@ Resources:
         Subnets: !Ref Subnets
         Type: EC2
         UpdateToLatestImageVersion: true
+  NextflowGPUComputeEnvironment:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      State: ENABLED
+      Type: MANAGED
+      ComputeResources:
+        AllocationStrategy: BEST_FIT_PROGRESSIVE
+        DesiredvCpus: 0
+        Ec2Configuration:
+          - ImageType: ECS_AL2023
+        InstanceRole: !Ref NextflowBatchInstanceProfile
+        InstanceTypes:
+          - g4dn
+        LaunchTemplate:
+          LaunchTemplateId: !Ref NextflowLaunchTemplate
+          Version: $Latest
+        MinvCpus: 0
+        MaxvCpus: 256
+        Subnets: !Ref Subnets
+        Type: EC2
+        UpdateToLatestImageVersion: true
   NextflowBatchCPUQueue:
     Type: AWS::Batch::JobQueue
     Properties:
@@ -174,5 +195,14 @@ Resources:
         - ComputeEnvironment: !Ref NextflowCPUComputeEnvironment
           Order: 1
       JobQueueName: NextflowCPU
+      Priority: 1
+      State: ENABLED
+  NextflowBatchGPUQueue:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref NextflowGPUComputeEnvironment
+          Order: 1
+      JobQueueName: NextflowGPU
       Priority: 1
       State: ENABLED
