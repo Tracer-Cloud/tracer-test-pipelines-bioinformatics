@@ -146,6 +146,8 @@ Resources:
             - ./aws/install
             - patchelf --force-rpath --no-sort --set-rpath '$ORIGIN/../dist' /usr/local/aws-cli/v2/current/bin/aws
           --==BOUNDARY==--
+          # mount tracer here to the host: curl xxxx.tracer OR pull it with the AWS CLI to S3
+
   NextflowCPUComputeEnvironment:
     Type: AWS::Batch::ComputeEnvironment
     Properties:
