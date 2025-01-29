@@ -40,3 +40,6 @@ Temporary Items
 /output/
 /.nextflow/
 /.nextflow.log*
+/.spack-env/
+/spack/
+/spack-*.tar.gz
