@@ -126,8 +126,8 @@ Resources:
         # The --no-sort argument to patchelf is required because recent releases lead to
         # segmentation faults due to changing the order of program and section headers.
         # See: https://github.com/NixOS/patchelf/issues/446
-        # mount tracer here to the host: curl xxxx.tracer OR pull it with the AWS CLI to S3
-
+        #
+        # Download tracer in `runcmd` to the host, e.g., curl xxxx.tracer OR pull from S3
         UserData: !Base64 |
           MIME-Version: 1.0
           Content-Type: multipart/mixed; boundary="==BOUNDARY=="
