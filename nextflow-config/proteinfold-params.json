@@ -1,5 +1,4 @@
 {
     "outdir": "output/proteinfold-test",
-    "multiqc_config": "nextflow-config/custom_multiqc_config.yml",
-    "use_gpu": true
+    "multiqc_config": "nextflow-config/custom_multiqc_config.yml"
 }

@@ -85,7 +85,8 @@ test_proteinfold_aws_batch:
 	spack env activate -d .; \
 	nextflow -c nextflow-config/batch.config -c nextflow-config/proteinfold.config run pipelines/nf-core/proteinfold/main.nf \
 		-params-file nextflow-config/proteinfold-params.json \
-		-profile test
+		-profile test \
+		--use_gpu
 
 .PHONY: test_full_proteinfold_aws_batch
 test_full_proteinfold_aws_batch:
@@ -93,4 +94,5 @@ test_full_proteinfold_aws_batch:
 	spack env activate -d .; \
 	nextflow -c nextflow-config/batch.config -c nextflow-config/proteinfold.config run pipelines/nf-core/proteinfold/main.nf \
 		-params-file nextflow-config/proteinfold-params.json \
-		-profile test_full
+		-profile test_full \
+		--use_gpu
