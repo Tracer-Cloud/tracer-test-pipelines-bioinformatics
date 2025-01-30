@@ -176,7 +176,7 @@ Resources:
         AllocationStrategy: BEST_FIT_PROGRESSIVE
         DesiredvCpus: 0
         Ec2Configuration:
-          - ImageType: ECS_AL2023
+          - ImageType: ECS_AL2_NVIDIA
         InstanceRole: !Ref NextflowBatchInstanceProfile
         InstanceTypes:
           - g4dn
