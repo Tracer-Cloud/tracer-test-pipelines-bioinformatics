@@ -28,6 +28,17 @@ Resources:
         BlockPublicAcls: true
         BlockPublicPolicy: true
         RestrictPublicBuckets: true
+  NextflowOutputsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: tracer-nxf-outputs
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
   NextflowBatchInstanceIAMRole:
     Type: AWS::IAM::Role
     Properties:
@@ -110,8 +121,9 @@ Resources:
             Ebs:
               DeleteOnTermination: true
               Encrypted: false
+              Iops: 6000
               VolumeSize: 500
-              VolumeType: gp2
+              VolumeType: gp3
         NetworkInterfaces:
           # Public IP required for cloud-init package updates and S3 access. NAT Gateway
           # or VPC endpoints are an alternative but cost money. The security group handles
@@ -136,6 +148,7 @@ Resources:
           MIME-Version: 1.0
           Content-Type: text/cloud-config; charset="us-ascii"
 
+          #cloud-config
           packages:
             - ec2-instance-connect
             - groff
@@ -143,12 +156,17 @@ Resources:
             - patchelf
             - unzip
           runcmd:
+            - echo 'ECS_CONTAINER_START_TIMEOUT=30m' >> /etc/ecs/ecs.config
+            - echo 'ECS_CONTAINER_CREATE_TIMEOUT=30m' >> /etc/ecs/ecs.config
+            - echo 'ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=30m' >> /etc/ecs/ecs.config
+            - echo 'ECS_IMAGE_PULL_BEHAVIOR=once' >> /etc/ecs/ecs.config
+            - |
+              echo '{"max-concurrent-downloads": 1}' > /etc/docker/daemon.json
             - curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
             - unzip awscliv2.zip
             - ./aws/install
             - patchelf --force-rpath --no-sort --set-rpath '$ORIGIN/../dist' /usr/local/aws-cli/v2/current/bin/aws
           --==BOUNDARY==--
-
   NextflowCPUComputeEnvironment:
     Type: AWS::Batch::ComputeEnvironment
     Properties:
@@ -164,9 +182,9 @@ Resources:
           - optimal
         LaunchTemplate:
           LaunchTemplateId: !Ref NextflowLaunchTemplate
-          Version: $Latest
+          Version: !GetAtt NextflowLaunchTemplate.LatestVersionNumber
         MinvCpus: 0
-        MaxvCpus: 256
+        MaxvCpus: 1024
         Subnets: !Ref Subnets
         Type: EC2
         UpdateToLatestImageVersion: true
@@ -185,7 +203,7 @@ Resources:
           - g4dn
         LaunchTemplate:
           LaunchTemplateId: !Ref NextflowLaunchTemplate
-          Version: $Latest
+          Version: !GetAtt NextflowLaunchTemplate.LatestVersionNumber
         MinvCpus: 0
         MaxvCpus: 256
         Subnets: !Ref Subnets
