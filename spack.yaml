@@ -5,7 +5,9 @@
 spack:
   # add package specs to the `specs` list
   specs:
-    - nextflow@24.10.0
+  - nextflow@24.10.0
+  - python@3.12.5
+  - py-pip
   view: true
   concretizer:
     unify: true
