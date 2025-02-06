@@ -121,7 +121,6 @@ Resources:
             Ebs:
               DeleteOnTermination: true
               Encrypted: false
-              Iops: 6000
               VolumeSize: 500
               VolumeType: gp3
         NetworkInterfaces:
