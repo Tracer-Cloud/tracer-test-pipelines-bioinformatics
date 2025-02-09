@@ -53,6 +53,7 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
       Policies:
         - PolicyName: S3Access
           PolicyDocument:
@@ -123,6 +124,11 @@ Resources:
               Encrypted: false
               VolumeSize: 500
               VolumeType: gp3
+        MetadataOptions:
+          HttpTokens: required
+          # Allow instance tags to propagate to the local instance metadata service.
+          # This makes it possible to query the autoscaling group name from the metdata.
+          InstanceMetadataTags: enabled
         NetworkInterfaces:
           # Public IP required for cloud-init package updates and S3 access. NAT Gateway
           # or VPC endpoints are an alternative but cost money. The security group handles
@@ -148,12 +154,21 @@ Resources:
           Content-Type: text/cloud-config; charset="us-ascii"
 
           #cloud-config
+          yum_repos:
+            vector:
+              name: Vector
+              baseurl: https://yum.vector.dev/stable/vector-0/$basearch/
+              enabled: true
+              gpgcheck: true
+              gpgkey: https://keys.datadoghq.com/DATADOG_RPM_KEY_CURRENT.public
+              priority: 1
           packages:
             - ec2-instance-connect
             - groff
             - less
             - patchelf
             - unzip
+            - vector
           runcmd:
             - echo 'ECS_CONTAINER_START_TIMEOUT=30m' >> /etc/ecs/ecs.config
             - echo 'ECS_CONTAINER_CREATE_TIMEOUT=30m' >> /etc/ecs/ecs.config
@@ -165,6 +180,103 @@ Resources:
             - unzip awscliv2.zip
             - ./aws/install
             - patchelf --force-rpath --no-sort --set-rpath '$ORIGIN/../dist' /usr/local/aws-cli/v2/current/bin/aws
+            - sed -i 's/validate/validate --skip-healthchecks/' /usr/lib/systemd/system/vector.service
+            - systemctl enable vector
+          write_files:
+            - path: /etc/vector/vector.yaml
+              content: |
+                sources:
+                  ecs_init:
+                    type: file
+                    include:
+                      - /var/log/ecs/ecs-init.log
+                  ecs_agent:
+                    type: file
+                    include:
+                      - /var/log/ecs/ecs-agent.log
+                  cloud_init:
+                    type: file
+                    include:
+                      - /var/log/cloud-init.log
+                  journald:
+                    type: journald
+                  host_metrics:
+                    type: host_metrics
+                    scrape_interval_secs: 60
+                  ecs_metrics:
+                    type: aws_ecs_metrics
+                    scrape_interval_secs: 60
+                transforms:
+                  ecs_init_log_group:
+                    type: remap
+                    inputs:
+                      - ecs_init
+                    source: ."group-name" = "/ecs/init"
+                  ecs_agent_log_group:
+                    type: remap
+                    inputs:
+                      - ecs_agent
+                    source: ."group-name" = "/ecs/agent"
+                  cloud_init_log_group:
+                    type: remap
+                    inputs:
+                      - cloud_init
+                    source: ."group-name" = "/cloud-init"
+                  journald_interesting:
+                    type: filter
+                    inputs:
+                      - journald
+                    condition:
+                      type: vrl
+                      source: to_int(.PRIORITY) <= 4 ?? false
+                  journald_log_group:
+                    type: remap
+                    inputs:
+                      - journald_interesting
+                    source: ."group-name" = "/journald"
+                  add_log_metadata:
+                    type: aws_ec2_metadata
+                    inputs:
+                      - ecs_init_log_group
+                      - ecs_agent_log_group
+                      - cloud_init_log_group
+                      - journald_log_group
+                    fields:
+                      - instance-id
+                      - instance-type
+                      - ami-id
+                    tags:
+                      - 'aws:autoscaling:groupName'
+                    required: false
+                  add_metrics_metadata:
+                    type: aws_ec2_metadata
+                    inputs:
+                      - host_metrics
+                      - ecs_metrics
+                    fields:
+                      - instance-id
+                      - instance-type
+                      - ami-id
+                    tags:
+                      - 'aws:autoscaling:groupName'
+                    required: false
+                sinks:
+                  cloudwatch_logs:
+                    type: aws_cloudwatch_logs
+                    inputs:
+                      - add_log_metadata
+                    group_name: '{{ ."group-name" }}'
+                    stream_name: '{{ ."instance-id" }}'
+                    retention:
+                      days: 14
+                      enabled: true
+                    encoding:
+                      codec: json
+                  cloudwatch_metrics:
+                    type: aws_cloudwatch_metrics
+                    inputs:
+                      - add_metrics_metadata
+                    default_namespace: default
           --==BOUNDARY==--
   NextflowCPUComputeEnvironment:
     Type: AWS::Batch::ComputeEnvironment
