@@ -191,8 +191,8 @@ Resources:
             # Configure Vector log collector; add --skip-healthchecks due to bug in aws_cloudwatch_logs sink;
             # add CAP_DAC_READ_SEARCH capability to read log files owned by root.
             - sed -i -e 's/validate/validate --skip-healthchecks/' -e '/^AmbientCapabilities=/ s/$/ CAP_DAC_READ_SEARCH/' /usr/lib/systemd/system/vector.service
-            - systemctl enable vector
             - systemctl daemon-reload
+            - systemctl start vector
           write_files:
             - path: /etc/vector/vector.yaml
               content: |
