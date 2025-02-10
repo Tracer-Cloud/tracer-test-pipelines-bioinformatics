@@ -188,9 +188,11 @@ Resources:
             - unzip awscliv2.zip
             - ./aws/install
             - patchelf --force-rpath --no-sort --set-rpath '$ORIGIN/../dist' /usr/local/aws-cli/v2/current/bin/aws
-            # Configure Vector log collector; add --skip-healthchecks due to bug in aws_cloudwatch_logs sink
-            - sed -i 's/validate/validate --skip-healthchecks/' /usr/lib/systemd/system/vector.service
+            # Configure Vector log collector; add --skip-healthchecks due to bug in aws_cloudwatch_logs sink;
+            # add CAP_DAC_READ_SEARCH capability to read log files owned by root.
+            - sed -i -e 's/validate/validate --skip-healthchecks/' -e '/^AmbientCapabilities=/ s/$/ CAP_DAC_READ_SEARCH/' /usr/lib/systemd/system/vector.service
             - systemctl enable vector
+            - systemctl daemon-reload
           write_files:
             - path: /etc/vector/vector.yaml
               content: |
