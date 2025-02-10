@@ -65,6 +65,10 @@ Resources:
                 Resource: !Sub ${NextflowWorkBucket.Arn}/*
               - Effect: Allow
                 Action:
+                  - s3:PutObject
+                Resource: !Sub ${NextflowOutputsBucket.Arn}/metrics/*
+              - Effect: Allow
+                Action:
                   - s3:getObject
                   - s3:getObjectVersions
                   - s3:headObject
@@ -170,17 +174,21 @@ Resources:
             - unzip
             - vector
           runcmd:
+            # Configure ecs agent
             - echo ECS_MANIFEST_PULL_TIMEOUT=60m >> /etc/ecs/ecs.config
             - echo ECS_CONTAINER_START_TIMEOUT=60m >> /etc/ecs/ecs.config
             - echo ECS_CONTAINER_CREATE_TIMEOUT=60m >> /etc/ecs/ecs.config
             - echo ECS_IMAGE_PULL_BEHAVIOR=once >> /etc/ecs/ecs.config
             - echo ECS_RESERVED_MEMORY=256 >> /etc/ecs/ecs.config
+            # Configure Docker daemon
             - |
               echo '{"max-concurrent-downloads": 1}' > /etc/docker/daemon.json
+            # Install AWS CLI
             - curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
             - unzip awscliv2.zip
             - ./aws/install
             - patchelf --force-rpath --no-sort --set-rpath '$ORIGIN/../dist' /usr/local/aws-cli/v2/current/bin/aws
+            # Configure Vector log collector; add --skip-healthchecks due to bug in aws_cloudwatch_logs sink
             - sed -i 's/validate/validate --skip-healthchecks/' /usr/lib/systemd/system/vector.service
             - systemctl enable vector
           write_files:
