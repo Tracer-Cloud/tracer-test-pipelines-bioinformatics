@@ -178,6 +178,7 @@ Resources:
             - echo ECS_MANIFEST_PULL_TIMEOUT=60m >> /etc/ecs/ecs.config
             - echo ECS_CONTAINER_START_TIMEOUT=60m >> /etc/ecs/ecs.config
             - echo ECS_CONTAINER_CREATE_TIMEOUT=60m >> /etc/ecs/ecs.config
+            - echo ECS_DISABLE_IMAGE_CLEANUP=true >> /etc/ecs/ecs.config
             - echo ECS_IMAGE_PULL_BEHAVIOR=once >> /etc/ecs/ecs.config
             - echo ECS_RESERVED_MEMORY=256 >> /etc/ecs/ecs.config
             # Configure Docker daemon
@@ -213,9 +214,6 @@ Resources:
                     type: journald
                   host_metrics:
                     type: host_metrics
-                    scrape_interval_secs: 60
-                  ecs_metrics:
-                    type: aws_ecs_metrics
                     scrape_interval_secs: 60
                 transforms:
                   ecs_init_log_group:
@@ -263,7 +261,6 @@ Resources:
                     type: aws_ec2_metadata
                     inputs:
                       - host_metrics
-                      - ecs_metrics
                     fields:
                       - instance-id
                       - instance-type
