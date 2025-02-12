@@ -27,7 +27,7 @@ setup_environment: download_spack
 test_sarek:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow run pipelines/nf-core/sarek/main.nf \
+	nextflow -c nextflow-config/local.config run pipelines/nf-core/sarek/main.nf \
 		-params-file nextflow-config/sarek-params.json \
 		-profile docker,arm,test
 
@@ -51,7 +51,7 @@ test_full_sarek_aws_batch:
 test_rnaseq:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow run -c nextflow-config/rnaseq.config pipelines/nf-core/rnaseq/main.nf \
+	nextflow -c nextflow-config/local.config -c nextflow-config/rnaseq.config run pipelines/nf-core/rnaseq/main.nf \
 		-params-file nextflow-config/rnaseq-params.json \
 		-profile docker,test
 
@@ -75,7 +75,7 @@ test_full_rnaseq_aws_batch:
 test_proteinfold:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow run pipelines/nf-core/proteinfold/main.nf \
+	nextflow -c nextflow-config/local.config run pipelines/nf-core/proteinfold/main.nf \
 		-params-file nextflow-config/proteinfold-params.json \
 		-profile docker,arm,test
 
