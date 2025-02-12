@@ -57,9 +57,9 @@ https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-using-eice.html.
 
 ### Running Pipelines
 
-The pipelines can be invoked using the included Makefile, which has targets for
-both local and AWS Batch test execution. The following test targets are
-available:
+The pipelines can be invoked using the included [Makefile](Makefile), which has
+targets for both local and AWS Batch test execution. The following test targets
+are available:
 
   - `test_sarek`
   - `test_sarek_aws_batch`
@@ -75,6 +75,17 @@ The AWS Batch test targets will launch the jobs via AWS Batch and store the
 results locally. Users launching jobs on AWS Batch will require AWS credentials
 with access to the Tracer AWS account, as well as IAM permissions for creating
 and managing AWS Batch resources.
+
+#### Local Execution
+
+An additional Nextflow configuration,
+[nextflow-config/local.config](nextflow-config/local.config), can be used to
+limit the number of CPU cores or memory during local execution. It also sets the
+platform to `aarch64` when running pipelines with Docker images on an ARM
+processor, such as Apple silicon.
+
+The local configuration is included automatically for local test targets in the
+Makefile.
 
 ## Dependencies
 
