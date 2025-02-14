@@ -55,10 +55,10 @@ memory requirements. The Data Export in the included cloudformation
 configuration enables split cost allocation for this purpose.
 
 The template also creates a Glue Crawler for the Cost Usage Report and a named
-query that uses the right size test tags to analyze the cost by pipeline and
-right size test scenario. The Crawler is configured to run on demand, so after
-running the tests it is necessary to manually run it before executing the named
-query.
+query, "*Cost of pipeline jobs*", in the "*CUR*" WorkGroup that uses the right size
+test tags to analyze the cost by pipeline and right size test scenario. The
+Crawler is configured to run on demand, so after running the tests it is
+necessary to manually run it before executing the named query.
 
 > **N.B.**: Data Exports are refreshed several times a day, but not on demand,
 > so it is often necessary to wait up to 12 hours after a run completes before
