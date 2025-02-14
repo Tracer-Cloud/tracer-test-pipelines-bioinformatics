@@ -1,0 +1,188 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates a cost usage report and queries to estimate AWS Batch job costs
+Parameters:
+  CURDataExportName:
+    Type: String
+    Default: NextflowBatchCUR
+  ReportPrefix:
+    Type: String
+    Default: reports
+  GlueDatabaseName:
+    Type: String
+    Default: cost_analysis
+  CURWorkgroupQueryPrefix:
+    Type: String
+    Default: queries
+Resources:
+  TracerCURBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: tracer-cur
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  TracerCURBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Retain
+    Properties:
+      Bucket: !Ref TracerCURBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: EnableAWSDataExportsToWriteToS3AndCheckPolicy
+            Effect: Allow
+            Principal:
+              Service:
+                - billingreports.amazonaws.com
+                - bcm-data-exports.amazonaws.com
+            Action:
+              - s3:PutObject
+              - s3:GetBucketPolicy
+            Resource:
+              - !GetAtt TracerCURBucket.Arn
+              - !Sub ${TracerCURBucket.Arn}/*
+            Condition:
+              StringLike:
+                aws:SourceArn:
+                  - !Sub arn:aws:cur:us-east-1:${AWS::AccountId}:definition/*
+                  - !Sub arn:aws:bcm-data-exports:us-east-1:${AWS::AccountId}:export/*
+                aws:SourceAccount: !Ref AWS::AccountId
+  CURDataExport:
+    Type: AWS::BCMDataExports::Export
+    DeletionPolicy: Retain
+    Properties:
+      Export:
+        Name: !Ref CURDataExportName
+        DataQuery:
+          TableConfigurations:
+            COST_AND_USAGE_REPORT:
+              INCLUDE_MANUAL_DISCOUNT_COMPATIBILITY: "FALSE"
+              INCLUDE_RESOURCES: "TRUE"
+              INCLUDE_SPLIT_COST_ALLOCATION_DATA: "TRUE"
+              TIME_GRANULARITY: HOURLY
+          QueryStatement: SELECT bill_bill_type, bill_billing_entity, bill_billing_period_end_date, bill_billing_period_start_date, bill_invoice_id, bill_invoicing_entity, bill_payer_account_id, bill_payer_account_name, cost_category, discount, discount_bundled_discount, discount_total_discount, identity_line_item_id, identity_time_interval, line_item_availability_zone, line_item_blended_cost, line_item_blended_rate, line_item_currency_code, line_item_legal_entity, line_item_line_item_description, line_item_line_item_type, line_item_net_unblended_cost, line_item_net_unblended_rate, line_item_normalization_factor, line_item_normalized_usage_amount, line_item_operation, line_item_product_code, line_item_resource_id, line_item_tax_type, line_item_unblended_cost, line_item_unblended_rate, line_item_usage_account_id, line_item_usage_account_name, line_item_usage_amount, line_item_usage_end_date, line_item_usage_start_date, line_item_usage_type, pricing_currency, pricing_lease_contract_length, pricing_offering_class, pricing_public_on_demand_cost, pricing_public_on_demand_rate, pricing_purchase_option, pricing_rate_code, pricing_rate_id, pricing_term, pricing_unit, product, product_comment, product_fee_code, product_fee_description, product_from_location, product_from_location_type, product_from_region_code, product_instance_family, product_instance_type, product_instancesku, product_location, product_location_type, product_operation, product_pricing_unit, product_product_family, product_region_code, product_servicecode, product_sku, product_to_location, product_to_location_type, product_to_region_code, product_usagetype, reservation_amortized_upfront_cost_for_usage, reservation_amortized_upfront_fee_for_billing_period, reservation_availability_zone, reservation_effective_cost, reservation_end_time, reservation_modification_status, reservation_net_amortized_upfront_cost_for_usage, reservation_net_amortized_upfront_fee_for_billing_period, reservation_net_effective_cost, reservation_net_recurring_fee_for_usage, reservation_net_unused_amortized_upfront_fee_for_billing_period, reservation_net_unused_recurring_fee, reservation_net_upfront_value, reservation_normalized_units_per_reservation, reservation_number_of_reservations, reservation_recurring_fee_for_usage, reservation_reservation_a_r_n, reservation_start_time, reservation_subscription_id, reservation_total_reserved_normalized_units, reservation_total_reserved_units, reservation_units_per_reservation, reservation_unused_amortized_upfront_fee_for_billing_period, reservation_unused_normalized_unit_quantity, reservation_unused_quantity, reservation_unused_recurring_fee, reservation_upfront_value, resource_tags, savings_plan_amortized_upfront_commitment_for_billing_period, savings_plan_end_time, savings_plan_instance_type_family, savings_plan_net_amortized_upfront_commitment_for_billing_period, savings_plan_net_recurring_commitment_for_billing_period, savings_plan_net_savings_plan_effective_cost, savings_plan_offering_type, savings_plan_payment_option, savings_plan_purchase_term, savings_plan_recurring_commitment_for_billing_period, savings_plan_region, savings_plan_savings_plan_a_r_n, savings_plan_savings_plan_effective_cost, savings_plan_savings_plan_rate, savings_plan_start_time, savings_plan_total_commitment_to_date, savings_plan_used_commitment, split_line_item_actual_usage, split_line_item_net_split_cost, split_line_item_net_unused_cost, split_line_item_parent_resource_id, split_line_item_public_on_demand_split_cost, split_line_item_public_on_demand_unused_cost, split_line_item_reserved_usage, split_line_item_split_cost, split_line_item_split_usage, split_line_item_split_usage_ratio, split_line_item_unused_cost FROM COST_AND_USAGE_REPORT
+        DestinationConfigurations:
+          S3Destination:
+            S3Bucket: !Ref TracerCURBucket
+            S3OutputConfigurations:
+              Compression: PARQUET
+              Format: PARQUET
+              OutputType: CUSTOM
+              Overwrite: OVERWRITE_REPORT
+            S3Prefix: !Ref ReportPrefix
+            S3Region: !Ref AWS::Region
+        RefreshCadence:
+          Frequency: SYNCHRONOUS
+  CURGlueCrawlerRole:
+    Type: AWS::IAM::Role
+    DeletionPolicy: Retain
+    Properties:
+      RoleName: AWSGlueServiceRole-CUR
+      Path: /service-role/
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: glue.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+  CURGlueCrawlerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    DeletionPolicy: Retain
+    Properties:
+      Description: This policy will be used for Glue Crawler and Job execution. Please do NOT delete!
+      Path: /service-role/
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource:
+              - !Sub ${TracerCURBucket.Arn}/${ReportPrefix}/${CURDataExportName}/*
+      Roles:
+        - !Ref CURGlueCrawlerRole
+  CURGlueDatabase:
+    Type: AWS::Glue::Database
+    DeletionPolicy: Retain
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref GlueDatabaseName
+      DatabaseInput: {}
+  CURGlueCrawler:
+    Type: AWS::Glue::Crawler
+    DeletionPolicy: Retain
+    Properties:
+      Name: cost_usage_report_crawler
+      DatabaseName: !Ref CURGlueDatabase
+      Configuration: |
+        {"Version":1.0,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}},"Grouping":{"TableGroupingPolicy":"CombineCompatibleSchemas"},"CreatePartitionIndex":true}
+      RecrawlPolicy:
+        RecrawlBehavior: CRAWL_EVERYTHING
+      Role: !GetAtt CURGlueCrawlerRole.Arn
+      SchemaChangePolicy:
+        DeleteBehavior: DELETE_FROM_DATABASE
+        UpdateBehavior: UPDATE_IN_DATABASE
+      Targets:
+        S3Targets:
+          - Path: !Sub s3://${TracerCURBucket}/${ReportPrefix}/${CURDataExportName}/
+  CURAthenaWorkGroup:
+    Type: AWS::Athena::WorkGroup
+    DeletionPolicy: Retain
+    Properties:
+      Description: Workgroup for cost usage reports
+      Name: CUR
+      WorkGroupConfiguration:
+        ResultConfiguration:
+          OutputLocation: !Sub s3://${TracerCURBucket}/${CURWorkgroupQueryPrefix}/
+  CURAthenaQuery:
+    Type: AWS::Athena::NamedQuery
+    DeletionPolicy: Retain
+    Properties:
+      Database: !Ref CURGlueDatabase
+      Name: Cost of pipeline jobs
+      QueryString: |
+        SELECT
+          count(*)/2 AS num_jobs,
+          resource_tags['user_pipeline_name'] AS pipeline_name,
+          resource_tags['user_right_size_test'] AS right_size_test,
+          resource_tags['user_launch_time'] AS launch_time,
+          resource_tags['aws_batch_job_queue'] AS job_queue,
+          sum(
+              case when pricing_unit = 'vCPU-Hours'
+              then split_line_item_public_on_demand_split_cost
+              else 0 end) AS cpu_usage_public_cost,
+          sum(
+              case when pricing_unit = 'GB-Hours'
+              then split_line_item_public_on_demand_split_cost
+              else 0 end) as mem_usage_public_cost,
+          sum(split_line_item_public_on_demand_split_cost) AS total_usage_public_cost,
+          sum(split_line_item_public_on_demand_unused_cost) AS total_unused_capacity_public_cost
+        FROM data
+        WHERE
+            line_item_operation = 'ECSTask-EC2' AND
+            split_line_item_parent_resource_id IS NOT NULL AND
+            contains(map_keys(resource_tags), 'user_pipeline_name') AND
+            contains(map_keys(resource_tags), 'user_right_size_test') AND
+            contains(map_keys(resource_tags), 'user_launch_time') AND
+            contains(map_keys(resource_tags), 'aws_batch_job_queue') AND
+            resource_tags['aws_batch_job_queue'] IN ('NextflowCPU', 'NextflowGPU')
+        GROUP BY
+            resource_tags['user_pipeline_name'],
+            resource_tags['user_right_size_test'],
+            resource_tags['user_launch_time'],
+            resource_tags['aws_batch_job_queue']
+        ORDER BY
+            parse_datetime(resource_tags['user_launch_time'], 'yyyy-MM-dd_HH-mm-ss') DESC,
+            resource_tags['user_right_size_test'],
+            resource_tags['user_pipeline_name']
+      WorkGroup: !Ref CURAthenaWorkGroup
