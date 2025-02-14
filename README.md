@@ -16,10 +16,12 @@ downloaded.
 
 ## CloudFormation
 
-The [cloudformation template](./cloudformation/nextflow-batch.yml) sets up AWS
-Batch compute environments and job queues for Nextflow pipelines as well as an
-S3 Bucket, `s3://tracer-nxf-work`, to serve as a work directory for Nextflow to
-store intermediate files. It also creates roles and instance profile for the
+### AWS Batch Environment
+
+The [Batch cloudformation template](./cloudformation/nextflow-batch.yml) sets up
+AWS Batch compute environments and job queues for Nextflow pipelines as well as
+an S3 Bucket, `s3://tracer-nxf-work`, to serve as a work directory for Nextflow
+to store intermediate files. It also creates roles and instance profile for the
 Batch jobs to read and write to the Nextflow work bucket and pull from other S3
 buckets, such as those containing public test data.
 
@@ -33,6 +35,34 @@ without needing an SSH keypair. You can use this endpoint to connect to the
 instances via the AWS console or the CLI. Non-admin user will need several IAM
 permissions to do so. See this link for more details:
 https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-using-eice.html.
+
+### Cost Usage Report for Right Size Tests
+
+The [Cost Usage Report cloudformation
+template](./cloudformation/cost-usage-report.yml) creates a Cost Usage Report
+via AWS Data Export in a new S3 bucket, s3://tracer-cur, which saves the
+`tracer-cloud` account AWS resource usage as a parquet table that can be queried
+with Athena. This can be used to query the actual cost of using most AWS
+resources in high granularity.
+
+It's difficult to get cost estimates for AWS Batch/ECS jobs because they can
+share the same instances with various packing behavior. AWS has an option for
+Data Export, however, that makes this much easier: [split cost
+allocation](https://docs.aws.amazon.com/cur/latest/userguide/split-cost-allocation-data.html),
+which assigns the cost to ECS jobs as a fraction of an EC2 instance taking into
+account all of the jobs running at the same time with their particular CPU and
+memory requirements. The Data Export in the included cloudformation
+configuration enables split cost allocation for this purpose.
+
+The template also creates a Glue Crawler for the Cost Usage Report and a named
+query that uses the right size test tags to analyze the cost by pipeline and
+right size test scenario. The Crawler is configured to run on demand, so after
+running the tests it is necessary to manually run it before executing the named
+query.
+
+> **N.B.**: Data Exports are refreshed several times a day, but not on demand,
+> so it is often necessary to wait up to 12 hours after a run completes before
+> the ECS tasks appear in the Data Export bucket.
 
 ## Pipelines
 
