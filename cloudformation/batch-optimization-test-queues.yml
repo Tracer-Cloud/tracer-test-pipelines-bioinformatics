@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates multiple AWS Batch compute environments and queues with different
+  combinations of potential cost-saving attributes.
+Parameters:
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: List of Subnets to boot into
+  NextflowBatchInstanceProfile:
+    Type: String
+    Description: EC2 instance profile to use with compute environments
+  NextflowLaunchTemplate:
+    Type: String
+    Description: Launch template to use for EC2 instances
+Resources:
+  SpotFleetIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - spotfleet.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
+  NextflowCPUComputeEnvironmentBestFit:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      State: ENABLED
+      Type: MANAGED
+      ComputeResources:
+        AllocationStrategy: BEST_FIT
+        DesiredvCpus: 0
+        Ec2Configuration:
+          - ImageType: ECS_AL2023
+        InstanceRole: !Ref NextflowBatchInstanceProfile
+        InstanceTypes:
+          - optimal
+        LaunchTemplate:
+          LaunchTemplateId: !Ref NextflowLaunchTemplate
+          Version: $Latest
+        MinvCpus: 0
+        MaxvCpus: 1024
+        Subnets: !Ref Subnets
+        Type: EC2
+        UpdateToLatestImageVersion: true
+  NextflowCPUComputeEnvironmentBestFitProgressive:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      State: ENABLED
+      Type: MANAGED
+      ComputeResources:
+        AllocationStrategy: BEST_FIT_PROGRESSIVE
+        DesiredvCpus: 0
+        Ec2Configuration:
+          - ImageType: ECS_AL2023
+        InstanceRole: !Ref NextflowBatchInstanceProfile
+        InstanceTypes:
+          - optimal
+        LaunchTemplate:
+          LaunchTemplateId: !Ref NextflowLaunchTemplate
+          Version: $Latest
+        MinvCpus: 0
+        MaxvCpus: 1024
+        Subnets: !Ref Subnets
+        Type: EC2
+        UpdateToLatestImageVersion: true
+  NextflowCPUComputeEnvironmentBestFitSpot:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      State: ENABLED
+      Type: MANAGED
+      ComputeResources:
+        AllocationStrategy: BEST_FIT
+        DesiredvCpus: 0
+        Ec2Configuration:
+          - ImageType: ECS_AL2023
+        InstanceRole: !Ref NextflowBatchInstanceProfile
+        InstanceTypes:
+          - optimal
+        LaunchTemplate:
+          LaunchTemplateId: !Ref NextflowLaunchTemplate
+          Version: $Latest
+        MinvCpus: 0
+        MaxvCpus: 1024
+        SpotIamFleetRole: !Ref SpotFleetIAMRole
+        Subnets: !Ref Subnets
+        Type: SPOT
+        UpdateToLatestImageVersion: true
+  NextflowCPUComputeEnvironmentBestFitProgressiveSpot:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      State: ENABLED
+      Type: MANAGED
+      ComputeResources:
+        AllocationStrategy: BEST_FIT_PROGRESSIVE
+        DesiredvCpus: 0
+        Ec2Configuration:
+          - ImageType: ECS_AL2023
+        InstanceRole: !Ref NextflowBatchInstanceProfile
+        InstanceTypes:
+          - optimal
+        LaunchTemplate:
+          LaunchTemplateId: !Ref NextflowLaunchTemplate
+          Version: $Latest
+        MinvCpus: 0
+        MaxvCpus: 1024
+        SpotIamFleetRole: !Ref SpotFleetIAMRole
+        Subnets: !Ref Subnets
+        Type: SPOT
+        UpdateToLatestImageVersion: true
+  NextflowBatchCPUQueueBestFit:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref NextflowCPUComputeEnvironmentBestFit
+          Order: 1
+      JobQueueName: NextflowCPUBestFit
+      Priority: 1
+      State: ENABLED
+  NextflowBatchCPUQueueBestFitProgressive:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref NextflowCPUComputeEnvironmentBestFitProgressive
+          Order: 1
+      JobQueueName: NextflowCPUBestFitProgressive
+      Priority: 1
+      State: ENABLED
+  NextflowBatchCPUQueueBestFitSpot:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref NextflowCPUComputeEnvironmentBestFitSpot
+          Order: 1
+      JobQueueName: NextflowCPUBestFitSpot
+      Priority: 1
+      State: ENABLED
+  NextflowBatchCPUQueueBestFitProgressiveSpot:
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - ComputeEnvironment: !Ref NextflowCPUComputeEnvironmentBestFitProgressiveSpot
+          Order: 1
+      JobQueueName: NextflowCPUBestFitProgressiveSpot
+      Priority: 1
+      State: ENABLED
