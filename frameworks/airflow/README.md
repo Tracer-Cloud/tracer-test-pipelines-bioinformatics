@@ -1,6 +1,17 @@
 # Airflow Testing For Tracer 
 - We assume tracer runs in the background
 
+
+## How to find the results of a specific pipeline run
+1. First run that particular pipeline
+```bash
+docker compose run --rm airflow-cli dags trigger pipeline_rnaseq --run-id=my_custom_run_001
+```
+2. Get the results of that particular pipeline run
+```bash
+docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnaseq my_custom_run_001
+```
+
 ## Instructions To Run Airflow With Docker
 - You need to use docker
 
@@ -43,17 +54,14 @@ docker compose run --rm airflow-cli dags state pipeline_rnaseq
 docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq
 ```
 
-## How to find the results of a specific pipeline run
-1. First run that particular pipeline
+## Clean up old pipeline runs
 ```bash
-docker compose run --rm airflow-cli dags trigger pipeline_rnaseq
-```
-2. Get the results of that particular pipeline run
-```bash
-docker compose run --rm airflow-cli airflow tasks states-for-dag-run pipeline_rnaseq manual__2025-04-15T22:05:42+00:00
+docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq
 ```
 
+
 ## Clean up remove logs
+
 ```bash
 rm -rf logs/* 
 ```
@@ -64,3 +72,7 @@ http://127.0.0.1:8080/login/
 Password and username:
 - Username: airflow
 - Password: airflow
+
+
+# Requirements and installations:
+brew install jq
