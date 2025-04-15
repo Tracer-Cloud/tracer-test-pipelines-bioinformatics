@@ -51,9 +51,9 @@ test_full_sarek_aws_batch:
 test_rnaseq:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/local.config -c nextflow-config/rnaseq.config run pipelines/nf-core/rnaseq/main.nf \
+	nextflow -c nextflow-config/local.config  run nf-core/rnaseq \
 		-params-file nextflow-config/rnaseq-params.json \
-		-profile docker,test
+		-profile test
 
 .PHONY: test_rnaseq_aws_batch
 test_rnaseq_aws_batch:
