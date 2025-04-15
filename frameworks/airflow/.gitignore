@@ -1,0 +1,28 @@
+# Airflow logs
+logs/
+*.log
+
+# Airflow SQLite database
+airflow.db
+
+# Airflow PID files
+*.pid
+
+# Airflow configuration files
+unittests.cfg
+webserver_config.py
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+.env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
