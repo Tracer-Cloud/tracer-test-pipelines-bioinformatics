@@ -11,3 +11,17 @@ spack:
   view: true
   concretizer:
     unify: true
+  compilers:
+  - compiler:
+      spec: apple-clang@=16.0.0
+      paths:
+        cc: /usr/bin/clang
+        cxx: /usr/bin/clang++
+        f77: null
+        fc: null
+      flags: {}
+      operating_system: sonoma
+      target: aarch64
+      modules: []
+      environment: {}
+      extra_rpaths: []
