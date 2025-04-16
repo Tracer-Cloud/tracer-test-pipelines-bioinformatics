@@ -11,7 +11,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='pipeline_rnaseq_2',
+    dag_id='pipeline_rnaseq',
     default_args=default_args,
     description='One-time RNA-seq analysis pipeline',
     schedule_interval=None,  # Manual trigger only
