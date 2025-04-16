@@ -1,41 +1,60 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+import logging
 
+# Simple default arguments
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 0,  # Optional: Skip retries for one-time runs
+    'retries': 1,
 }
 
+# Basic logging function
+def log_message(message):
+    logging.info(f"RNA-seq Pipeline: {message}")
+
+# Create DAG
 with DAG(
     dag_id='pipeline_rnaseq',
     default_args=default_args,
-    description='One-time RNA-seq analysis pipeline',
+    description='RNA-seq analysis tools version check',
     schedule_interval=None,  # Manual trigger only
-    start_date=datetime(2025, 1, 1),  # Fixed past date to prevent auto-triggering
-    catchup=False,  # Do not backfill missed runs
-    tags=['rnaseq', 'manual', 'adhoc'],
+    start_date=datetime(2025, 1, 1),
+    catchup=False,
+    tags=['rnaseq'],
 ) as dag:
 
-    script1 = BashOperator(
+    # Start message
+    start_log = PythonOperator(
+        task_id='start_log',
+        python_callable=log_message,
+        op_kwargs={'message': 'Pipeline started'},
+    )
+
+    # Tool version checks
+    fastqc_version = BashOperator(
         task_id='fastqc_version',
-        bash_command='fastqc --version',
-        do_xcom_push=False,
+        bash_command='export PATH="$PATH:/opt/conda/bin" && fastqc --version',
     )
-
-    script2 = BashOperator(
-        task_id='STAR_version',
-        bash_command='STAR --version',
-        do_xcom_push=False,
+    
+    star_version = BashOperator(
+        task_id='star_version',
+        bash_command='export PATH="$PATH:/opt/conda/bin" && STAR --version',
     )
-
-    script3 = BashOperator(
+    
+    hisat2_version = BashOperator(
         task_id='hisat2_version',
-        bash_command='hisat2 --version',
-        do_xcom_push=False,
+        bash_command='export PATH="$PATH:/opt/conda/bin" && hisat2 --version',
     )
-
-    script1 >> script2 >> script3
+    
+    # End message
+    end_log = PythonOperator(
+        task_id='end_log',
+        python_callable=log_message,
+        op_kwargs={'message': 'Pipeline completed'},
+    )
+    
+    # Set task dependencies - run tools in parallel
+    start_log >> [fastqc_version, star_version, hisat2_version] >> end_log
