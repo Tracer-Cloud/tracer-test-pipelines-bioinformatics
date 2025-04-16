@@ -1,0 +1,42 @@
+# Ignore CWL tool cache and temporary execution files
+cwl-cache/
+*.cwltool*
+*.tmp/
+tmp/
+.cache/
+outputs/
+*.log
+*.err
+*.out
+*.stderr
+*.stdout
+
+# Ignore input/output data
+inputs/
+*.fastq.gz
+*.sam
+*.bam
+*.gtf
+*.fa
+*.fasta
+*.fai
+*.ht2
+*.tar.gz
+*.zip
+
+# Python-related (if you have helper scripts)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# VS Code settings
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Jupyter notebooks checkpoints (if any)
+.ipynb_checkpoints/
