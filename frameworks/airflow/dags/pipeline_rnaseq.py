@@ -20,7 +20,7 @@ with DAG(
     dag_id='pipeline_rnaseq',
     default_args=default_args,
     description='RNA-seq analysis tools version check',
-    schedule_interval=None,  # Manual trigger only
+    schedule=None,  # Manual trigger only
     start_date=datetime(2025, 1, 1),
     catchup=False,
     tags=['rnaseq'],
