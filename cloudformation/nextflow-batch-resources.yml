@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Creates an AWS Batch environment for Nextflow pipelines, including
-  IAM resources, S3, and Batch.
+  IAM resources, S3, and Batch. Updated description
 Parameters:
   VPC:
     Type: AWS::EC2::VPC::Id
