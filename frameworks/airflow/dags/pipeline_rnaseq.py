@@ -35,20 +35,20 @@ with DAG(
 
     # Tool version checks
     fastqc_version = BashOperator(
-        task_id='fastqc_version',
-        bash_command='export PATH="$PATH:/opt/conda/bin" && fastqc --version',
+    task_id='fastqc_version',
+    bash_command='export PATH="$PATH:/opt/conda/envs/rnaseq/bin" && fastqc --version',
     )
-    
+
     star_version = BashOperator(
         task_id='star_version',
-        bash_command='export PATH="$PATH:/opt/conda/bin" && STAR --version',
+        bash_command='export PATH="$PATH:/opt/conda/envs/rnaseq/bin" && STAR --version',
     )
-    
+
     hisat2_version = BashOperator(
         task_id='hisat2_version',
-        bash_command='export PATH="$PATH:/opt/conda/bin" && hisat2 --version',
+        bash_command='export PATH="$PATH:/opt/conda/envs/rnaseq/bin" && hisat2 --version',
     )
-    
+        
     # End message
     end_log = PythonOperator(
         task_id='end_log',
