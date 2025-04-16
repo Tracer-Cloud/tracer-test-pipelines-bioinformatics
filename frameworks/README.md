@@ -4,11 +4,11 @@ This document provides an overview of Tracer workloads, tracks technical develop
 ## Workloads Validation Status
 | Workload                | Status           | Example Configuration |
 |-------------------------|------------------|------------------------|
-| AWS Batch              | In Development   | [Link](./airflow/README.md) |
+| AWS Batch               | Validated        | [Link](./airflow/README.md) |
 | Bash (RNA-seq, ChIP-seq)| Validated        | [Link](./bash/README.md)    |
 | Nextflow on EC2         | Validated        | [Link](./nextflow)          |
 | Airflow                 | Validated        | [Link](./airflow/README.md) |
-| Slurm                   | Not Tested       | [Link](./slurm/)            |
+| Slurm                   | Not Tested       | [Link](./slurm/README.md)   |
 | R Bioconductor          | Not Tested       | [Link](#)                   |
 | AlphaFold               | Not Tested       | [Link](#)                   |
 | OpenFold                | Not Tested       | [Link](#)                   |
