@@ -24,7 +24,7 @@ sudo docker compose down
 sudo docker compose up -d
 ```
 
-## Run the pipeline 
+## Run Tracer
 ```bash
 tracer init --pipeline-name airflow_test --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
 ```
