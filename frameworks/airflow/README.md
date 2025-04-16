@@ -33,16 +33,16 @@ tracer init --pipeline-name airflow_test --environment sandbox_test --user-opera
 
 1. Unpause the pipeline that you want to run
 ```bash
-sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq_2
+sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq
 ```
 
 2. Run that particular pipeline
 ```bash
-sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq_2 --run-id=my_custom_run_001
+sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq --run-id=my_custom_run_001
 ```
 3. Get the results of that particular pipeline run
 ```bash
-sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnaseq_2 my_custom_run_001
+sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnaseq my_custom_run_001
 ```
 
 ## Running Airflow Tasks
