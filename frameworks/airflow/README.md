@@ -7,14 +7,12 @@
 - You need to use docker
 
 ```bash
-cd airflow &&
 sudo docker-compose up airflow-init &&
 sudo docker compose up -d    
 ```
 
 View docker process 
 ```bash
-cd airflow-docker &&
  sudo docker compose ps
 ```
 
