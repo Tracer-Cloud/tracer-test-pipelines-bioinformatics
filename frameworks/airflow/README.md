@@ -7,8 +7,13 @@
 - You need to use docker
 
 ```bash
-sudo docker compose up -d    &&
+# The airflow init is only the first time
 sudo docker-compose up airflow-init 
+```
+
+```bash
+# It is very important to run all the different airflow services that we need to run Airflow
+sudo docker compose up -d 
 ```
 
 ```bash
@@ -32,10 +37,6 @@ sudo docker compose down
 sudo docker compose up -d
 ```
 
-## Run Tracer
-```bash
-tracer init --pipeline-name airflow_test --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
-```
 
 ## How to find the results of a specific pipeline run
 
@@ -55,8 +56,8 @@ sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnase
 
 ## Running Airflow Tasks
 ```bash
-# Reapply changes if you need to trobleshoot
-sudo docker compose restart airflow-scheduler
+# Reapply changes if you need to troubleshoot change the code
+sudo docker compose restart
 ```
 
 ```bash
@@ -78,6 +79,16 @@ sudo docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq
 sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq
 ```
 
+## Troubleshooting in docker
+### Troubleshooting the script inside the environment
+```bash
+sudo docker exec -it airflow-airflow-worker-1 python /opt/airflow/dags/pipeline_rnaseq.py
+```
+- sudo docker compose exec -it airflow-worker bash
+
+
+
+
 
 ## Clean up remove logs
 
@@ -93,5 +104,8 @@ Password and username:
 - Password: airflow
 
 
-# Requirements and installations:
-brew install jq
+## Run Tracer
+```bash
+tracer init --pipeline-name airflow_test --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
+```
+
