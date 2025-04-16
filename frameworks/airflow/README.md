@@ -7,13 +7,23 @@
 - You need to use docker
 
 ```bash
-sudo docker-compose up airflow-init &&
-sudo docker compose up -d    
+sudo docker compose up -d    &&
+sudo docker-compose up airflow-init 
 ```
 
-View docker process 
 ```bash
+# View running docker process 
  sudo docker compose ps
+```
+
+```bash
+# Ensure the database is running
+sudo docker compose run --rm airflow-cli airflow db init
+```
+
+```bash
+# Ensure the airflow scheduler is up
+sudo docker compose up -d airflow-scheduler
 ```
 
 ```bash
@@ -51,21 +61,21 @@ sudo docker compose restart airflow-scheduler
 
 ```bash
 # Unpause the DAG
-sudo docker compose run --rm airflow-cli dags airflow dags unpause pipeline_rnaseq_2
+sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq
 
 # Trigger the DAG (will reply false)
-sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq_2
+sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq
 
 # Check the status
-sudo docker compose run --rm airflow-cli dags state pipeline_rnaseq_2
+sudo docker compose run --rm airflow-cli dags state pipeline_rnaseq
 
 # List runs
-sudo docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq_2
+sudo docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq
 ```
 
 ## Clean up old pipeline runs
 ```bash
-sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq_2
+sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq
 ```
 
 
