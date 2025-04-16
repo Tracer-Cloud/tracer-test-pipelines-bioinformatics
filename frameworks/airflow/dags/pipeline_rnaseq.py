@@ -11,7 +11,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='pipeline_rnaseq',
+    dag_id='pipeline_rnaseq_2',
     default_args=default_args,
     description='One-time RNA-seq analysis pipeline',
     schedule_interval=None,  # Manual trigger only
@@ -21,20 +21,20 @@ with DAG(
 ) as dag:
 
     script1 = BashOperator(
-        task_id='run_script1',
-        bash_command='bash "/opt/airflow/scripts/1.quality_control.sh"',
+        task_id='fastqc_version',
+        bash_command='fastqc --version',
         do_xcom_push=False,
     )
 
     script2 = BashOperator(
-        task_id='run_script2',
-        bash_command='bash "/opt/airflow/scripts/2.alignment.sh"',
+        task_id='STAR_version',
+        bash_command='STAR --version',
         do_xcom_push=False,
     )
 
     script3 = BashOperator(
-        task_id='run_script3',
-        bash_command='bash "/opt/airflow/scripts/3.quantification.sh"',
+        task_id='hisat2_version',
+        bash_command='hisat2 --version',
         do_xcom_push=False,
     )
 

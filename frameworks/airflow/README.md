@@ -33,16 +33,16 @@ tracer init --pipeline-name airflow_test --environment sandbox_test --user-opera
 
 1. Unpause the pipeline that you want to run
 ```bash
-sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq
+sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq_2
 ```
 
 2. Run that particular pipeline
 ```bash
-sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq --run-id=my_custom_run_001
+sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq_2 --run-id=my_custom_run_001
 ```
 3. Get the results of that particular pipeline run
 ```bash
-sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnaseq my_custom_run_001
+sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnaseq_2 my_custom_run_001
 ```
 
 ## Running Airflow Tasks
@@ -53,21 +53,21 @@ sudo docker compose restart airflow-scheduler
 
 ```bash
 # Unpause the DAG
-sudo docker compose run --rm airflow-cli dags airflow dags unpause pipeline_rnaseq
+sudo docker compose run --rm airflow-cli dags airflow dags unpause pipeline_rnaseq_2
 
 # Trigger the DAG (will reply false)
-sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq
+sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq_2
 
 # Check the status
-sudo docker compose run --rm airflow-cli dags state pipeline_rnaseq
+sudo docker compose run --rm airflow-cli dags state pipeline_rnaseq_2
 
 # List runs
-sudo docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq
+sudo docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq_2
 ```
 
 ## Clean up old pipeline runs
 ```bash
-sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq
+sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq_2
 ```
 
 
