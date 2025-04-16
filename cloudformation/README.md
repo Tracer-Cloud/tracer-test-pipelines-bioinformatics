@@ -6,7 +6,7 @@ aws cloudformation validate-template --template-body file://nextflow-batch-resou
 
 ```bash
 aws cloudformation deploy \
-    --template-file nextflow-batch-resources.yml \
+    --template-file ./nextflow-batch-resources.yml \
     --stack-name nextflow-batch-resources \
     --capabilities CAPABILITY_NAMED_IAM
 ```
