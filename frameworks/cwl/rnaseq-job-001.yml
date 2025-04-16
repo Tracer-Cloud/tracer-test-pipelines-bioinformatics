@@ -1,0 +1,9 @@
+reads:
+  class: File
+  path: test.fastq
+annotation:
+  class: File
+  path: test.gtf
+hisat2_index: /home/ubuntu/cwl/test-index/genome
+feature_type: gene  # Try 'gene' first, but you can change this to any type you think might be in your GTF
+output_file: counts.txt
