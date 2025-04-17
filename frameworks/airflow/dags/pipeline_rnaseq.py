@@ -1,60 +1,72 @@
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.operators.docker_operator import DockerOperator
 from airflow.operators.python import PythonOperator
 import logging
 
-# Simple default arguments
+# Default arguments for the DAG
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'retries': 0
 }
 
-# Basic logging function
+# Logging function
 def log_message(message):
     logging.info(f"RNA-seq Pipeline: {message}")
 
-# Create DAG
+# Define the DAG
 with DAG(
-    dag_id='pipeline_rnaseq',
+    dag_id='pipeline_rnaseq_dockerized',
     default_args=default_args,
-    description='RNA-seq analysis tools version check',
+    description='RNA-seq analysis using separate Docker containers per tool',
     schedule=None,  # Manual trigger only
     start_date=datetime(2025, 1, 1),
     catchup=False,
     tags=['rnaseq'],
 ) as dag:
 
-    # Start message
     start_log = PythonOperator(
         task_id='start_log',
         python_callable=log_message,
         op_kwargs={'message': 'Pipeline started'},
     )
 
-    # Tool version checks with full paths
-    fastqc_version = BashOperator(
+    fastqc_version = DockerOperator(
         task_id='fastqc_version',
-        bash_command='/opt/conda/bin/fastqc --version',
+        image='quay.io/biocontainers/fastqc:0.11.7--pl5.22.0_2',
+        api_version='auto',
+        auto_remove=True,
+        command='fastqc --version',
+        docker_url='unix://var/run/docker.sock',
+        network_mode='bridge'
     )
 
-    star_version = BashOperator(
+    star_version = DockerOperator(
         task_id='star_version',
-        bash_command='/opt/conda/bin/STAR --version',
+        image='quay.io/biocontainers/star:2.7.3a--h5ca1c30_1',
+        api_version='auto',
+        auto_remove=True,
+        command='STAR --version',
+        docker_url='unix://var/run/docker.sock',
+        network_mode='bridge'
     )
 
-    hisat2_version = BashOperator(
+    hisat2_version = DockerOperator(
         task_id='hisat2_version',
-        bash_command='/opt/conda/bin/hisat2 --version',
+        image='quay.io/biocontainers/hisat2:2.2.1--h503566f_8',
+        api_version='auto',
+        auto_remove=True,
+        command='hisat2 --version',
+        docker_url='unix://var/run/docker.sock',
+        network_mode='bridge'
     )
-        
-    # End message
+
     end_log = PythonOperator(
         task_id='end_log',
         python_callable=log_message,
         op_kwargs={'message': 'Pipeline completed'},
     )
-    
-    # Set task dependencies - run tools in parallel
+
+    # Define task order
     start_log >> [fastqc_version, star_version, hisat2_version] >> end_log
