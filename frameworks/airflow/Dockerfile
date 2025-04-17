@@ -53,7 +53,32 @@ RUN conda install -y -c base \
     stringtie
 
 # 8. Fix permissions
-RUN chgrp -R 0 /opt/conda && chmod -R g+rx /opt/conda/bin
+# Much faster and sufficient:
+# RUN find /opt/conda -type d -exec chmod 755 {} \; && \
+#     find /opt/conda -type f -exec chmod 644 {} \; && \
+#     chgrp -R 0 /opt/conda
+RUN chmod a+rx \
+    /opt/conda/bin/fastqc \
+    /opt/conda/bin/hisat2 \
+    /opt/conda/bin/samtools \
+    /opt/conda/bin/bedtools \
+    /opt/conda/bin/multiqc \
+    /opt/conda/bin/STAR \
+    /opt/conda/bin/rsem-* \
+    /opt/conda/bin/stringtie && \
+    chgrp 0 \
+    /opt/conda/bin/fastqc \
+    /opt/conda/bin/hisat2 \
+    /opt/conda/bin/samtools \
+    /opt/conda/bin/bedtools \
+    /opt/conda/bin/multiqc \
+    /opt/conda/bin/STAR \
+    /opt/conda/bin/rsem-* \
+    /opt/conda/bin/stringtie
+
+# # 9. Switch to airflow user
+ENV PATH="/opt/conda/bin:$PATH"
+RUN echo 'export PATH="/opt/conda/bin:$PATH"' > /etc/profile.d/conda.sh
 
 # # 9. Switch to airflow user
 USER airflow
