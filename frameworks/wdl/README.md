@@ -1,18 +1,21 @@
 # Tracer WDL exmaple
-- Istall Java: 
-
+1. Intall Java: 
+```bash
+sudo apt-get update && sudo apt-get install default-jre -y  
 ```
-bashsudo apt-get update && sudo apt-get install default-jre -y  
-```
 
-- Install Cromwell: 
-
+2. Install Cromwell: 
 ```bash
 wget https://github.com/broadinstitute/cromwell/releases/download/84/cromwell-84.jar -O cromwell.jar
 ```
 ```bash
 # Verify installation
 java -jar cromwell.jar --version
+```
+
+3. Run the workload
+```bash
+java -jar cromwell.jar run fastq_subsample.wdl --inputs ./fastq_subsample.inputs.json
 ```
 
 

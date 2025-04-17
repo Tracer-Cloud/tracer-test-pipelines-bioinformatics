@@ -1,1 +1,27 @@
 frameworks/wdl/*.jar
+
+
+*.jar
+
+wdl/*.jar
+
+# Ignore Cromwell job outputs
+cromwell-executions/
+cromwell-workflow-logs/
+cromwell-executions.zip
+*.log
+
+# Ignore JAR files
+*.jar
+
+
+# Ignore Docker files and intermediate output
+*.bam
+*.sam
+*.tmp
+*.out
+*.err
+
+# Ignore Nextflow/WDL/CWL cache if present
+.work/
+.cache/
