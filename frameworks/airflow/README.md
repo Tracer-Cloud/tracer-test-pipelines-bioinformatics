@@ -127,3 +127,14 @@ Credential Helper: Advanced setup.
 Commit & Push .devcontainer.json.
 Create GitHub Codespace: It will pull your ECR image.
 Verify environment in Codespace.
+
+
+# New Approach docker images per pipeline step
+### Hisat2
+sudo docker pull quay.io/biocontainers/hisat2:2.2.1--h503566f_8
+
+### Star
+sudo docker pull quay.io/biocontainers/star:2.7.3a--h5ca1c30_1
+
+### fastqc
+sudo docker pull quay.io/biocontainers/fastqc:0.11.7--pl5.22.0_2
