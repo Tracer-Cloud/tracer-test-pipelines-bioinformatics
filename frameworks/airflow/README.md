@@ -2,6 +2,7 @@
 - We assume tracer runs in the background
 - When testing on EC2 AWS you need to be logged in as an ubuntu user and execute all commands with sudo 
 
+# Instruction with celery we do not need a worker?
 
 ## Instructions To Run Airflow With Docker
 - You need to use docker
@@ -34,6 +35,10 @@ sudo docker ps --format "table {{.Names}}\t{{.Image}}"
 sudo docker compose restart
 ```
 
+```bash
+# Check logs of the docker container worker
+sudo docker logs -f airflow-airflow-worker-1
+```
 
 
 ## How to find the results of a specific pipeline run
@@ -122,3 +127,14 @@ Credential Helper: Advanced setup.
 Commit & Push .devcontainer.json.
 Create GitHub Codespace: It will pull your ECR image.
 Verify environment in Codespace.
+
+
+# New Approach docker images per pipeline step
+### Hisat2
+sudo docker pull quay.io/biocontainers/hisat2:2.2.1--h503566f_8
+
+### Star
+sudo docker pull quay.io/biocontainers/star:2.7.3a--h5ca1c30_1
+
+### fastqc
+sudo docker pull quay.io/biocontainers/fastqc:0.11.7--pl5.22.0_2

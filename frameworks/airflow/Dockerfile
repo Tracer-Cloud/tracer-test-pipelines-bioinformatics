@@ -5,38 +5,38 @@ USER root
 # 1. Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        wget bzip2 curl ca-certificates && \
+        wget \
+        curl \
+        ca-certificates \
+        bzip2 \
+        libffi-dev \
+        libffi7 \
+        build-essential \
+        software-properties-common && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # 2. Install Miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
     bash /tmp/miniconda.sh -b -u -p /opt/conda && \
     rm /tmp/miniconda.sh
 
-# Set Conda in PATH for all users and shells
+# 3. Set environment variables
 ENV CONDA_DIR=/opt/conda
-ENV PATH=$CONDA_DIR/bin:$PATH
+ENV PATH="$CONDA_DIR/bin:$PATH"
+ENV LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
+
 RUN echo 'export PATH="/opt/conda/bin:$PATH"' > /etc/profile.d/conda.sh
 
+# 4. Install mamba and configure conda channels
+RUN conda install -y -c conda-forge mamba && \
+    mamba config --add channels bioconda && \
+    mamba config --add channels conda-forge && \
+    mamba config --set channel_priority strict && \
+    mamba install -y python=3.9
 
-# 3. Set Conda in PATH
-ENV PATH="/opt/conda/bin:$PATH"
-
-# 3. Set Conda in PATH
-ENV PATH="/opt/conda/bin:$PATH"
-
-# 4. Install mamba FIRST
-RUN conda install -y -c conda-forge mamba
-
-# 5. Use conda to configure, then mamba to install
-RUN conda config --add channels bioconda && \
-    conda config --add channels conda-forge && \
-    conda config --set channel_priority flexible && \
-    conda install -y python=3.9
-
-# 6. Install all bioinformatics tools with fast resolution
-RUN conda install -y -c base \
+# 5. Install bioinformatics tools
+RUN mamba install -y \
     fastqc \
     hisat2 \
     samtools \
@@ -46,48 +46,14 @@ RUN conda install -y -c base \
     rsem \
     stringtie
 
-# 7. Install heavier tools — using bash with .bashrc sourced (optional)
-RUN conda install -y -c base \
-    star \
-    rsem \
-    stringtie
+# 6. Install updated C++ standard lib to fix GLIBCXX issues
+RUN mamba install -y libstdcxx-ng && \
+    chmod a+rx /opt/conda/lib/libstdc++.so.* && \
+    chgrp 0 /opt/conda/lib/libstdc++.so.*
 
-# 8. Fix permissions
-# Much faster and sufficient:
-# RUN find /opt/conda -type d -exec chmod 755 {} \; && \
-#     find /opt/conda -type f -exec chmod 644 {} \; && \
-#     chgrp -R 0 /opt/conda
-RUN chmod a+rx \
-    /opt/conda/bin/fastqc \
-    /opt/conda/bin/hisat2 \
-    /opt/conda/bin/samtools \
-    /opt/conda/bin/bedtools \
-    /opt/conda/bin/multiqc \
-    /opt/conda/bin/STAR \
-    /opt/conda/bin/rsem-* \
-    /opt/conda/bin/stringtie && \
-    chgrp 0 \
-    /opt/conda/bin/fastqc \
-    /opt/conda/bin/hisat2 \
-    /opt/conda/bin/samtools \
-    /opt/conda/bin/bedtools \
-    /opt/conda/bin/multiqc \
-    /opt/conda/bin/STAR \
-    /opt/conda/bin/rsem-* \
-    /opt/conda/bin/stringtie
+# 7. Ensure bioinformatics tools are executable and shared
+RUN chmod a+rx /opt/conda/bin/* && \
+    chgrp 0 /opt/conda/bin/*
 
-# # 9. Switch to airflow user
-ENV PATH="/opt/conda/bin:$PATH"
-RUN echo 'export PATH="/opt/conda/bin:$PATH"' > /etc/profile.d/conda.sh
-
-# # 9. Switch to airflow user
+# 8. Switch back to airflow user
 USER airflow
-
-# 10. Validate tools
-RUN which fastqc && fastqc --version
-RUN which STAR && STAR --version
-RUN which hisat2 && hisat2 --version
-RUN which samtools && samtools --version
-RUN which rsem-calculate-expression && rsem-calculate-expression --version
-RUN which bedtools && bedtools --version
-RUN which multiqc && multiqc --version
