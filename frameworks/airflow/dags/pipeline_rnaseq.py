@@ -8,7 +8,7 @@ import logging
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'retries': 1,
+    'retries': 0
 }
 
 # Basic logging function
@@ -33,23 +33,20 @@ with DAG(
         op_kwargs={'message': 'Pipeline started'},
     )
 
-    # Tool version checks
+    # Tool version checks with full paths
     fastqc_version = BashOperator(
         task_id='fastqc_version',
-        bash_command='fastqc --version',
-        dag=dag,
+        bash_command='/opt/conda/bin/fastqc --version',
     )
 
     star_version = BashOperator(
         task_id='star_version',
-        bash_command='STAR --version',
-        dag=dag,
+        bash_command='/opt/conda/bin/STAR --version',
     )
 
     hisat2_version = BashOperator(
         task_id='hisat2_version',
-        bash_command='hisat2 --version',
-        dag=dag,
+        bash_command='/opt/conda/bin/hisat2 --version',
     )
         
     # End message
