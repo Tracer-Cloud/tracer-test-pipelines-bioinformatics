@@ -5,10 +5,14 @@
 
 ## Instructions To Run Airflow With Docker
 - You need to use docker
+```bash
+# ALWAYS DO THIS
+ sudo docker-compose down --volumes --remove-orphans
+ ```
 
 ```bash
-# The airflow init is only the first time
-sudo docker-compose up airflow-init 
+# First build docker
+sudo docker build -t tracer-bio-airflow:latest .
 ```
 
 ```bash
@@ -20,22 +24,16 @@ sudo docker compose up -d
 # View running docker process 
  sudo docker compose ps
 ```
-
 ```bash
-# Ensure the database is running
-sudo docker compose run --rm airflow-cli airflow db init
+# Confirm it is using our own image tracer-bio-airflow:latest
+sudo docker ps --format "table {{.Names}}\t{{.Image}}"
 ```
 
 ```bash
-# Ensure the airflow scheduler is up
-sudo docker compose up -d airflow-scheduler
+# Reapply changes if you need to troubleshoot change the code
+sudo docker compose restart
 ```
 
-```bash
-# Restart up and down to apply changes
-sudo docker compose down
-sudo docker compose up -d
-```
 
 
 ## How to find the results of a specific pipeline run
@@ -55,11 +53,6 @@ sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnase
 ```
 
 ## Running Airflow Tasks
-```bash
-# Reapply changes if you need to troubleshoot change the code
-sudo docker compose restart
-```
-
 ```bash
 # Unpause the DAG
 sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq
@@ -82,9 +75,13 @@ sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq
 ## Troubleshooting in docker
 ### Troubleshooting the script inside the environment
 ```bash
+# getting access to the bash environment inside airflow -- type "exit" to exit
+sudo docker exec -u 0 -it airflow-airflow-worker-1 /bin/bash
+```
+```bash
 sudo docker exec -it airflow-airflow-worker-1 python /opt/airflow/dags/pipeline_rnaseq.py
 ```
-- sudo docker compose exec -it airflow-worker bash
+
 
 
 
@@ -109,3 +106,19 @@ Password and username:
 tracer init --pipeline-name airflow_test --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
 ```
 
+# Concise Todo List To Get Airflow In GitHub Codespaces
+
+Build Docker Image: docker build -t <local-image> .
+Create ECR Repo (if needed): AWS Console/CLI.
+Authenticate Docker: aws ecr get-login-password ... | docker login ...
+Tag for ECR: docker tag <local-image> <ecr-uri>:<tag>
+Push to ECR: docker push <ecr-uri>:<tag>
+Create .devcontainer/devcontainer.json: In your GitHub repo.
+Set image in devcontainer.json: "image": "<ecr-uri>:<tag>"
+Handle ECR Auth in Codespaces (if private):
+Public: Skip.
+Secrets: Configure AWS_* secrets.
+Credential Helper: Advanced setup.
+Commit & Push .devcontainer.json.
+Create GitHub Codespace: It will pull your ECR image.
+Verify environment in Codespace.
