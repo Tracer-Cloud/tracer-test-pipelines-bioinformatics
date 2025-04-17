@@ -82,7 +82,8 @@ x-airflow-common:
 
   # This user directive is inherited by all services using *airflow-common
   # unless explicitly overridden in the service definition.
-  user: "${AIRFLOW_UID:-50000}:0" # Runs as airflow user (default 50000), root group (0)
+  # user: "${AIRFLOW_UID:-50000}:0" # Runs as airflow user (default 50000), root group (0)
+  user: "50000:0"  # Run only init as non-root
 
   depends_on:
     &airflow-common-depends-on
