@@ -17,7 +17,7 @@ def log_message(message):
 
 # Define the DAG
 with DAG(
-    dag_id='pipeline_rnaseq_dockerized',
+    dag_id='pipeline_rnaseq',
     default_args=default_args,
     description='RNA-seq analysis using separate Docker containers per tool',
     schedule=None,  # Manual trigger only
