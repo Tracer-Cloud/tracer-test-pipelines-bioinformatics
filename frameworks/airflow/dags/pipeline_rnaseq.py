@@ -35,18 +35,21 @@ with DAG(
 
     # Tool version checks
     fastqc_version = BashOperator(
-    task_id='fastqc_version',
-    bash_command='export PATH="$PATH:/opt/conda/envs/rnaseq/bin" && fastqc --version',
+        task_id='fastqc_version',
+        bash_command='fastqc --version',
+        dag=dag,
     )
 
     star_version = BashOperator(
         task_id='star_version',
-        bash_command='export PATH="$PATH:/opt/conda/envs/rnaseq/bin" && STAR --version',
+        bash_command='STAR --version',
+        dag=dag,
     )
 
     hisat2_version = BashOperator(
         task_id='hisat2_version',
-        bash_command='export PATH="$PATH:/opt/conda/envs/rnaseq/bin" && hisat2 --version',
+        bash_command='hisat2 --version',
+        dag=dag,
     )
         
     # End message
