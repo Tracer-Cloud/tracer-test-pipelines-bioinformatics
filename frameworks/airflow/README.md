@@ -12,11 +12,6 @@
  ```
 
 ```bash
-# First build docker
-sudo docker build -t tracer-bio-airflow:latest .
-```
-
-```bash
 # It is very important to run all the different airflow services that we need to run Airflow
 sudo docker compose up -d 
 ```
@@ -107,8 +102,18 @@ Password and username:
 
 
 ## Run Tracer
+1. Export aws credentials
 ```bash
-tracer init --pipeline-name airflow_test --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
+#!/bin/bash
+export AWS_ACCESS_KEY_ID=XXXXXXX
+export AWS_SECRET_ACCESS_KEY=XXXXXXXX
+export AWS_LOG_LEVEL="debug"
+
+echo "AWS environment variables exported."
+```
+2. Run tracer
+```bash
+tracer init --pipeline-name airflow_vin --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
 ```
 
 # Concise Todo List To Get Airflow In GitHub Codespaces
