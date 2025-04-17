@@ -2,6 +2,7 @@
 - We assume tracer runs in the background
 - When testing on EC2 AWS you need to be logged in as an ubuntu user and execute all commands with sudo 
 
+# Instruction with celery we do not need a worker?
 
 ## Instructions To Run Airflow With Docker
 - You need to use docker
@@ -34,6 +35,10 @@ sudo docker ps --format "table {{.Names}}\t{{.Image}}"
 sudo docker compose restart
 ```
 
+```bash
+# Check logs of the docker container worker
+sudo docker logs -f airflow-airflow-worker-1
+```
 
 
 ## How to find the results of a specific pipeline run
