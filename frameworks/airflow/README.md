@@ -49,7 +49,7 @@ curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sud
 2. Filter events for the current Airflow pipeline
 ```bash
 # Alternative: #sudo sysdig "proc.name=fastqc or proc.name=hisat2 or proc.name=STAR"
-sudo sysdig -p"%evt.time %proc.name %user.name %evt.type %evt.args" "evt.type=execve and (proc.name=fastqc or proc.name=STAR or proc.name=hisat2)"
+sudo sysdig "evt.type=execve and (proc.name=fastqc or proc.name=hisat2 or proc.name=STAR)"
 ```
 
 
