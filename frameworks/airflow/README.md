@@ -1,145 +1,149 @@
-# Airflow Testing For Tracer 
-- We assume tracer runs in the background
-- When testing on EC2 AWS you need to be logged in as an ubuntu user and execute all commands with sudo 
+# Airflow Testing Documentation for Tracer
 
-# Instruction with celery we do not need a worker?
+This documentation provides step-by-step instructions for running and testing Airflow workflows with Tracer in different environments.
 
-## Instructions To Run Airflow With Docker
-- You need to use docker
-```bash
-# ALWAYS DO THIS
- sudo docker-compose down --volumes --remove-orphans
- ```
+## Table of Contents
+- [Setting Up and Running Airflow](#setting-up-and-running-airflow)
+- [Running Tracer](#running-tracer)
+- [Docker Container Management](#docker-container-management)
+- [Troubleshooting and Debugging](#troubleshooting-and-debugging)
+- [Airflow Web Interface](#airflow-web-interface)
+- [GitHub Codespaces Integration](#github-codespaces-integration)
+- [Bioinformatics Docker Images](#bioinformatics-docker-images)
 
-```bash
-# It is very important to run all the different airflow services that we need to run Airflow
-sudo docker compose up -d 
-```
+## Setting Up and Running Airflow
 
-```bash
-# View running docker process 
- sudo docker compose ps
-```
-```bash
-# Confirm it is using our own image tracer-bio-airflow:latest
-sudo docker ps --format "table {{.Names}}\t{{.Image}}"
-```
+### Starting Airflow Services
+1. Start all required Airflow services using docker compose:
+   ```bash
+   sudo docker compose up -d
+   ```
 
-```bash
-# Reapply changes if you need to troubleshoot change the code
-sudo docker compose restart
-```
+### Managing Pipelines
+1. Unpause the RNA-seq pipeline located in `/dags/rnaseq_pipeline.py`:
+   ```bash
+   sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq
+   ```
 
-```bash
-# Check logs of the docker container worker
-sudo docker logs -f airflow-airflow-worker-1
-```
+2. Trigger the pipeline with a custom run ID:
+   ```bash
+   sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq --run-id=my_custom_run_001
+   ```
 
+3. Check the status of a specific pipeline run:
+   ```bash
+   sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnaseq my_custom_run_001
+   ```
 
-## How to find the results of a specific pipeline run
+4. List all runs for a specific DAG:
+   ```bash
+   sudo docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq
+   ```
 
-1. Unpause the pipeline that you want to run
-```bash
-sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq
-```
+5. Check the current state of a DAG:
+   ```bash
+   sudo docker compose run --rm airflow-cli dags state pipeline_rnaseq
+   ```
 
-2. Run that particular pipeline
-```bash
-sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq --run-id=my_custom_run_001
-```
-3. Get the results of that particular pipeline run
-```bash
-sudo docker compose run --rm airflow-cli tasks states-for-dag-run pipeline_rnaseq my_custom_run_001
-```
+6. Delete a DAG (including its history and metadata):
+   ```bash
+   sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq
+   ```
 
-## Running Airflow Tasks
-```bash
-# Unpause the DAG
-sudo docker compose run --rm airflow-cli dags unpause pipeline_rnaseq
+## Running Tracer
 
-# Trigger the DAG (will reply false)
-sudo docker compose run --rm airflow-cli dags trigger pipeline_rnaseq
+### Set Up AWS Credentials
+1. Export required AWS credentials to your environment:
+   ```bash
+   #!/bin/bash
+   export AWS_ACCESS_KEY_ID=XXXXXXX
+   export AWS_SECRET_ACCESS_KEY=XXXXXXXX
+   export AWS_LOG_LEVEL="debug"
 
-# Check the status
-sudo docker compose run --rm airflow-cli dags state pipeline_rnaseq
+   echo "AWS environment variables exported."
+   ```
 
-# List runs
-sudo docker compose run --rm airflow-cli dags list-runs --dag-id pipeline_rnaseq
-```
+### Initialize Tracer
+1. Run the tracer initialization command:
+   ```bash
+   tracer init --pipeline-name airflow_vin --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
+   ```
 
-## Clean up old pipeline runs
-```bash
-sudo docker compose run --rm airflow-cli airflow dags delete pipeline_rnaseq
-```
+## Docker Container Management
 
-## Troubleshooting in docker
-### Troubleshooting the script inside the environment
-```bash
-# getting access to the bash environment inside airflow -- type "exit" to exit
-sudo docker exec -u 0 -it airflow-airflow-worker-1 /bin/bash
-```
-```bash
-sudo docker exec -it airflow-airflow-worker-1 python /opt/airflow/dags/pipeline_rnaseq.py
-```
+### Container Status and Management
+1. View running Docker processes:
+   ```bash
+   sudo docker compose ps
+   ```
 
+2. Verify container images in use:
+   ```bash
+   sudo docker ps --format "table {{.Names}}\t{{.Image}}"
+   ```
 
+3. Restart containers after code changes:
+   ```bash
+   sudo docker compose restart
+   ```
 
+4. View logs from a specific container:
+   ```bash
+   sudo docker logs -f airflow-airflow-worker-1
+   ```
 
+### Clean Up
+1. Stop all containers and remove volumes:
+   ```bash
+   sudo docker compose down --volumes --remove-orphans
+   ```
 
+2. Remove logs:
+   ```bash
+   rm -rf logs/*
+   ```
 
-## Clean up remove logs
+## Troubleshooting and Debugging
 
-```bash
-rm -rf logs/* 
-```
+### Accessing Container Environments
+1. Access the bash environment inside the Airflow worker container:
+   ```bash
+   sudo docker exec -u 0 -it airflow-airflow-worker-1 /bin/bash
+   ```
+   *Note: Type "exit" to exit the container shell*
 
-## Webserver is exposed at:
-http://127.0.0.1:8080/login/
+2. Execute a Python script inside the container:
+   ```bash
+   sudo docker exec -it airflow-airflow-worker-1 python /opt/airflow/dags/pipeline_rnaseq.py
+   ```
 
-Password and username:
-- Username: airflow
-- Password: airflow
+## Airflow Web Interface
 
+The Airflow web UI is accessible at:
+- URL: http://127.0.0.1:8080/login/
+- Username: `airflow`
+- Password: `airflow`
 
-## Run Tracer
-1. Export aws credentials
-```bash
-#!/bin/bash
-export AWS_ACCESS_KEY_ID=XXXXXXX
-export AWS_SECRET_ACCESS_KEY=XXXXXXXX
-export AWS_LOG_LEVEL="debug"
+## GitHub Codespaces Integration
 
-echo "AWS environment variables exported."
-```
-2. Run tracer
-```bash
-tracer init --pipeline-name airflow_vin --environment sandbox_test --user-operator vincent --pipeline-type rnaseq
-```
+## Bioinformatics Docker Images
 
-# Concise Todo List To Get Airflow In GitHub Codespaces
+### Required Tool Images
 
-Build Docker Image: docker build -t <local-image> .
-Create ECR Repo (if needed): AWS Console/CLI.
-Authenticate Docker: aws ecr get-login-password ... | docker login ...
-Tag for ECR: docker tag <local-image> <ecr-uri>:<tag>
-Push to ECR: docker push <ecr-uri>:<tag>
-Create .devcontainer/devcontainer.json: In your GitHub repo.
-Set image in devcontainer.json: "image": "<ecr-uri>:<tag>"
-Handle ECR Auth in Codespaces (if private):
-Public: Skip.
-Secrets: Configure AWS_* secrets.
-Credential Helper: Advanced setup.
-Commit & Push .devcontainer.json.
-Create GitHub Codespace: It will pull your ECR image.
-Verify environment in Codespace.
+1. **HISAT2** - RNA sequence alignment tool:
+   ```bash
+   sudo docker pull quay.io/biocontainers/hisat2:2.2.1--h503566f_8
+   ```
 
+2. **STAR** - Spliced Transcripts Alignment to a Reference:
+   ```bash
+   sudo docker pull quay.io/biocontainers/star:2.7.3a--h5ca1c30_1
+   ```
 
-# New Approach docker images per pipeline step
-### Hisat2
-sudo docker pull quay.io/biocontainers/hisat2:2.2.1--h503566f_8
+3. **FastQC** - Quality control tool for high throughput sequence data:
+   ```bash
+   sudo docker pull quay.io/biocontainers/fastqc:0.11.7--pl5.22.0_2
+   ```
 
-### Star
-sudo docker pull quay.io/biocontainers/star:2.7.3a--h5ca1c30_1
-
-### fastqc
-sudo docker pull quay.io/biocontainers/fastqc:0.11.7--pl5.22.0_2
+### Note on Celery Worker Configuration
+When using Celery executor with Airflow, the worker configuration is managed via docker-compose. Refer to the docker-compose file for specifics on worker settings.
