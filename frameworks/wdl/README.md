@@ -26,8 +26,17 @@ sudo systemctl start docker && sudo usermod -aG docker ubuntu && newgrp docker &
 sudo java -jar cromwell.jar run fastq_subsample.wdl --inputs ./fastq_subsample.inputs.json
 ```
 
+# Tracer installation (To Be Improved)
+- Check Airflow instructions for a general installation version 
 
-fastq_subsample.wdl
+
+
+1. Run the tracer initialization command:
+```bash
+   tracer init --pipeline-name wdl_vin --environment sandbox_test --user-operator vincent --pipeline-type rnaseq_wdl
+```
+
+
 
 # Other notes
 
