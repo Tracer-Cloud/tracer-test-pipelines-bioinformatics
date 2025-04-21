@@ -1,8 +1,6 @@
-frameworks/wdl/*.jar
-
-
+# Ignore all JAR files (globally and within specific folders)
 *.jar
-
+frameworks/wdl/*.jar
 wdl/*.jar
 
 # Ignore Cromwell job outputs
@@ -11,17 +9,13 @@ cromwell-workflow-logs/
 cromwell-executions.zip
 *.log
 
-# Ignore JAR files
-*.jar
-
-
-# Ignore Docker files and intermediate output
+# Ignore Docker intermediate and bioinformatics outputs
 *.bam
 *.sam
 *.tmp
 *.out
 *.err
 
-# Ignore Nextflow/WDL/CWL cache if present
+# Ignore workflow engine caches (Nextflow, WDL, CWL)
 .work/
 .cache/

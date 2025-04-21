@@ -6,20 +6,28 @@ sudo apt-get update && sudo apt-get install default-jre -y
 
 2. Install Cromwell: 
 ```bash
+# Install 
 wget https://github.com/broadinstitute/cromwell/releases/download/84/cromwell-84.jar -O cromwell.jar
-```
-```bash
 # Verify installation
 java -jar cromwell.jar --version
 ```
-
-3. Run the workload
+3. Run Docker 
+You need to have the Docker daemon running before you run your Cromwell workflow. 
 ```bash
-java -jar cromwell.jar run fastq_subsample.wdl --inputs ./fastq_subsample.inputs.json
+# Verify you have docker
+sudo docker run hello-world
+```
+```bash
+sudo systemctl start docker && sudo usermod -aG docker ubuntu && newgrp docker && docker ps
+```
+
+4. Run the workload
+```bash
+sudo java -jar cromwell.jar run fastq_subsample.wdl --inputs ./fastq_subsample.inputs.json
 ```
 
 
-fastq_subsample.wdl)
+fastq_subsample.wdl
 
 # Other notes
 

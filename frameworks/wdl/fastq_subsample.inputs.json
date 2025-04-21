@@ -1,6 +1,6 @@
 {
-    "fastq_subsample_workflow.fastqgz_file_read_1": "example_R1.fastq.gz",
-    "fastq_subsample_workflow.fastqgz_file_read_2": "example_R2.fastq.gz",
-    "fastq_subsample_workflow.sample_id": "example_R1.fastq"
+    "fastq_subsample_workflow.fastqgz_file_read_1": "./data/example_R1.fastq.gz",
+    "fastq_subsample_workflow.fastqgz_file_read_2": "./data/example_R2.fastq.gz",
+    "fastq_subsample_workflow.sample_id": "./example_R1.fastq"
   }
   
