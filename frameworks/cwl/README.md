@@ -65,3 +65,8 @@ EOF
 ```bash
 cwltool rnaseq-workflow.cwl  rnaseq-job-001.yml 
 ```
+
+### 4. Results you should see when the pipeline is working
+![image](https://github.com/user-attachments/assets/bf391ef8-f056-4965-897c-d8d06200d4c3)
+
+
