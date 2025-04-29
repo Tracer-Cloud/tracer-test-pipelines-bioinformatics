@@ -10,6 +10,7 @@ outputs/
 *.out
 *.stderr
 *.stdout
+*.txt
 
 # Ignore input/output data
 inputs/
