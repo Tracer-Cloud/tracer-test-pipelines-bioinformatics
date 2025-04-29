@@ -1,4 +1,4 @@
 # featureCounts output file
-# Command: featureCounts -a /tmp/kiykc92r/stg914ea0f0-8254-4555-a32a-e1b3920771ca/test.gtf -o counts.txt -t gene /tmp/kiykc92r/stgd0cd7214-8fe6-4b7b-a989-ed2b5f6ffa2d/output.sam
+# Command: featureCounts -a /tmp/bqi9ly8t/stgee28af77-4d02-42b4-a240-6fb53fe270ae/test.gtf -o counts.txt -t gene /tmp/bqi9ly8t/stga7108ad1-aeaf-459e-8b3d-46e06cc1deb3/output.sam
 Geneid\tChr\tStart\tEnd\tStrand\toutput.sam
 # No features found or featureCounts encountered an error

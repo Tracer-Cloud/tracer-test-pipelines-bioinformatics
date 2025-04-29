@@ -1,24 +1,51 @@
 # How to run on Tracer Sandbox
+
+### Requirements 
+1. Install cwltool 
+```bash
+ # enable the universe repo
+sudo add-apt-repository universe         
+
+# refresh package lists
+sudo apt update                       
+
+# Install cwltool
+sudo apt install cwltool
+
+# Check if it works
+cwltool --version
+```
+
+
+### Run the command 
 ```bash
 cwltool rnaseq-workflow.cwl  rnaseq-job-001.yml 
 ```
 
-todo's to run a minimal viable prototype.
-- You need to have a small input file such as SRR3907288_1.fastq this will be an input for the RNAseq job. 
-- You need a tiny test index. 
 
-# Creation of dummy annotation file
+# Creation of dummy files
+- You need to create small input files that will be the input for the RNAseq job. 
+- All dummy files can be recreated with 3 helper commands.  It keeps the repository clean by writing into frameworks/cwl/.
+
+
+What is important is to create (put them in the right folder)
+- a dummy annotation file (test.gtf)
+- a simple reference genome (genome.fa)
+- tiny fake fastq file (test.fastq)
+
+# Test files to create 
+## Creation of dummy annotation file
 cat > test.gtf <<EOF
 chr1\ttest\texon\t1\t20\t.\t+\t.\tgene_id "gene1";
 EOF
 
-# Make a toy reference genome
+## Make a toy reference genome
 mkdir -p test-index
 echo -e ">chr1\nACGTACGTACGTACGTACGT" > test-index/genome.fa
 hisat2-build test-index/genome.fa test-index/genome
 
 
-# Creation of tiny fake fastq file
+## Creation of tiny fake fastq file
 cat > test.fastq <<EOF
 @read1
 ACGTACGTACGTACGTACGT
