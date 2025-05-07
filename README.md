@@ -66,17 +66,17 @@ necessary to manually run it before executing the named query.
 
 ## Pipelines
 
-- [Sarek](./pipelines/nf-core/sarek/)
+- [Sarek](./frameworks/nextflow/pipelines/nf-core/sarek/)
   - A pipeline for genomic variant analysis, maintained by nf-core.
   - Includes minimal as well as full-scale test data via the `test` and
     `test_full` profiles, respectively.
   - https://nf-co.re/sarek/
-- [Rnaseq](./pipelines/nf-core/rnaseq/)
+- [Rnaseq](././frameworks/nextflow/pipelines/nf-core/rnaseq/)
   - A pipeline for RNA-seq analysis, maintained by nf-core.
   - Also includes minimal as well as full-scale test data via the `test` and
     `test_full` profiles.
   - https://nf-co.re/rnaseq/
-- [Proteinfold](./pipelines/nf-core/proteinfold/)
+- [Proteinfold](././frameworks/nextflow/pipelines/nf-core/proteinfold/)
   - A pipeline for protein folding via AlphaFold2 or ESMfold, maintained by
     nf-core.
   - Requires a GPU for running full scale tests. Includes a few basic smoke
