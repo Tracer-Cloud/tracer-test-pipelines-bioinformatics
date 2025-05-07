@@ -27,7 +27,7 @@ setup_environment: download_spack
 test_sarek:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/local.config run pipelines/nf-core/sarek/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/local.config run pipelines/nf-core/sarek/main.nf \
 		-params-file nextflow-config/sarek-params.json \
 		-profile docker,arm,test
 
@@ -35,7 +35,7 @@ test_sarek:
 test_sarek_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/batch.config run pipelines/nf-core/sarek/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/batch.config run pipelines/nf-core/sarek/main.nf \
 		-params-file nextflow-config/sarek-params.json \
 		-profile test
 
@@ -43,7 +43,7 @@ test_sarek_aws_batch:
 test_full_sarek_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/batch.config run pipelines/nf-core/sarek/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/batch.config run pipelines/nf-core/sarek/main.nf \
 		-params-file nextflow-config/sarek-params.json \
 		-profile test_full
 
@@ -51,7 +51,7 @@ test_full_sarek_aws_batch:
 test_rnaseq:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/local.config  run nf-core/rnaseq \
+	cd frameworks/nextflow && nextflow -c nextflow-config/local.config run pipelines/nf-core/rnaseq/main.nf \
 		-params-file nextflow-config/rnaseq-params.json \
 		-profile test
 
@@ -59,7 +59,7 @@ test_rnaseq:
 test_rnaseq_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/batch.config run pipelines/nf-core/rnaseq/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/batch.config run pipelines/nf-core/rnaseq/main.nf \
 		-params-file nextflow-config/rnaseq-params.json \
 		-profile test
 
@@ -67,7 +67,7 @@ test_rnaseq_aws_batch:
 test_full_rnaseq_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/batch.config run pipelines/nf-core/rnaseq/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/batch.config run pipelines/nf-core/rnaseq/main.nf \
 		-params-file nextflow-config/rnaseq-params.json \
 		-profile test_full
 
@@ -75,7 +75,7 @@ test_full_rnaseq_aws_batch:
 test_proteinfold:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/local.config run pipelines/nf-core/proteinfold/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/local.config run pipelines/nf-core/proteinfold/main.nf \
 		-params-file nextflow-config/proteinfold-params.json \
 		-profile docker,arm,test
 
@@ -83,7 +83,7 @@ test_proteinfold:
 test_proteinfold_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/batch.config -c nextflow-config/proteinfold.config run pipelines/nf-core/proteinfold/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/batch.config -c nextflow-config/proteinfold.config run pipelines/nf-core/proteinfold/main.nf \
 		-params-file nextflow-config/proteinfold-params.json \
 		-profile test \
 		--use_gpu
@@ -92,7 +92,7 @@ test_proteinfold_aws_batch:
 test_full_proteinfold_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	nextflow -c nextflow-config/batch.config -c nextflow-config/proteinfold.config run pipelines/nf-core/proteinfold/main.nf \
+	cd frameworks/nextflow && nextflow -c nextflow-config/batch.config -c nextflow-config/proteinfold.config run pipelines/nf-core/proteinfold/main.nf \
 		-params-file nextflow-config/proteinfold-params.json \
 		-profile test_full \
 		--use_gpu
