@@ -1,0 +1,13 @@
+{
+  "name": "RNASeq Nextflow Dev",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "postCreateCommand": "./.devcontainer/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.makefile-tools"
+      ]
+    }
+  }
+}
