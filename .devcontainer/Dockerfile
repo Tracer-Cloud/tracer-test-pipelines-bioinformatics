@@ -26,7 +26,7 @@ RUN locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
 
 # Install Tracer properly in Docker context
-RUN curl -sSL https://install.tracer.cloud/installation-script-development.sh -o /tmp/install.sh && \
+RUN curl -sSL https://install.tracer.cloud/ -o /tmp/install.sh && \
     bash /tmp/install.sh && \
     rm /tmp/install.sh
 
