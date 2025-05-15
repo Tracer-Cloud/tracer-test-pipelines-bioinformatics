@@ -6,7 +6,7 @@ Tracer Linux Agent: Observability for Scientific HPC Workloads
 
 We recommend using the Sandbox Environment for an easy ans quick onboarding experience: https://sandbox.tracer.cloud/
 
-Click the ‘Get started’ button and follow the guided steps—no AWS credentials or setup required.
+Click the ‘Get started’ button and follow the guided steps. You don't need a local instance and can use our web instance. 
 
 
 
@@ -17,6 +17,8 @@ Install Tracer with this single command:
 curl -sSL https://install.tracer.cloud/installation-script-development.sh | bash && source ~/.bashrc
 ```
 Click the 'Open In Github Codespaces' button to use GitHub Codespaces.
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Tracer-Cloud/tracer-test-pipelines-bioinformatics)
 
 Once in Codespaces, the environment comes with:
 Tracer pre-installed and Docker running a minimal Nextflow example. Here, you need to run the tracer init command showcased in the next step.
