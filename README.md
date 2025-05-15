@@ -1,148 +1,94 @@
-# Tracer-Nextflow
+<h2 align="left">
+Tracer Linux Agent: Observability for Scientific HPC Workloads
+</h2>
 
-Nextflow pipelines and infrastructure for Tracer client testing.
+![Tracer Banner](docs/images/tracer-banner-image.jpeg)
 
-## Contents
+## What Is Tracer and Why Use It? 
+- Tracer is a system-level observability platform purpose-built for scientific computing. It combines cutting-edge technological advances with the deep understanding of scientific industries to give insights into their speed and costs.
+Its one-line install Linux agent and instant dashboards allow for real-time insights into scientific computing environments.
 
-This repo contains a cloudformation template to set up AWS Batch infrastructure
-in the Tracer AWS account as well as submodule links to several pipelines that
-can be run either locally via Docker or on AWS Batch.
+- Unlike industry agnostic monitoring agents, Tracer structures DevOps data for scientific pipelines, providing clear visibility into pipeline stages and execution runs. In environments like AWS Batch, where processes and containers are loosely connected, users struggle to understand which processes belong to which pipeline run, and frequently lose logs from failed containers, making debugging difficult.
 
-## Setup
+- Tracer solves this by intelligently organizing and labeling pipelines, execution runs, and steps. Because it runs directly on Linux, it requires no code changes and supports any programming language, unlike point solutions that work only with one framework. This makes integration effortless even across multi-workload IT environments, including AlphaFold, Slurm, Airflow, Nextflow and also local Bash scripts.
 
-Due to the use of submodules, when cloning this repository include the
-`--recurse-submodules` option to ensure that submodules are also initialized and
-downloaded.
+- Architected for regulated industries, it ensures enterprise-grade security, with data never leaving your infrastructure, which is not the case with solutions such as DataDog. 
 
-## CloudFormation
 
-### AWS Batch Environment
+<br />
 
-The [Batch cloudformation template](./cloudformation/nextflow-batch.yml) sets up
-AWS Batch compute environments and job queues for Nextflow pipelines as well as
-an S3 Bucket, `s3://tracer-nxf-work`, to serve as a work directory for Nextflow
-to store intermediate files. It also creates roles and instance profile for the
-Batch jobs to read and write to the Nextflow work bucket and pull from other S3
-buckets, such as those containing public test data.
 
-There are two compute environment/queues in this template: one for running
-CPU-only jobs, `NextflowCPU`, which uses `c`, `r`, and `m` family intances, and
-another for GPU-enabled jobs, `NextflowGPU`, which uses `g4dn` instances.
+## Key Features 
+New metrics that help you speed up your pipelines and maximize your budget:
+- Time and cost per dataset processed
+- Execution duration and bottleneck identification for each pipeline step
+- Cost attribution across pipelines, teams, and environments (dev, CI/CD, prod)
+Overall, making sense of scientific toolchains with poor/no observability.
 
-For more convenient debugging, the cloudformation template also creates an EC2
-instance connect endpoint, which can be used to SSH into the Batch compute nodes
-without needing an SSH keypair. You can use this endpoint to connect to the
-instances via the AWS console or the CLI. Non-admin user will need several IAM
-permissions to do so. See this link for more details:
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-using-eice.html.
 
-### Cost Usage Report for Right Size Tests
+<br />
 
-The [Cost Usage Report cloudformation
-template](./cloudformation/cost-usage-report.yml) creates a Cost Usage Report
-via AWS Data Export in a new S3 bucket, s3://tracer-cur, which saves the
-`tracer-cloud` account AWS resource usage as a parquet table that can be queried
-with Athena. This can be used to query the actual cost of using most AWS
-resources in high granularity.
 
-It's difficult to get cost estimates for AWS Batch/ECS jobs because they can
-share the same instances with various packing behavior. AWS has an option for
-Data Export, however, that makes this much easier: [split cost
-allocation](https://docs.aws.amazon.com/cur/latest/userguide/split-cost-allocation-data.html),
-which assigns the cost to ECS jobs as a fraction of an EC2 instance taking into
-account all of the jobs running at the same time with their particular CPU and
-memory requirements. The Data Export in the included cloudformation
-configuration enables split cost allocation for this purpose.
+## Quickstart Tracer
 
-The template also creates a Glue Crawler for the Cost Usage Report and a named
-query, "*Cost of pipeline jobs*", in the "*CUR*" WorkGroup that uses the right size
-test tags to analyze the cost by pipeline and right size test scenario. The
-Crawler is configured to run on demand, so after running the tests it is
-necessary to manually run it before executing the named query.
+We recommend using the Sandbox Environment for an easy ans quick onboarding experience: https://sandbox.tracer.cloud/
 
-> **N.B.**: Data Exports are refreshed several times a day, but not on demand,
-> so it is often necessary to wait up to 12 hours after a run completes before
-> the ECS tasks appear in the Data Export bucket.
+Click the ‘Get started’ button and follow the guided steps—no AWS credentials or setup required.
 
-## Pipelines
 
-- [Sarek](./frameworks/nextflow/pipelines/nf-core/sarek/)
-  - A pipeline for genomic variant analysis, maintained by nf-core.
-  - Includes minimal as well as full-scale test data via the `test` and
-    `test_full` profiles, respectively.
-  - https://nf-co.re/sarek/
-- [Rnaseq](././frameworks/nextflow/pipelines/nf-core/rnaseq/)
-  - A pipeline for RNA-seq analysis, maintained by nf-core.
-  - Also includes minimal as well as full-scale test data via the `test` and
-    `test_full` profiles.
-  - https://nf-co.re/rnaseq/
-- [Proteinfold](././frameworks/nextflow/pipelines/nf-core/proteinfold/)
-  - A pipeline for protein folding via AlphaFold2 or ESMfold, maintained by
-    nf-core.
-  - Requires a GPU for running full scale tests. Includes a few basic smoke
-    tests for Nextflow functionality via the `test_<tool>` profiles. There are
-    also several full scale tests via the `test_full_<tool>` profiles that
-    require GPU access and signficant memory.
-  - https://nf-co.re/proteinfold/
 
-### Running Pipelines
+### 1. Install Tracer With One Line of Code (Already Installed in Codespaces, skip this part)
 
-The pipelines can be invoked using the included [Makefile](Makefile), which has
-targets for both local and AWS Batch test execution. The following test targets
-are available:
+Install Tracer with this single command:
+```bash
+curl -sSL https://install.tracer.cloud/installation-script-development.sh | bash && source ~/.bashrc
+```
+Click the 'Open In Github Codespaces' button to use GitHub Codespaces.
 
-  - `test_sarek`
-  - `test_sarek_aws_batch`
-  - `test_full_sarek_aws_batch`
-  - `test_rnaseq`
-  - `test_rnaseq_aws_batch`
-  - `test_full_rnaseq_aws_batch`
-  - `test_proteinfold`
-  - `test_proteinfold_aws_batch`
-  - `test_full_proteinfold_aws_batch`
+Once in Codespaces, the environment comes with:
+Tracer pre-installed and Docker running a minimal Nextflow example. Here, you need to run the tracer init command showcased in the next step.
 
-The AWS Batch test targets will launch the jobs via AWS Batch and store the
-results locally. Users launching jobs on AWS Batch will require AWS credentials
-with access to the Tracer AWS account, as well as IAM permissions for creating
-and managing AWS Batch resources.
 
-#### Local Execution
 
-An additional Nextflow configuration,
-[nextflow-config/local.config](nextflow-config/local.config), can be used to
-limit the number of CPU cores or memory during local execution. It also sets the
-platform to `aarch64` when running pipelines with Docker images on an ARM
-processor, such as Apple silicon.
+### 2. Initialize a Pipeline
 
-The local configuration is included automatically for local test targets in the
-Makefile.
+Set up your RNA-seq pipeline by running the following command and run Tracer:
+```bash
+tracer init --pipeline-name demo_username --environment demo --pipeline-type rnaseq --user-operator user_email --is-dev false 
+ ```
+Then you need to run a Nextflow command example.
 
-## Dependencies
-
-In order to run the pipelines, you must have Java 17+ installed as well as the
-`nextflow` executable. To create a reproducible environment for running the
-piplines, [Spack](https://spack.io/) is used with a [spack.yaml](./spack.yaml)
-that specifies a recent version of Nextflow for testing. Building the
-environment automatically pulls in the required Java version and all of its
-dependencies.
-
-For running pipelines locally, Docker is also required. On MacOS, [Rancher
-Desktop](https://rancherdesktop.io/) is the recommended way to provision the
-Docker engine. If using an Arm Mac, you will want to enable x86 emulation via
-Rosetta 2 via the Rancher Desktop settings. On a Linux system, Docker should be
-installed via the appropriate package manager using the
-[instructions](https://docs.docker.com/engine/install/) on the Docker website.
-
-To setup the Spack environment there is a Makefile target, `setup_environment`,
-which downloads and initializes Spack in the current directory. It then installs
-the required dependencies for running Nextflow. In the Makefile test targets,
-the Spack environment is automatically activated before running tests. To
-manually activate the Spack environment in your current shell session run:
-
-```sh
-$ . spack/share/spack/setup-env.sh
-$ spack env activate -d .
+### 3. Run a simple nextflow RNASeq Pipeline
+You can run a simple RNASeq pipeline by using this command
+```bash
+nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
 ```
 
-If the environment is already installed, such as by `make setup_environment`,
-this will put `nextflow` on your `PATH`.
+> ⚠️ **Warning:** This is a small pipeline sample, just for demo purposes, so you will not see many tools, to understand the full potential of Tracer, you can install it in your Ubuntu machine, and run your favourite pipeline.
+
+
+### 3. Monitor your Pipeline
+
+Watch your pipeline in action via the Tracer monitoring dashboard, which you access by clicking the ‘Open Grafana Dashboard’ button.
+You’ll see real-time execution metrics, stages, and status updates.
+
+
+
+
+<br />
+
+
+
+## Table of Contents
+- [🔍 Examples](docs/EXAMPLES.md) – Explore real-world use cases 
+- [🤝 Contributing](docs/CONTRIBUTING.md) – Join the community and contribute
+
+
+
+<br />
+
+
+
+## Mission
+
+> *"The goal of Tracer's Rust agent is to equip scientists and engineers with DevOps intelligence to efficiently harness massive computational power for humanity's most critical challenges."*
