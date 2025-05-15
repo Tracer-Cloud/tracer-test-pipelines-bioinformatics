@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-# Installare le dipendenze di base
+# Install basic dependencies
 RUN apt-get update && apt-get install -y \
   build-essential \
   curl \
@@ -21,5 +21,14 @@ RUN apt-get update && apt-get install -y \
   locales \
   ca-certificates
 
+# Set locale
 RUN locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
+
+# Install Tracer properly in Docker context
+RUN curl -sSL https://install.tracer.cloud/installation-script-development.sh -o /tmp/install.sh && \
+    bash /tmp/install.sh && \
+    rm /tmp/install.sh
+
+# Add Tracer to PATH
+ENV PATH="/root/.tracer/bin:${PATH}"
