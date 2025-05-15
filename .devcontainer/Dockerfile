@@ -20,10 +20,16 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /
     apt-get install -y docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Tracer
-RUN curl -sSL https://install.tracer.cloud/ -o /tmp/install.sh && \
+# # Install Tracer
+# RUN curl -sSL https://install.tracer.cloud/ -o /tmp/install.sh && \
+#     bash /tmp/install.sh && \
+#     rm /tmp/install.sh
+
+RUN curl -fsSL https://install.tracer.cloud/ -o /tmp/install.sh && \
+    head -20 /tmp/install.sh && \
     bash /tmp/install.sh && \
     rm /tmp/install.sh
+
 
 # Add Tracer to PATH
 ENV PATH="/root/.tracer/bin:${PATH}"
@@ -32,10 +38,3 @@ ENV PATH="/root/.tracer/bin:${PATH}"
 RUN wget -O nextflow https://github.com/nextflow-io/nextflow/releases/download/v24.04.2/nextflow && \
     chmod +x nextflow && \
     mv nextflow /usr/local/bin/nextflow
-
-
-# Install AWS CLI (useful for data transfer to/from S3)
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install && \
-    rm -rf aws awscliv2.zip
