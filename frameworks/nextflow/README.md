@@ -55,15 +55,12 @@ Each target will:
 
 ## How to run on Tracer Sandbox
 
-Only the test_rnaseq pipeline is tested to run completely on our sandbox
-
-> Only the `test_rnaseq` pipeline has been verified to run successfully on the Tracer sandbox environment.
-
 To run it:
 
 ```bash
 make test_rnaseq
 ```
 
+_Note: Only the `test_rnaseq` pipeline has been verified to run successfully on the Tracer sandbox environment._
 ---
 
