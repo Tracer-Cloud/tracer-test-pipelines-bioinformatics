@@ -100,4 +100,5 @@ test_full_proteinfold_aws_batch:
 
 .PHONY: test_out_of_memory_test
 test_out_of_memory_test:
-	/opt/conda/bin/python frameworks/oom-tests/out_of_memory.py
+	gcc frameworks/oom-tests/wrapper.c -o frameworks/oom-tests/oom_example_c
+	./frameworks/oom-tests/oom_example_c
