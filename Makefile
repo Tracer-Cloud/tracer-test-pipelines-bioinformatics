@@ -96,3 +96,8 @@ test_full_proteinfold_aws_batch:
 		-params-file nextflow-config/proteinfold-params.json \
 		-profile test_full \
 		--use_gpu
+
+
+.PHONY: test_out_of_memory_test
+test_out_of_memory_test:
+	/opt/conda/bin/python frameworks/oom-tests/out_of_memory.py
