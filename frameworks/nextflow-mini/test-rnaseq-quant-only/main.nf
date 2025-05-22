@@ -26,6 +26,7 @@ process salmon_index {
     """
 }
 
+
 process salmon_quant {
     tag "$sample"
     input:
@@ -37,7 +38,8 @@ process salmon_quant {
 
     script:
     """
-    salmon quant -i $index_dir -l A -r $sample -o quants
+    salmon quant -i $index_dir -l A -r $sample --minAssignedFrags 1 -o quants
     cp quants/quant.sf .
     """
 }
+
