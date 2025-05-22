@@ -3,10 +3,8 @@
 nextflow.enable.dsl=2
 
 params.reads = "data/*.fastq.gz"
-params.outdir = "results"
 
 workflow {
-
     Channel
         .fromPath(params.reads)
         .ifEmpty { error "No input FASTQ files found in: ${params.reads}" }
@@ -15,7 +13,6 @@ workflow {
     fastqc(ch_reads)
     trim_galore(ch_reads)
     infer_strand(ch_reads)
-    multiqc(Channel.of(params.outdir))
 }
 
 process fastqc {
@@ -24,7 +21,7 @@ process fastqc {
     path sample
 
     output:
-    path "fastqc/*"
+    path "fastqc"
 
     script:
     """
@@ -39,7 +36,7 @@ process trim_galore {
     path sample
 
     output:
-    path "*.trimmed.fq.gz"
+    path "*_trimmed.fq.gz"
 
     script:
     """
@@ -58,18 +55,5 @@ process infer_strand {
     script:
     """
     infer_experiment.py -i $sample -r dummy.bed > strandness.txt
-    """
-}
-
-process multiqc {
-    input:
-    val outdir
-
-    output:
-    path "multiqc_report.html"
-
-    script:
-    """
-    multiqc $outdir -o ./
     """
 }
