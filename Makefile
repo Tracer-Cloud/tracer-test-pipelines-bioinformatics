@@ -55,6 +55,14 @@ test_rnaseq:
 		-params-file nextflow-config/rnaseq-params.json \
 		-profile test
 
+.PHONY: test_rnaseq_full
+test_rnaseq_full:
+	@. spack/share/spack/setup-env.sh; \
+	spack env activate -d .; \
+	cd frameworks/nextflow && nextflow -c nextflow-config/local.config run pipelines/nf-core/rnaseq/main.nf \
+		-params-file nextflow-config/rnaseq-params.json \
+		-profile test_full
+
 .PHONY: test_rnaseq_aws_batch
 test_rnaseq_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
