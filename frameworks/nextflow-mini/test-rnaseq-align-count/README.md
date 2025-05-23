@@ -42,11 +42,12 @@ test-rnaseq-align-count/
 ### ▶️ How to Run
 
 ```bash
+cd test-rnaseq-align-count
 # (Optional) Step 1: Generate reference and test data
 ./generate.sh
 
 # Step 2: Run the Nextflow pipeline
-nextflow run main.nf -resume
+nextflow run main.nf
 ```
 
 ---

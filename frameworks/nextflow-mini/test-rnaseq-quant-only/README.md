@@ -31,11 +31,13 @@ test-rnaseq-quant-only/
 ### ▶️ How to Run
 
 ```bash
+cd test-rnaseq-quant-only
+
 # Optional: Regenerate input data
 ./generate.sh
 
 # Run the pipeline
-nextflow run main.nf -resume
+nextflow run main.nf 
 ```
 
 ---

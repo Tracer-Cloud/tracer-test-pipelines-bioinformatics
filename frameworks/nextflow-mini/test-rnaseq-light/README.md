@@ -35,7 +35,7 @@ test-rnaseq-light/
 
 ```bash
 cd test-rnaseq-light
-nextflow run main.nf -resume
+nextflow run main.nf 
 ```
 
 > Make sure tools like `fastqc`, `trim_galore`, and `infer_experiment.py` are in your `PATH`. You can also adapt this to run inside a Docker profile.
