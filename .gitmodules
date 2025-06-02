@@ -1,9 +1,0 @@
-[submodule "pipelines/nf-core/sarek"]
-	path = frameworks/nextflow/pipelines/nf-core/sarek
-	url = https://github.com/nf-core/sarek.git
-[submodule "pipelines/nf-core/rnaseq"]
-	path = frameworks/nextflow/pipelines/nf-core/rnaseq
-	url = https://github.com/nf-core/rnaseq.git
-[submodule "pipelines/nf-core/proteinfold"]
-	path = frameworks/nextflow/pipelines/nf-core/proteinfold
-	url = https://github.com/nf-core/proteinfold.git

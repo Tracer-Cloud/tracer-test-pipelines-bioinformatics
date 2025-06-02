@@ -12,10 +12,11 @@ workflow {
 
     fastqc(ch_reads)
     trim_galore(ch_reads)
-    infer_strand(ch_reads)
 }
 
 process fastqc {
+    container 'biocontainers/fastqc:v0.11.9_cv8'
+
     tag "$sample"
     input:
     path sample
@@ -31,6 +32,8 @@ process fastqc {
 }
 
 process trim_galore {
+    container 'quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_1'
+
     tag "$sample"
     input:
     path sample
@@ -41,19 +44,5 @@ process trim_galore {
     script:
     """
     trim_galore --cores 1 --gzip $sample
-    """
-}
-
-process infer_strand {
-    tag "$sample"
-    input:
-    path sample
-
-    output:
-    path "strandness.txt"
-
-    script:
-    """
-    infer_experiment.py -i $sample -r dummy.bed > strandness.txt
     """
 }
