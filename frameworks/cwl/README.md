@@ -63,7 +63,7 @@ EOF
 ### 3. Run the CWL Command
 ### Run the command 
 ```bash
-cwltool rnaseq-workflow.cwl  rnaseq-job-001.yml 
+make run_cwl
 ```
 
 ### 4. Results you should see when the pipeline is working
