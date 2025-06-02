@@ -6,7 +6,7 @@ This directory enables distributed, cloud-based testing of nf-core bioinformatic
 
 - `pipelines/integrations-setup/aws-batch/`: Contains this Makefile and batch-specific test targets.
 - `pipelines/nextflow/config`: Contains AWS Batch configuration (`batch.config`, GPU config, params).
-- `pipelines/nextflow/*`: Cloned nf-core pipelines (e.g., `rnaseq`, `sarek`, `proteinfold`).
+- `pipelines/nextflow/*`: Cloned nf-core pipelines (e.g., `rnaseq`).
 
 ---
 
@@ -32,12 +32,9 @@ Each test target submits an nf-core pipeline to AWS Batch using `batch.config` p
 
 | Pipeline           | Target                                 | Description                         |
 | ------------------ | -------------------------------------- | ----------------------------------- |
-| Sarek              | `make test_sarek_aws_batch`            | Run Sarek pipeline (minimal test)   |
-| Sarek (full)       | `make test_full_sarek_aws_batch`       | Run extended Sarek test             |
 | RNA-seq            | `make test_rnaseq_aws_batch`           | Run RNA-seq pipeline (minimal test) |
 | RNA-seq (full)     | `make test_full_rnaseq_aws_batch`      | Run extended RNA-seq test           |
-| Proteinfold        | `make test_proteinfold_aws_batch`      | Run GPU-enabled Proteinfold test    |
-| Proteinfold (full) | `make test_full_proteinfold_aws_batch` | Full GPU Proteinfold run            |
+
 
 ---
 
