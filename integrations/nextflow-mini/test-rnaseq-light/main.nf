@@ -47,19 +47,3 @@ process trim_galore {
     trim_galore --cores 1 --gzip $sample
     """
 }
-
-process infer_strand {
-    container 'quay.io/biocontainers/rseqc:5.0.1--py38h0a891b7_0'
-
-    tag "$sample"
-    input:
-    path sample
-
-    output:
-    path "strandness.txt"
-
-    script:
-    """
-    infer_experiment.py -i $sample -r dummy.bed > strandness.txt
-    """
-}
