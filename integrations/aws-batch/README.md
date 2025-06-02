@@ -4,10 +4,10 @@ This directory enables distributed, cloud-based testing of nf-core bioinformatic
 
 ## Folder Structure
 
-* `frameworks/nextflow/aws-batch/`: Contains this Makefile and batch-specific test targets.
-* `frameworks/config/nextflow/`: Contains AWS Batch configuration (`batch.config`, GPU config, params).
-* `frameworks/pipelines/nf-core/*`: Cloned nf-core pipelines (e.g. `rnaseq`, `sarek`, `proteinfold`).
-* `frameworks/spack.yaml`: Declares Spack dependencies (Java, Nextflow, etc).
+* `integrations/nextflow/aws-batch/`: Contains this Makefile and batch-specific test targets.
+* `integrations/config/nextflow/`: Contains AWS Batch configuration (`batch.config`, GPU config, params).
+* `integrations/pipelines/nf-core/*`: Cloned nf-core pipelines (e.g. `rnaseq`, `sarek`, `proteinfold`).
+* `integrations/spack.yaml`: Declares Spack dependencies (Java, Nextflow, etc).
 
 ## Setup
 

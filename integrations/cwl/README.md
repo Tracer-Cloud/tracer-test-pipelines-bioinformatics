@@ -19,7 +19,7 @@ cwltool --version
 
 ### 2. Creation of dummy files
 - You need to create small input files that will be the input for the RNAseq job. 
-- All dummy files can be recreated with 3 helper commands.  It keeps the repository clean by writing into frameworks/cwl/.
+- All dummy files can be recreated with 3 helper commands.  It keeps the repository clean by writing into integrations/cwl/.
 
 
 What is important is to create (put them in the right folder)

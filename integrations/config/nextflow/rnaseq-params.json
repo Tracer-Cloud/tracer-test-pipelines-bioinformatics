@@ -1,0 +1,4 @@
+{
+    "outdir": "output/rnaseq-test",
+    "multiqc_config": "/root/tracer-test-pipelines-bioinformatics/integrations/config/nextflow/custom_multiqc_config.yml"
+}

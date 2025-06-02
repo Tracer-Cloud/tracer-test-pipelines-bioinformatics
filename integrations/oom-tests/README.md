@@ -29,14 +29,14 @@ The C wrapper simply launches this script using `execv`, passing control fully t
 
 ```c
 const char *python_bin = "/opt/conda/bin/python";
-const char *script_path = "/root/tracer-test-pipelines-bioinformatics/frameworks/oom-tests/usecase_out_of_memory.py";
+const char *script_path = "/root/tracer-test-pipelines-bioinformatics/integrations/oom-tests/usecase_out_of_memory.py";
 char *const args[] = { "python", (char *)script_path, NULL };
 execv(python_bin, args);
 ```
 
 ## Usage
 
-From the `frameworks/oom-tests/`:
+From the `integrations/oom-tests/`:
 
 ```bash
 make test_out_of_memory_test

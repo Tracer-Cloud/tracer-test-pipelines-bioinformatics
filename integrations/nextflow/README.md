@@ -7,15 +7,15 @@ This directory contains reproducible pipeline wrappers for testing client worklo
 
 ## Folder Structure
 
-* `frameworks/pipelines/nf-core/*`: Cloned nf-core pipelines (e.g., `sarek`, `rnaseq`, `proteinfold`) as Git submodules.
-* `frameworks/config/nextflow/`: Contains configuration files and parameter sets for local execution.
-* `frameworks/nextflow/`: Contains per-pipeline Makefiles for development and testing.
-* `frameworks/spack.yaml`: Defines Spack environment dependencies, including Java and Nextflow.
-* `frameworks/nextflow/Makefile`: Contains targets to automate testing and execution of pipelines.
+* `integrations/pipelines/nf-core/*`: Cloned nf-core pipelines (e.g., `sarek`, `rnaseq`, `proteinfold`) as Git submodules.
+* `integrations/config/nextflow/`: Contains configuration files and parameter sets for local execution.
+* `integrations/nextflow/`: Contains per-pipeline Makefiles for development and testing.
+* `integrations/spack.yaml`: Defines Spack environment dependencies, including Java and Nextflow.
+* `integrations/nextflow/Makefile`: Contains targets to automate testing and execution of pipelines.
 
 ## Setup
 
-To initialize the environment and install required tools via [Spack](https://spack.io/), run from within the `frameworks/nextflow/` directory:
+To initialize the environment and install required tools via [Spack](https://spack.io/), run from within the `integrations/nextflow/` directory:
 
 ```bash
 make setup_environment
@@ -34,7 +34,7 @@ Each pipeline has a Makefile target that:
 
 * Activates the local Spack environment.
 * Runs the appropriate nf-core pipeline using `nextflow`.
-* Applies parameters and configuration from `frameworks/config/nextflow/`.
+* Applies parameters and configuration from `integrations/config/nextflow/`.
 
 Available targets:
 
@@ -55,7 +55,7 @@ Each target references:
 To test the RNA-seq pipeline on the Tracer sandbox:
 
 ```bash
-cd frameworks/nextflow
+cd integrations/nextflow
 make test_rnaseq
 ```
 

@@ -10,7 +10,7 @@
 # Icon must end with two \r
 Icon
 
-frameworks/wdl/cromwell.jar
+integrations/wdl/cromwell.jar
 
 
 # Thumbnails
