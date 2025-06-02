@@ -1,0 +1,17 @@
+conda.enabled = true
+
+
+profiles {
+  conda {
+    process {
+      withName: '.*' {
+        conda = "envs/salmon-env.yml"
+      }
+    }
+  }
+}
+
+params {
+  reads = "data/*.fastq.gz"
+  transcriptome = "transcriptome.fa"
+}
