@@ -16,6 +16,8 @@ workflow {
 }
 
 process fastqc {
+    container 'biocontainers/fastqc:v0.11.9_cv8'
+
     tag "$sample"
     input:
     path sample
@@ -31,6 +33,8 @@ process fastqc {
 }
 
 process trim_galore {
+    container 'quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_1'
+
     tag "$sample"
     input:
     path sample
@@ -45,6 +49,8 @@ process trim_galore {
 }
 
 process infer_strand {
+    container 'quay.io/biocontainers/rseqc:5.0.1--py38h0a891b7_0'
+
     tag "$sample"
     input:
     path sample
