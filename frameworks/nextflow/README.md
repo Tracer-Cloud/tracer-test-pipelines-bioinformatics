@@ -7,14 +7,15 @@ This directory contains reproducible pipeline wrappers for testing client worklo
 
 ## Folder Structure
 
-- `tracer-test-pipelines-bioinformatics/frameworks/nextflow/pipelines/nf-core/*`: Cloned nf-core pipelines as Git submodules.
-- `tracer-test-pipelines-bioinformatics/frameworks/nextflow/nextflow-config/`: Contains configuration files for local and AWS Batch execution.
-- `tracer-test-pipelines-bioinformatics/Makefile`: Provides convenient targets to run pipeline tests locally or via AWS Batch.
-- `tracer-test-pipelines-bioinformatics/spack.yaml`: Defines the environment and dependencies used to run pipelines with Spack.
+* `frameworks/pipelines/nf-core/*`: Cloned nf-core pipelines (e.g., `sarek`, `rnaseq`, `proteinfold`) as Git submodules.
+* `frameworks/config/nextflow/`: Contains configuration files and parameter sets for local execution.
+* `frameworks/nextflow/`: Contains per-pipeline Makefiles for development and testing.
+* `frameworks/spack.yaml`: Defines Spack environment dependencies, including Java and Nextflow.
+* `frameworks/nextflow/Makefile`: Contains targets to automate testing and execution of pipelines.
 
 ## Setup
 
-To initialize the environment and download dependencies using [Spack](https://spack.io/), run from the project root:
+To initialize the environment and install required tools via [Spack](https://spack.io/), run from within the `frameworks/nextflow/` directory:
 
 ```bash
 make setup_environment
@@ -22,46 +23,42 @@ make setup_environment
 
 This will:
 
-* Download the specified Spack release.
-* Initialize the environment.
-* Install dependencies including Java and Nextflow.
+* Download the specified Spack release (version `0.23.0`).
+* Extract and bootstrap Spack.
+* Install dependencies such as Java and Nextflow.
+* Activate the environment in-place.
 
 ## Running Pipelines
 
-The Makefile contains the following targets for running test executions:
+Each pipeline has a Makefile target that:
 
-* **Sarek**
+* Activates the local Spack environment.
+* Runs the appropriate nf-core pipeline using `nextflow`.
+* Applies parameters and configuration from `frameworks/config/nextflow/`.
 
-  * `make test_sarek`
-  * `make test_sarek_aws_batch`
-  * `make test_full_sarek_aws_batch`
+Available targets:
 
-* **RNA-seq**
+| Pipeline       | Target Command          | Description                      |
+| -------------- | ----------------------- | -------------------------------- |
+| Sarek          | `make test_sarek`       | Run minimal test profile locally |
+| RNA-seq        | `make test_rnaseq`      | Run minimal test profile locally |
+| RNA-seq (full) | `make test_rnaseq_full` | Run extended test locally        |
+| Proteinfold    | `make test_proteinfold` | Run minimal test profile locally |
 
-  * `make test_rnaseq`
-  * `make test_rnaseq_aws_batch`
-  * `make test_full_rnaseq_aws_batch`
+Each target references:
 
-* **Proteinfold**
+* `local.config` from `config/nextflow`
+* A `*-params.json` file containing pipeline-specific inputs
 
-  * `make test_proteinfold`
-  * `make test_proteinfold_aws_batch`
-  * `make test_full_proteinfold_aws_batch`
+## Example: Running on Tracer Sandbox
 
-Each target will:
-
-* Activate the Spack environment.
-* Run the corresponding Nextflow pipeline using configs from `nextflow-config/`.
-
-## How to run on Tracer Sandbox
-
-To run it:
+To test the RNA-seq pipeline on the Tracer sandbox:
 
 ```bash
+cd frameworks/nextflow
 make test_rnaseq
 ```
 
-_Note: Only the `test_rnaseq` pipeline has been verified to run successfully on the Tracer sandbox environment._
+*Note: Only `test_rnaseq` has been verified end-to-end in the sandbox environment so far.*
 
 ---
-

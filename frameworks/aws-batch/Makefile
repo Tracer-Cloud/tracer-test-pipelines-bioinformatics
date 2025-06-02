@@ -1,6 +1,9 @@
 SHELL := bash
 SPACK_VERSION := 0.23.0
 
+BASEDIR := $(abspath $(CURDIR)/../)
+CONFIG_DIR := $(BASEDIR)/config/nextflow
+
 .PHONY: download_spack
 download_spack:
 	@if [ ! -f spack-$(SPACK_VERSION).tar.gz ]; \
@@ -23,47 +26,44 @@ setup_environment: download_spack
 	spack env activate -d .; \
 	spack install
 
-
 .PHONY: test_sarek_aws_batch
 test_sarek_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	cd frameworks/nextflow && nextflow -c ../config/nextflow/batch.config run ../pipelines/nf-core/sarek/main.nf \
-		-params-file ../config/nextflow/sarek-params.json \
+	nextflow -c $(CONFIG_DIR)/batch.config run https://github.com/nf-core/sarek \
+		-params-file $(CONFIG_DIR)/sarek-params.json \
 		-profile test
 
 .PHONY: test_full_sarek_aws_batch
 test_full_sarek_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	cd frameworks/nextflow && nextflow -c ../config/nextflow/batch.config run ../pipelines/nf-core/sarek/main.nf \
-		-params-file ../config/nextflow/sarek-params.json \
+	nextflow -c $(CONFIG_DIR)/batch.config run https://github.com/nf-core/sarek \
+		-params-file $(CONFIG_DIR)/sarek-params.json \
 		-profile test_full
-
 
 .PHONY: test_rnaseq_aws_batch
 test_rnaseq_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	cd frameworks/nextflow && nextflow -c ../config/nextflow/batch.config run ../pipelines/nf-core/rnaseq/main.nf \
-		-params-file ../config/nextflow/rnaseq-params.json \
+	nextflow -c $(CONFIG_DIR)/batch.config run https://github.com/nf-core/rnaseq \
+		-params-file $(CONFIG_DIR)/rnaseq-params.json \
 		-profile test
 
 .PHONY: test_full_rnaseq_aws_batch
 test_full_rnaseq_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	cd frameworks/nextflow && nextflow -c ../config/nextflow/batch.config run ../pipelines/nf-core/rnaseq/main.nf \
-		-params-file ../config/nextflow/rnaseq-params.json \
+	nextflow -c $(CONFIG_DIR)/batch.config run https://github.com/nf-core/rnaseq \
+		-params-file $(CONFIG_DIR)/rnaseq-params.json \
 		-profile test_full
-
 
 .PHONY: test_proteinfold_aws_batch
 test_proteinfold_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	cd frameworks/nextflow && nextflow -c ../config/nextflow/batch.config -c ../config/nextflow/proteinfold.config run ../pipelines/nf-core/proteinfold/main.nf \
-		-params-file ../config/nextflow/proteinfold-params.json \
+	nextflow -c $(CONFIG_DIR)/batch.config -c $(CONFIG_DIR)/proteinfold.config run https://github.com/nf-core/proteinfold \
+		-params-file $(CONFIG_DIR)/proteinfold-params.json \
 		-profile test \
 		--use_gpu
 
@@ -71,7 +71,7 @@ test_proteinfold_aws_batch:
 test_full_proteinfold_aws_batch:
 	@. spack/share/spack/setup-env.sh; \
 	spack env activate -d .; \
-	cd frameworks/nextflow && nextflow -c ../config/nextflow/batch.config -c ../config/nextflow/proteinfold.config run ../pipelines/nf-core/proteinfold/main.nf \
-		-params-file ../config/nextflow/proteinfold-params.json \
+	nextflow -c $(CONFIG_DIR)/batch.config -c $(CONFIG_DIR)/proteinfold.config run https://github.com/nf-core/proteinfold \
+		-params-file $(CONFIG_DIR)/proteinfold-params.json \
 		-profile test_full \
 		--use_gpu
