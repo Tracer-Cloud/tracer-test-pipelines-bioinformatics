@@ -1,9 +1,13 @@
+
+
 SHELL := bash
 SPACK_VERSION := 0.23.0
+SPACK_DIR := ../../..
 
 # Get parent of makefile which 
 BASEDIR := $(abspath $(CURDIR)/)
-CONFIG_DIR := $(BASEDIR)/config/
+CONFIG_DIR := ../config/
+
 
 .PHONY: download_spack
 download_spack:
@@ -23,38 +27,23 @@ download_spack:
 
 .PHONY: setup_environment
 setup_environment: download_spack
-	@. spack/share/spack/setup-env.sh; \
-	spack env activate -d .; \
+	@. $(SPACK_DIR)/share/spack/setup-env.sh; \
+	spack env activate -d ..; \
 	spack install
 
-.PHONY: test_sarek
-test_sarek:
-	@. spack/share/spack/setup-env.sh; \
-	spack env activate -d .; \
-	nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/sarek \
-		-params-file $(CONFIG_DIR)/sarek-params.json \
-		-profile docker,arm,test
 
 .PHONY: test_rnaseq
 test_rnaseq:
-	@. spack/share/spack/setup-env.sh; \
-	spack env activate -d .; \
+	@. $(SPACK_DIR)/share/spack/setup-env.sh; \
+	spack env activate -d ..; \
 	nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 		-params-file $(CONFIG_DIR)/rnaseq-params.json \
 		-profile test
 
 .PHONY: test_rnaseq_full
 test_rnaseq_full:
-	@. spack/share/spack/setup-env.sh; \
-	spack env activate -d .; \
+	@. $(SPACK_DIR)/share/spack/setup-env.sh; \
+	spack env activate -d ..; \
 	nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 		-params-file $(CONFIG_DIR)/rnaseq-params.json \
 		-profile test_full
-
-.PHONY: test_proteinfold
-test_proteinfold:
-	@. spack/share/spack/setup-env.sh; \
-	spack env activate -d .; \
-	nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/proteinfold \
-		-params-file $(CONFIG_DIR)/proteinfold-params.json \
-		-profile docker,arm,test
