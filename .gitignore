@@ -39,10 +39,10 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/macos
 
 /work/
-/output/
-/.nextflow/
-/.nextflow.log*
-/.spack-env/
-/spack/
-/spack-*.tar.gz
-/spack.lock
+**output/
+**.nextflow/
+**.nextflow.log*
+**.spack-env/
+**spack/
+**spack-*.tar.gz
+**spack.lock

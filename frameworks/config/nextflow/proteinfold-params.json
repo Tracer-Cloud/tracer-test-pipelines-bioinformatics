@@ -1,4 +1,4 @@
 {
     "outdir": "output/proteinfold-test",
-    "multiqc_config": "nextflow-config/custom_multiqc_config.yml"
+    "multiqc_config": "/root/tracer-test-pipelines-bioinformatics/frameworks/config/nextflow/custom_multiqc_config.yml"
 }
