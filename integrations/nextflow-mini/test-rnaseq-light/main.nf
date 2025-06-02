@@ -12,7 +12,6 @@ workflow {
 
     fastqc(ch_reads)
     trim_galore(ch_reads)
-    infer_strand(ch_reads)
 }
 
 process fastqc {
