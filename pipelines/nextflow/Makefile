@@ -2,9 +2,8 @@ SHELL := bash
 SPACK_VERSION := 0.23.0
 
 # Get parent of makefile which 
-BASEDIR := $(abspath $(CURDIR)/../)
-CONFIG_DIR := $(BASEDIR)/config/nextflow
-PIPELINES_DIR := $(BASEDIR)/pipelines/nf-core
+BASEDIR := $(abspath $(CURDIR)/)
+CONFIG_DIR := $(BASEDIR)/config/
 
 .PHONY: download_spack
 download_spack:
