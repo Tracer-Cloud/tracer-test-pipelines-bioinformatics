@@ -7,11 +7,12 @@ This directory contains reproducible pipeline wrappers for testing client worklo
 
 ## Folder Structure
 
-* `integrations/pipelines/nf-core/*`: Cloned nf-core pipelines (e.g., `sarek`, `rnaseq`, `proteinfold`) as Git submodules.
-* `integrations/config/nextflow/`: Contains configuration files and parameter sets for local execution.
-* `integrations/nextflow/`: Contains per-pipeline Makefiles for development and testing.
-* `integrations/spack.yaml`: Defines Spack environment dependencies, including Java and Nextflow.
-* `integrations/nextflow/Makefile`: Contains targets to automate testing and execution of pipelines.
+
+* `pipelines/nextflow/`: Contains per-pipeline Makefiles for development and testing.
+* `pipelines/nextflow/config/`: Contains configuration files and parameter sets for local execution.
+
+* `pipelines/nextflow/`: Contains per-pipeline Makefiles for development and testing.
+* `pipelines/nextflow/Makefile`: Contains targets to automate testing and execution of pipelines.
 
 ## Setup
 
