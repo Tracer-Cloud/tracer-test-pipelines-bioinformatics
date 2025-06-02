@@ -1,4 +1,4 @@
 {
     "outdir": "output/sarek-test",
-    "multiqc_config": "/root/tracer-test-pipelines-bioinformatics/pipelines/config/custom_multiqc_config.yml"
+    "multiqc_config": "/root/tracer-test-pipelines-bioinformatics/pipelines/nextflow/config/custom_multiqc_config.yml"
 }
