@@ -4,28 +4,31 @@ This directory enables distributed, cloud-based testing of nf-core bioinformatic
 
 ## Folder Structure
 
-* `integrations/nextflow/aws-batch/`: Contains this Makefile and batch-specific test targets.
-* `integrations/config/nextflow/`: Contains AWS Batch configuration (`batch.config`, GPU config, params).
-* `integrations/pipelines/nf-core/*`: Cloned nf-core pipelines (e.g. `rnaseq`, `sarek`, `proteinfold`).
-* `integrations/spack.yaml`: Declares Spack dependencies (Java, Nextflow, etc).
+- `pipelines/integrations-setup/aws-batch/`: Contains this Makefile and batch-specific test targets.
+- `pipelines/nextflow/config`: Contains AWS Batch configuration (`batch.config`, GPU config, params).
+- `pipelines/nextflow/*`: Cloned nf-core pipelines (e.g., `rnaseq`, `sarek`, `proteinfold`).
+
+---
 
 ## Setup
 
-Before running any pipeline, set up the environment from this directory:
+To prepare the environment:
 
 ```bash
 make setup_environment
-```
+````
 
 This will:
 
-* Download Spack and bootstrap it.
-* Install required tools.
-* Prepare the Nextflow environment.
+* Download and bootstrap Spack.
+* Install required CLI tools (Java, Nextflow, etc.).
+* Prepare the runtime environment for Nextflow.
+
+---
 
 ## Running Pipelines on AWS Batch
 
-Each test target submits a specific pipeline run to AWS Batch using a profile in `batch.config`. The pipelines currently supported:
+Each test target submits an nf-core pipeline to AWS Batch using `batch.config` profiles.
 
 | Pipeline           | Target                                 | Description                         |
 | ------------------ | -------------------------------------- | ----------------------------------- |
@@ -36,45 +39,71 @@ Each test target submits a specific pipeline run to AWS Batch using a profile in
 | Proteinfold        | `make test_proteinfold_aws_batch`      | Run GPU-enabled Proteinfold test    |
 | Proteinfold (full) | `make test_full_proteinfold_aws_batch` | Full GPU Proteinfold run            |
 
-## How It Works
-
-* **Nextflow** orchestrates the pipeline and submits jobs to AWS Batch.
-* **CloudFormation** provisions compute environments with appropriate IAM roles, queues, and resources.
-* **Tracer Agent** is auto-installed on each EC2 instance via bootstrap scripts.
-* **Session Tracking** is enabled via `workflow.sessionId` passed as an environment variable.
-* **GPU Pipelines** (e.g. Proteinfold) include `proteinfold.config` for resource definitions.
+---
 
 ## Execution Environments
 
 ### Option 1: Your AWS Account
 
-1. Clone this repo and enter the `aws-batch` directory.
-2. Make sure AWS credentials are configured.
-3. Run a test pipeline like:
+1. Clone this repo and navigate to `integrations-setup/nextflow/aws-batch/`.
+2. Ensure your AWS credentials are configured.
+3. Run a test pipeline:
 
 ```bash
 make test_rnaseq_aws_batch
 ```
 
-View pipeline metrics and logs in your Tracer observability dashboard.
+Pipeline logs and metrics will appear in your Tracer observability dashboard (if enabled).
+
+---
 
 ### Option 2: Tracer Sandbox (Preconfigured)
 
-1. Spin up an EC2 Sandbox environment using the provided EC2 launch template.
-2. Access the sandbox and switch to the correct user directory:
+1. Launch the EC2 sandbox instance using the provided AMI and template.
+2. SSH into the instance and switch context:
 
 ```bash
+sudo su - ubuntu
+cd tracer-test-pipelines-bioinformatics
+```
 
-sudo su - ubuntu && cd tracer-test-pipelines-bioinformatics
+3. Initialize the pipeline:
 
-# Initialize the pipeline
+```bash
 tracer init --pipeline-name aws_batch_test \
-    --environment sandbox \
-    --user-operator vincent \
-    --pipeline-type aws_batch_rnaseq
+  --environment sandbox \
+  --user-operator vincent \
+  --pipeline-type aws_batch_rnaseq
+```
 
-# Run the test
+4. Execute the test:
+
+```bash
 make test_rnaseq_aws_batch
 ```
 
 ---
+
+## CloudFormation Deployment
+
+To update the AWS Batch compute environment via CloudFormation:
+
+### Validate the Template
+
+```bash
+aws cloudformation validate-template \
+  --template-body file://nextflow-batch-resources.yml
+```
+
+### Deploy the Template
+
+```bash
+aws cloudformation deploy \
+  --template-file ./cloudformation/nextflow-batch-resources.yml \
+  --stack-name nextflow-batch-resources \
+  --capabilities CAPABILITY_NAMED_IAM
+```
+
+This will provision IAM roles, job queues, and compute environments needed for Nextflow pipelines on AWS Batch.
+
+----
