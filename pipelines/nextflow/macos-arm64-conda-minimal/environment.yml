@@ -10,5 +10,3 @@ dependencies:
   - coreutils=9.1
   - bc  # Calculator for arithmetic operations
 
-  # Additional useful tools (optional)
-  - seqkit=2.10.0  # For advanced FASTA manipulation
