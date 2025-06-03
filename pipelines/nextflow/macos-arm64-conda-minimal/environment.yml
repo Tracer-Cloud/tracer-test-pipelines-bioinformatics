@@ -12,9 +12,3 @@ dependencies:
 
   # Additional useful tools (optional)
   - seqkit=2.10.0  # For advanced FASTA manipulation
-  - python=3.9
-  - pip
-  
-  # Python packages via pip (optional)
-  - pip:
-    - biopython==1.81
