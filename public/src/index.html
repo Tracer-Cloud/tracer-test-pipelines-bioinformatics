@@ -638,34 +638,12 @@ nextflow run main.nf`
       // Handle Run Pipelines tab content
       const configContent = document.getElementById('config-content');
       if (configContent) {
-        if (environment !== 'demo') {
-          // Save the heading
-          const heading = configContent.querySelector('h2');
-          const headingClone = heading ? heading.cloneNode(true) : document.createElement('h2');
-          headingClone.textContent = headingClone.textContent || 'Run Pipelines';
-          
-          // Clear the content
-          configContent.innerHTML = '';
-          
-          // Add back the heading
-          configContent.appendChild(headingClone);
-          
-          // Add placeholder message
-          const message = document.createElement('div');
-          message.className = 'demo-only-message';
-          message.style.marginTop = '2rem';
-          message.style.padding = '1.5rem';
-          message.style.borderRadius = '8px';
-          message.style.backgroundColor = 'rgba(0,0,0,0.2)';
-          message.style.border = '1px solid var(--border)';
-          message.innerHTML = '<h3>Demo Content Only</h3><p>Content is only available when "Demo" environment is selected.</p>';
-          
-          configContent.appendChild(message);
-        } else {
-          // For Demo environment, make sure the pipeline instructions are visible
-          const pipelineInstructions = configContent.querySelector('h4');
-          if (!pipelineInstructions) {
-            // If instructions don't exist, we need to restore them
+        // Check if the Run Pipelines tab is currently active
+        const isConfigTabActive = document.querySelector('.tab[data-tab="config"]').classList.contains('active');
+        
+        if (isConfigTabActive) {
+          if (environment !== 'demo') {
+            // Save the heading
             const heading = configContent.querySelector('h2');
             const headingClone = heading ? heading.cloneNode(true) : document.createElement('h2');
             headingClone.textContent = headingClone.textContent || 'Run Pipelines';
@@ -676,48 +654,72 @@ nextflow run main.nf`
             // Add back the heading
             configContent.appendChild(headingClone);
             
-            // Add pipeline instructions in the same style as Install Tracer tab
-            const instructions = document.createElement('div');
-            instructions.className = 'github-codespace-instructions';
-            instructions.style.marginTop = '2rem';
-            instructions.style.border = '1px solid var(--border)';
-            instructions.style.padding = '1.5rem';
-            instructions.style.borderRadius = '8px';
-            instructions.style.backgroundColor = 'rgba(0,0,0,0.2)';
-            
-            instructions.innerHTML = `
-              <h3>Run Pipelines in Demo Environment</h3>
-              
-              <h4>Step 4: Launch pipeline</h4>
-              <p>For every new pipeline you launch, you run the below code in the Codespaces terminal:</p>
-              <div class="code-container">
-                <pre><code>tracer init</code></pre>
-                <button class="copy-btn">
-                  <i class="fas fa-copy"></i>
-                </button>
+            // Add Step 3 content for non-Demo environments
+            configContent.innerHTML += `
+              <div class="tracer-instructions" style="margin-top: 2rem; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; background-color: rgba(0,0,0,0.2);">
+                <h4>Step 3: Run pipeline</h4>
+                <p>We have pre-installed some pipelines the github repo for you to run.</p>
+                <p>We would recommend to start with a simple rnaseq pipeline in Nextflow:</p>
+                <div class="code-container">
+                  <pre><code>nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir</code></pre>
+                  <button class="copy-btn">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                </div>
+                <p>Other pipelines, written in Bash, Nextflow, WDL, and CWL can be found under the <code>pipelines</code> files for you to test out.</p>
+                <p>Play around with the other pipelines, have fun! 🧬</p>
               </div>
-              <p>It will ask you to setup the parameters of this pipeline. This allows for customisation and easy information retrieval later:</p>
-              <ul style="list-style-type: none; padding-left: 1rem;">
-                <li>--pipeline-name: what name do you give this pipeline? (one pipeline consists of multiple runs)</li>
-                <li>--environment: what is the environment you are running this in?</li>
-                <li>--pipeline-type: what type of pipeline are you running e.g., rnaseq, scrnaseq, xxxx. note you could also name this after a cost centre or team so that you can easily search the other pipelines</li>
-                <li>--user-operator: what is your name/who is running this pipeline?</li>
-              </ul>
-              
-              <h4>Step 5: Run pipeline</h4>
-              <p>We have pre-installed some pipelines in the Codespaces for you to run.</p>
-              <p>We would recommend to start with a simple rnaseq pipeline in Nextflow:</p>
-              <div class="code-container">
-                <pre><code>nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume</code></pre>
-                <button class="copy-btn">
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-              <p>Other pipelines, written in Bash, Nextflow, WDL, and CWL can be found under the <code>pipelines</code> files</p>
-              <p>Play around with the other pipelines, have fun!</p>
             `;
             
-            configContent.appendChild(instructions);
+            // Add event listeners to copy buttons
+            configContent.querySelectorAll('.copy-btn').forEach(btn => {
+              btn.addEventListener('click', function() {
+                const code = this.previousElementSibling.textContent;
+                navigator.clipboard.writeText(code);
+                
+                // Visual feedback
+                const originalIcon = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                  this.innerHTML = originalIcon;
+                }, 2000);
+              });
+            });
+          } else {
+            // Original Demo content for Run Pipelines tab
+            configContent.innerHTML = `
+              <h2>Run Pipelines</h2>
+              
+              <div class="tracer-instructions" style="margin-top: 2rem; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; background-color: rgba(0,0,0,0.2);">
+                <h4>Step 4: Launch pipeline</h4>
+                <p>For every new pipeline you launch, you run the below code in the Codespaces terminal:</p>
+                <div class="code-container">
+                  <pre><code>tracer init</code></pre>
+                  <button class="copy-btn">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                </div>
+                <p>It will ask you to setup the parameters of this pipeline. This allows for customisation and easy information retrieval later:</p>
+                <ul style="list-style-type: none; padding-left: 1rem;">
+                  <li>--pipeline-name: what name do you give this pipeline? (one pipeline consists of multiple runs)</li>
+                  <li>--environment: what is the environment you are running this in?</li>
+                  <li>--pipeline-type: what type of pipeline are you running e.g., rnaseq, scrnaseq, xxxx. note you could also name this after a cost centre or team so that you can easily search the other pipelines</li>
+                  <li>--user-operator: what is your name/who is running this pipeline?</li>
+                </ul>
+                
+                <h4>Step 5: Run pipeline</h4>
+                <p>We have pre-installed some pipelines in the Codespaces for you to run.</p>
+                <p>We would recommend to start with a simple rnaseq pipeline in Nextflow:</p>
+                <div class="code-container">
+                  <pre><code>nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume</code></pre>
+                  <button class="copy-btn">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                </div>
+                <p>Other pipelines, written in Bash, Nextflow, WDL, and CWL can be found under the <code>pipelines</code> files</p>
+                <p>Play around with the other pipelines, have fun!</p>
+              </div>
+            `;
             
             // Add event listeners to copy buttons
             configContent.querySelectorAll('.copy-btn').forEach(btn => {
@@ -924,6 +926,9 @@ cd tracer-test-pipelines-bioinformatics</code></pre>
       
       // Update content based on new selection
       updateContent();
+      
+      // Ensure Install Tracer content is updated
+      ensureInstallTracerContent();
     }
     
     // Helper function to select an option in a group
@@ -1290,45 +1295,104 @@ cd tracer-test-pipelines-bioinformatics</code></pre>
     function ensureInstallTracerContent() {
       const installContent = document.getElementById('install-content');
       if (installContent) {
-        installContent.innerHTML = `
-          <h2>Install Tracer</h2>
-          
-          <div class="github-codespace-instructions" style="margin-top: 2rem; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; background-color: rgba(0,0,0,0.2);">
-            <h3>Installation Instructions</h3>
-            <h4>Github Codespace demo environment</h4>
+        // Check if Demo environment is selected
+        const isDemoSelected = document.querySelector('#environment-options .option.selected').getAttribute('data-value') === 'demo';
+        
+        if (isDemoSelected) {
+          // Original Demo content
+          installContent.innerHTML = `
+            <h2>Install Tracer</h2>
             
-            <p>Github Codespaces gives you an easy way to test Tracer's functionality without needing to install anything into your own system.</p>
-            <p><em>Note that for perfect functionality, you should run Tracer on your own system. We cannot guarantee full functionality due to root access requirements.</em></p>
-            
-            <h4>Step 1: Open GitHub Codespaces</h4>
-            <p>Codespaces will be your coding environment to run any pipeline as an alternative to installing Tracer into your own system.</p>
-            <p>Press button below "Open GitHub Codespaces" and log into GitHub</p>
-            
-            <div style="margin: 1.5rem 0;">
-              <a href="https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/codespaces" target="_blank" class="github-button">
-                <i class="fab fa-github"></i> Open GitHub Codespaces
-              </a>
+            <div class="github-codespace-instructions" style="margin-top: 2rem; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; background-color: rgba(0,0,0,0.2);">
+              <h3>Installation Instructions</h3>
+              <h4>Github Codespace demo environment</h4>
+              
+              <p>Github Codespaces gives you an easy way to test Tracer's functionality without needing to install anything into your own system.</p>
+              <p><em>Note that for perfect functionality, you should run Tracer on your own system. We cannot guarantee full functionality due to root access requirements.</em></p>
+              
+              <h4>Step 1: Open GitHub Codespaces</h4>
+              <p>Codespaces will be your coding environment to run any pipeline as an alternative to installing Tracer into your own system.</p>
+              <p>Press button below "Open GitHub Codespaces" and log into GitHub</p>
+              
+              <div style="margin: 1.5rem 0;">
+                <a href="https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/codespaces" target="_blank" class="github-button">
+                  <i class="fab fa-github"></i> Open GitHub Codespaces
+                </a>
+              </div>
+              
+              <h4>Step 2: Create a new Codespace</h4>
+              <p>⚠️ Important: update 'machine type' to 16-core before launching.</p>
+              <p>This will allow for compute-intense processes to run faster.</p>
+              <div style="margin: 1.5rem 0;">
+                <img src="../assets/images/Tracer-Cloudtracer-test-pipelines-bioinformatics 1.webp" alt="Codespace creation interface" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+              </div>
+              
+              <h4>Step 3: Install Tracer</h4>
+              <p>Before running any pipeline, you need to install Tracer once into your operating system.</p>
+              <p>For Codespaces, as with any cloud system, we install the below line of code into the terminal:</p>
+              <div class="code-container">
+                <pre><code>curl -sSL https://install.tracer.cloud/ | bash -s -- demo && . ~/.bashrc</code></pre>
+                <button class="copy-btn">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <p>Tracer is now connected to your Codespaces' system. This is a one time installation.</p>
             </div>
+          `;
+        } else {
+          // Content for all other environments (Cloud, Local)
+          installContent.innerHTML = `
+            <h2>Install Tracer</h2>
             
-            <h4>Step 2: Create a new Codespace</h4>
-            <p>⚠️ Important: update 'machine type' to 16-core before launching.</p>
-            <p>This will allow for compute-intense processes to run faster.</p>
-            <div style="margin: 1.5rem 0;">
-              <img src="../assets/images/Tracer-Cloudtracer-test-pipelines-bioinformatics 1.webp" alt="Codespace creation interface" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+            <div class="tracer-instructions" style="margin-top: 2rem; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; background-color: rgba(0,0,0,0.2);">
+              <h3>Installation Instructions</h3>
+              <h4>Tracer pipelines</h4>
+              
+              <p>If you want to try with some prepared pipelines by Tracer, you can follow these following steps</p>
+              
+              <h4>Step 1: clone the Tracer repository</h4>
+              <p>This includes a range of pipelines written in different languages (e.g., Bash, Nextflow, WDL, and CWL)</p>
+              <div class="code-container">
+                <pre><code>git clone https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics.git
+cd tracer-test-pipelines-bioinformatics</code></pre>
+                <button class="copy-btn">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              
+              <h4>Step 2: Install Tracer init</h4>
+              <p>For every new pipeline you launch, you run the below code in your terminal:</p>
+              <div class="code-container">
+                <pre><code>tracer init</code></pre>
+                <button class="copy-btn">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              
+              <p>It will ask you to setup the parameters of this pipeline. This allows for customisation and easy information retrieval later:</p>
+              <p>--pipeline-name: what name do you give this pipeline? (one pipeline consists of multiple runs)<br>
+              --environment: what is the environment you are running this in?<br>
+              --pipeline-type: what type of pipeline are you running e.g., rnaseq, scrnaseq, xxxx. note you could also name this after a cost centre or team so that you can easily search the other pipelines<br>
+              --user-operator: what is your name/who is running this pipeline?</p>
+              
+              <p>[exclamation mark] Add the "tracer init" line at the start of each pipeline. This allows the Tracer system to track each pipeline separately and combine the different runs when they have the same pipeline name.</p>
+              
+              <h4>Step 3: Run pipeline</h4>
+              <p>We have pre-installed some pipelines the github repo for you to run.</p>
+              <p>We would recommend to start with a simple rnaseq pipeline in Nextflow:</p>
+              <div class="code-container">
+                <pre><code>nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir</code></pre>
+                <button class="copy-btn">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              
+              <p>Other pipelines, written in Bash, Nextflow, WDL, and CWL can be found under the pipelines files for you to test out.</p>
+              
+              <p>Play around with the other pipelines, have fun! 🧬</p>
             </div>
-            
-            <h4>Step 3: Install Tracer</h4>
-            <p>Before running any pipeline, you need to install Tracer once into your operating system.</p>
-            <p>For Codespaces, as with any cloud system, we install the below line of code into the terminal:</p>
-            <div class="code-container">
-              <pre><code>curl -sSL https://install.tracer.cloud/ | bash -s -- demo && . ~/.bashrc</code></pre>
-              <button class="copy-btn">
-                <i class="fas fa-copy"></i>
-              </button>
-            </div>
-            <p>Tracer is now connected to your Codespaces' system. This is a one time installation.</p>
-          </div>
-        `;
+          `;
+        }
         
         // Add event listeners to copy buttons
         installContent.querySelectorAll('.copy-btn').forEach(btn => {
@@ -1362,11 +1426,84 @@ cd tracer-test-pipelines-bioinformatics</code></pre>
     // Also run when environment options are clicked
     document.querySelectorAll('#environment-options .option').forEach(option => {
       option.addEventListener('click', function() {
-        if (this.getAttribute('data-value') === 'demo') {
-          setTimeout(ensureInstallTracerContent, 10);
-        }
+        // Call ensureInstallTracerContent for any environment option click
+        setTimeout(ensureInstallTracerContent, 10);
+      });
+    });
+
+    // Add event listeners to pipeline options
+    document.querySelectorAll('#pipeline-options .option').forEach(option => {
+      option.addEventListener('click', function() {
+        // Call ensureInstallTracerContent when pipeline options are clicked
+        setTimeout(ensureInstallTracerContent, 10);
+      });
+    });
+
+    // Add this at the end of the script section
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add a specific event listener for environment options
+      document.querySelectorAll('#environment-options .option').forEach(option => {
+        option.addEventListener('click', function() {
+          // Get the selected environment
+          const environment = this.getAttribute('data-value');
+          
+          // Check if Run Pipelines tab is active
+          const isConfigTabActive = document.querySelector('.tab[data-tab="config"]').classList.contains('active');
+          
+          // If Run Pipelines tab is active
+          if (isConfigTabActive) {
+            const configContent = document.getElementById('config-content');
+            
+            // If not Demo environment
+            if (environment !== 'demo') {
+              // Save the heading
+              const heading = configContent.querySelector('h2');
+              const headingClone = heading ? heading.cloneNode(true) : document.createElement('h2');
+              headingClone.textContent = headingClone.textContent || 'Run Pipelines';
+              
+              // Clear the content
+              configContent.innerHTML = '';
+              
+              // Add back the heading
+              configContent.appendChild(headingClone);
+              
+              // Add non-Demo content
+              configContent.innerHTML += `
+                <div class="tracer-instructions" style="margin-top: 2rem; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; background-color: rgba(0,0,0,0.2);">
+                  <h4>Step 3: Run pipeline</h4>
+                  <p>We have pre-installed some pipelines the github repo for you to run.</p>
+                  <p>We would recommend to start with a simple rnaseq pipeline in Nextflow:</p>
+                  <div class="code-container">
+                    <pre><code>nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir</code></pre>
+                    <button class="copy-btn">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                  <p>Other pipelines, written in Bash, Nextflow, WDL, and CWL can be found under the <code>pipelines</code> files for you to test out.</p>
+                  <p>Play around with the other pipelines, have fun! 🧬</p>
+                </div>
+              `;
+              
+              // Add event listeners to copy buttons
+              configContent.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                  const code = this.previousElementSibling.textContent;
+                  navigator.clipboard.writeText(code);
+                  
+                  // Visual feedback
+                  const originalIcon = this.innerHTML;
+                  this.innerHTML = '<i class="fas fa-check"></i>';
+                  setTimeout(() => {
+                    this.innerHTML = originalIcon;
+                  }, 2000);
+                });
+              });
+            }
+          }
+        });
       });
     });
   </script>
+  <script src="fix-run-pipelines.js"></script>
 </body>
 </html>
