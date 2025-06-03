@@ -95,12 +95,18 @@ process SUMMARY_REPORT {
 workflow {
     // Create channel from input files
     input_ch = Channel.fromPath(params.input)
-
+    
+    // Log the files being processed
+    input_ch.view { "Processing file: $it" }
+    
+    // Create a copy of the channel for each process
+    input_ch_copy = input_ch.collect().flatten()
+    
     // Run FASTA statistics
-    FASTA_STATS(input_ch)
+    FASTA_STATS(input_ch_copy)
 
     // Count sequences
-    COUNT_SEQUENCES(input_ch)
+    COUNT_SEQUENCES(input_ch_copy)
 
     // Generate summary report
     SUMMARY_REPORT(COUNT_SEQUENCES.out.collect())
