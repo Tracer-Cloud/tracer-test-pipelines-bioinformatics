@@ -1,0 +1,54 @@
+FROM ubuntu:20.04
+
+# Install basic dependencies - cleaned up apt-get commands to reduce image size
+RUN apt-get update && apt-get install -y \
+    build-essential curl wget git unzip openjdk-17-jdk \
+    graphviz make libbz2-dev liblzma-dev libcurl4-openssl-dev \
+    libssl-dev zlib1g-dev libncurses5-dev libncursesw5-dev \
+    libreadline-dev locales ca-certificates gnupg \
+    lsb-release software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set locale
+RUN locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
+# Docker CLI only - rely on host Docker daemon
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli && \
+    rm -rf /var/lib/apt/lists/*
+
+
+# install conda
+# Download and install Miniconda silently
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${uname -p}.sh -O miniconda.sh
+RUN ash miniconda.sh -b -p $HOME/miniconda
+
+# Add conda to your shell PATH
+RUN echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.bashrc
+RUN source ~/.bashrc && conda --version
+
+# Clone your test pipeline repo
+WORKDIR /root
+RUN git clone https://github.com/tracer-cloud/tracer-test-pipelines-bioinformatics.git && \
+    git config --global --add safe.directory /root/tracer-test-pipelines-bioinformatics
+
+# Optional: Pull latest changes on container start
+RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
+    echo 'set -e' >> /usr/local/bin/entrypoint.sh && \
+    echo 'cd /root/tracer-test-pipelines-bioinformatics && git pull' >> /usr/local/bin/entrypoint.sh && \
+    echo 'exec bash' >> /usr/local/bin/entrypoint.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh
+
+
+# Add Tracer to PATH
+ENV PATH="/root/.tracer/bin:${PATH}"
+
+# Install Nextflow
+RUN wget -O nextflow https://github.com/nextflow-io/nextflow/releases/download/v24.04.2/nextflow && \
+    chmod +x nextflow && \
+    mv nextflow /usr/local/bin/nextflow
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
