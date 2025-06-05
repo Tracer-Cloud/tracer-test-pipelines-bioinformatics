@@ -23,11 +23,11 @@ else
     echo "✅ Nextflow already installed: $(nextflow -version | head -1)"
 fi
 
-# Install mamba if not present (faster than conda)
-if ! command -v mamba &> /dev/null; then
-    echo "📦 Installing Mamba for faster package resolution..."
-    conda install -n base -c conda-forge mamba -y
-fi
+# # Install mamba if not present (faster than conda)
+# if ! command -v mamba &> /dev/null; then
+#     echo "📦 Installing Mamba for faster package resolution..."
+#     conda install -n base -c conda-forge mamba -y
+# fi
 
 # Create test data
 echo "📄 Creating test FASTA files..."
