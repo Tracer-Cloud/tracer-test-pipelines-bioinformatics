@@ -26,6 +26,82 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Function to install Miniconda
+install_miniconda() {
+    print_status "Installing Miniconda..."
+    
+    # Create temporary directory
+    TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+    
+    # Detect OS and architecture for appropriate installer
+    OS=$(uname -s)
+    ARCH=$(uname -m)
+    
+    # Use a specific stable version of Miniconda instead of latest
+    MINICONDA_VERSION="Miniconda3-py39_4.12.0"
+    
+    if [ "$OS" = "Darwin" ]; then
+        # macOS
+        if [ "$ARCH" = "arm64" ]; then
+            # Apple Silicon
+            curl -L -o miniconda.sh "https://repo.anaconda.com/miniconda/${MINICONDA_VERSION}-MacOSX-arm64.sh"
+        else
+            # Intel Mac
+            curl -L -o miniconda.sh "https://repo.anaconda.com/miniconda/${MINICONDA_VERSION}-MacOSX-x86_64.sh"
+        fi
+    elif [ "$OS" = "Linux" ]; then
+        # Linux
+        if [ "$ARCH" = "x86_64" ]; then
+            curl -L -o miniconda.sh "https://repo.anaconda.com/miniconda/${MINICONDA_VERSION}-Linux-x86_64.sh"
+        elif [ "$ARCH" = "aarch64" ]; then
+            curl -L -o miniconda.sh "https://repo.anaconda.com/miniconda/${MINICONDA_VERSION}-Linux-aarch64.sh"
+        else
+            print_error "Unsupported architecture: $ARCH"
+            exit 1
+        fi
+    fi
+    
+    # Check if download was successful
+    if [ ! -f miniconda.sh ]; then
+        print_error "Failed to download Miniconda installer"
+        cd - > /dev/null
+        rm -rf "$TEMP_DIR"
+        return 1
+    fi
+    
+    # Install Miniconda with -u option to update if exists
+    print_status "Installing/Updating Miniconda (this may take a few minutes)..."
+    if ! bash miniconda.sh -b -u -p "$HOME/miniconda3"; then
+        print_error "Failed to install Miniconda"
+        cd - > /dev/null
+        rm -rf "$TEMP_DIR"
+        return 1
+    fi
+    
+    # Initialize conda
+    if [ -f "$HOME/miniconda3/bin/conda" ]; then
+        "$HOME/miniconda3/bin/conda" init bash
+        "$HOME/miniconda3/bin/conda" init zsh
+        
+        # Add conda to current session
+        export PATH="$HOME/miniconda3/bin:$PATH"
+        
+        print_success "Miniconda installed/updated successfully"
+        print_status "Please restart your terminal or run 'source ~/.bashrc' (or ~/.zshrc) to activate conda"
+    else
+        print_error "Miniconda installation appears to have failed"
+        cd - > /dev/null
+        rm -rf "$TEMP_DIR"
+        return 1
+    fi
+    
+    # Clean up
+    cd - > /dev/null
+    rm -rf "$TEMP_DIR"
+}
+
+
 # Function to safely append to .zshrc
 append_to_zshrc() {
     local line="$1"
@@ -192,9 +268,6 @@ install_java_macos() {
     fi
 }
 
-echo "🧬 Setting up Nextflow Conda Pipeline on Mac"
-echo "=============================================="
-
 # Check and install Python if needed
 if ! check_python; then
     install_python_macos
@@ -207,10 +280,9 @@ fi
 
 # Check if conda/mamba is installed
 if ! command -v conda &> /dev/null && ! command -v mamba &> /dev/null; then
-    echo "❌ Conda/Mamba not found. Please install Miniconda or Anaconda first:"
-    echo "   brew install miniconda"
-    echo "   or visit: https://docs.conda.io/en/latest/miniconda.html"
-    exit 1
+    echo "❌ Conda/Mamba not found. Installing miniconda ..."
+    echo ""
+    install_miniconda
 fi
 
 # Check if Nextflow is installed
@@ -259,14 +331,5 @@ mkdir -p results
 echo ""
 echo "🚀 Setup complete! Now you can run the pipeline:"
 echo ""
-echo "   # Run with test data"
-echo "   nextflow run main.nf --input 'test_data/*.fasta'"
-echo ""
-echo "   # Run with Mac profile (more resources)"
-echo "   nextflow run main.nf --input 'test_data/*.fasta' -profile mac"
-echo ""
-echo "   # Run with custom output directory"
-echo "   nextflow run main.nf --input 'test_data/*.fasta' --outdir my_results"
-echo ""
-echo "📊 Results will be saved in the 'results' directory"
-echo "📈 Pipeline reports will be generated automatically"
+echo "   # Run minimal example"
+echo "   ./run.sh"
