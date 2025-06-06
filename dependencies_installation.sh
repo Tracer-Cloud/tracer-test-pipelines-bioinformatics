@@ -365,70 +365,52 @@ install_docker_linux() {
         # Debian/Ubuntu
         print_status "Detected Debian/Ubuntu system"
         
-        # Remove old versions if they exist
-        sudo apt-get remove docker docker-engine docker.io containerd runc
-        
         # Update package index
-        sudo apt-get update
+        sudo apt update
         
         # Install prerequisites
-        sudo apt-get install -y \
-            apt-transport-https \
-            ca-certificates \
-            curl \
-            gnupg \
-            lsb-release
+        sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
         
         # Add Docker's official GPG key
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         
-        # Set up the stable repository
-        echo \
-          "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-          $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        # Add Docker repository
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
         
         # Update package index again
-        sudo apt-get update
+        sudo apt update
         
-        # Install Docker Engine
-        sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+        # Install Docker
+        sudo apt install -y docker-ce docker-ce-cli containerd.io
         
     elif [ -f /etc/redhat-release ]; then
         # RedHat/CentOS/Fedora
         print_status "Detected RedHat/CentOS/Fedora system"
         
-        # Remove old versions if they exist
-        sudo yum remove docker \
-            docker-client \
-            docker-client-latest \
-            docker-common \
-            docker-latest \
-            docker-latest-logrotate \
-            docker-logrotate \
-            docker-engine
-        
-        # Install prerequisites
-        sudo yum install -y yum-utils
-        
-        # Add Docker repository
-        sudo yum-config-manager \
-            --add-repo \
-            https://download.docker.com/linux/centos/docker-ce.repo
-        
-        # Install Docker Engine
-        sudo yum install -y docker-ce docker-ce-cli containerd.io
+        if command_exists dnf; then
+            # Fedora
+            sudo dnf -y install dnf-plugins-core
+            sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+            sudo dnf install -y docker-ce docker-ce-cli containerd.io
+        elif command_exists yum; then
+            # CentOS/RHEL
+            sudo yum install -y yum-utils
+            sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+            sudo yum install -y docker-ce docker-ce-cli containerd.io
+        fi
         
     elif [ -f /etc/arch-release ]; then
         # Arch Linux
         print_status "Detected Arch Linux system"
         sudo pacman -S --noconfirm docker
+        
     else
         print_error "Unsupported Linux distribution for automatic Docker installation"
         print_error "Please install Docker manually and run this script again"
         exit 1
     fi
     
-    # Start Docker service
+    # Start and enable Docker service
     sudo systemctl start docker
     sudo systemctl enable docker
     
