@@ -26,6 +26,25 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Function to safely append to .zshrc
+append_to_zshrc() {
+    local line="$1"
+    local zshrc_path="$HOME/.zshrc"
+    
+    # Create .zshrc if it doesn't exist
+    if [ ! -f "$zshrc_path" ]; then
+        print_status "Creating .zshrc file..."
+        touch "$zshrc_path"
+        chmod 644 "$zshrc_path"
+    fi
+    
+    # Check if the line already exists
+    if ! grep -qF "$line" "$zshrc_path"; then
+        print_status "Adding configuration to .zshrc..."
+        echo "$line" >> "$zshrc_path"
+    fi
+}
+
 # Function to check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -88,8 +107,8 @@ install_python_macos() {
         sudo installer -pkg python-installer.pkg -target /
         
         # Add Python to PATH
-        echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
-        echo 'export PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:$PATH"' >> ~/.zshrc
+        append_to_zshrc 'export PATH="/usr/local/bin:$PATH"'
+        append_to_zshrc 'export PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:$PATH"'
         export PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:$PATH"
         
         # Clean up
@@ -111,14 +130,14 @@ install_java_macos() {
         # Detect if using Apple Silicon or Intel Mac for correct path
         if [[ $(uname -m) == "arm64" ]]; then
             # Apple Silicon Mac
-            echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
-            echo 'export JAVA_HOME="/opt/homebrew/opt/openjdk@17"' >> ~/.zshrc
+            append_to_zshrc 'export PATH="/opt/homebrew/bin:$PATH"'
+            append_to_zshrc 'export JAVA_HOME="/opt/homebrew/opt/openjdk@17"'
             export PATH="/opt/homebrew/bin:$PATH"
             export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
         else
             # Intel Mac
-            echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
-            echo 'export JAVA_HOME="/usr/local/opt/openjdk@17"' >> ~/.zshrc
+            append_to_zshrc 'export PATH="/usr/local/bin:$PATH"'
+            append_to_zshrc 'export JAVA_HOME="/usr/local/opt/openjdk@17"'
             export PATH="/usr/local/bin:$PATH"
             export JAVA_HOME="/usr/local/opt/openjdk@17"
         fi
@@ -152,8 +171,8 @@ install_java_macos() {
         sudo mv jdk-17.0.9+9/Contents /Library/Java/JavaVirtualMachines/adoptopenjdk-17.jdk/
         
         # Set up environment variables
-        echo 'export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-17.jdk/Contents/Home"' >> ~/.zshrc
-        echo 'export PATH="$JAVA_HOME/bin:$PATH"' >> ~/.zshrc
+        append_to_zshrc 'export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-17.jdk/Contents/Home"'
+        append_to_zshrc 'export PATH="$JAVA_HOME/bin:$PATH"'
         export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-17.jdk/Contents/Home"
         export PATH="$JAVA_HOME/bin:$PATH"
         
