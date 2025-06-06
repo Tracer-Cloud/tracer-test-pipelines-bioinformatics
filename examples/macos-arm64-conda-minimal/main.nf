@@ -9,6 +9,21 @@ nextflow.enable.dsl = 2
 params.input = "*.fasta"
 params.outdir = "results"
 
+process STAR_VERSION {
+    label 'version_check'
+    echo true
+
+    script:
+    """
+    echo "FASTQC VERSION:"
+    fastqc --version
+
+    echo "STAR VERSION:"
+    STAR --version
+    """
+}
+
+
 // Process 1: Analyze FASTA files (basic statistics)
 process FASTA_STATS {
     publishDir "${params.outdir}/fasta_stats", mode: 'copy'
@@ -101,6 +116,8 @@ workflow {
     
     // Create a copy of the channel for each process
     input_ch_copy = input_ch.collect().flatten()
+
+    STAR_VERSION()
     
     // Run FASTA statistics
     FASTA_STATS(input_ch_copy)

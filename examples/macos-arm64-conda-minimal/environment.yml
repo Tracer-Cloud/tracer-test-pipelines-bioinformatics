@@ -9,4 +9,5 @@ dependencies:
   - fastqc=0.12.1
   - coreutils=9.1
   - bc  # Calculator for arithmetic operations
+  - STAR=2.7.11b
 

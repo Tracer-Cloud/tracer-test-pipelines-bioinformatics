@@ -345,6 +345,100 @@ install_nextflow() {
     fi
 }
 
+# Function to check Docker installation
+check_docker() {
+    if command_exists docker; then
+        print_success "Docker is already installed"
+        return 0
+    else
+        print_status "Docker is not installed"
+        return 1
+    fi
+}
+
+# Function to install Docker on Linux
+install_docker_linux() {
+    print_status "Installing Docker on Linux..."
+    
+    # Detect Linux distribution
+    if [ -f /etc/debian_version ]; then
+        # Debian/Ubuntu
+        print_status "Detected Debian/Ubuntu system"
+        
+        # Remove old versions if they exist
+        sudo apt-get remove docker docker-engine docker.io containerd runc
+        
+        # Update package index
+        sudo apt-get update
+        
+        # Install prerequisites
+        sudo apt-get install -y \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            gnupg \
+            lsb-release
+        
+        # Add Docker's official GPG key
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        
+        # Set up the stable repository
+        echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+          $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        
+        # Update package index again
+        sudo apt-get update
+        
+        # Install Docker Engine
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+        
+    elif [ -f /etc/redhat-release ]; then
+        # RedHat/CentOS/Fedora
+        print_status "Detected RedHat/CentOS/Fedora system"
+        
+        # Remove old versions if they exist
+        sudo yum remove docker \
+            docker-client \
+            docker-client-latest \
+            docker-common \
+            docker-latest \
+            docker-latest-logrotate \
+            docker-logrotate \
+            docker-engine
+        
+        # Install prerequisites
+        sudo yum install -y yum-utils
+        
+        # Add Docker repository
+        sudo yum-config-manager \
+            --add-repo \
+            https://download.docker.com/linux/centos/docker-ce.repo
+        
+        # Install Docker Engine
+        sudo yum install -y docker-ce docker-ce-cli containerd.io
+        
+    elif [ -f /etc/arch-release ]; then
+        # Arch Linux
+        print_status "Detected Arch Linux system"
+        sudo pacman -S --noconfirm docker
+    else
+        print_error "Unsupported Linux distribution for automatic Docker installation"
+        print_error "Please install Docker manually and run this script again"
+        exit 1
+    fi
+    
+    # Start Docker service
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    
+    # Add current user to docker group
+    sudo usermod -aG docker $USER
+    
+    print_success "Docker installed successfully"
+    print_warning "You may need to log out and log back in for the docker group changes to take effect"
+}
+
 # Function to verify installation
 verify_installation() {
     print_status "Verifying installation..."
@@ -378,6 +472,15 @@ verify_installation() {
         print_warning "Miniconda verification failed - may need terminal restart"
     fi
     
+    # Check Docker on Linux
+    if [ "$(uname -s)" = "Linux" ]; then
+        if check_docker; then
+            print_success "Docker verification passed"
+        else
+            print_warning "Docker verification failed - may need terminal restart"
+        fi
+    fi
+    
     # Check Nextflow
     if command_exists nextflow; then
         NF_VERSION=$(nextflow -version 2>&1 | head -n1)
@@ -390,7 +493,7 @@ verify_installation() {
 
 # Main installation function
 main() {
-    print_status "Starting installation of Nextflow, Java, Python3, and Miniconda..."
+    print_status "Starting installation of Nextflow, Java, Python3, Miniconda, and Docker..."
     print_status "Detected OS: $(uname -s)"
     
     # Detect operating system
@@ -423,6 +526,11 @@ main() {
             if ! check_python; then
                 install_python_linux
             fi
+            
+            # Check and install Docker if needed
+            if ! check_docker; then
+                install_docker_linux
+            fi
             ;;
             
         *)
@@ -453,6 +561,9 @@ main() {
     print_status "  - Java (OpenJDK 17)"
     print_status "  - Python3"
     print_status "  - Miniconda"
+    if [ "$(uname -s)" = "Linux" ]; then
+        print_status "  - Docker"
+    fi
     print_status "  - Nextflow"
     print_status ""
     print_status "You may need to restart your terminal or run 'source ~/.bashrc' (or ~/.zshrc) to use all tools"
@@ -460,6 +571,9 @@ main() {
     print_status "  - nextflow run hello"
     print_status "  - python3 --version"
     print_status "  - conda --version"
+    if [ "$(uname -s)" = "Linux" ]; then
+        print_status "  - docker --version"
+    fi
 }
 
 # Run main function
