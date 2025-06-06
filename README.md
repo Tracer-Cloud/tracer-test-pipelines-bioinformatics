@@ -2,21 +2,34 @@
 Tracer Linux Agent: Observability for Scientific HPC Workloads
 </h1>
 
-## Quickstart Tracer
+## Quickstart Tracer Sandbox
 
-We recommend using the Sandbox Environment for an easy ans quick onboarding experience: https://sandbox.tracer.cloud/
-
-Click the ‘Get started’ button and follow the guided steps. You don't need a local instance and can use our web instance. 
+Follow the instructions on https://sandbox.tracer.cloud/ to get started.
 
 
 
-### Extra steps: Run a simple nextflow RNASeq Pipeline
-After having completed all steps in the Sandbox, you can run a simple RNASeq pipeline by using this command
+### Install Tracer
+Before running any pipeline, you need to install Tracer into your operating system. This is a one-time installation.
+
+For Codespaces, we install the below line of code into the terminal:
+```bash
+curl -sSL https://install.tracer.cloud/ | bash -s -- demo && . ~/.bashrc
+```
+
+### Run tracer init
+To launch a new pipeline with a new name, run the following command in the Codespaces terminal:
+```bash
+tracer init
+```
+
+### Run pipeline
+We have pre-installed some pipelines in the Codespaces for you to run.
+We would recommend to start with a simple rnaseq pipeline in Nextflow:
 ```bash
 nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
 ```
 
-> ⚠️ **Warning:** This is a small pipeline sample, just for demo purposes, so you will not see many tools, to understand the full potential of Tracer, you can install it in your Ubuntu machine, and run your favourite pipeline.
+> ⚠️ This pipeline uses a small dataset for demo purposes. Feel free to adapt the dataset or explore other prepard pipelines under the pipelines tab. 
 
 
 ### Monitor your Pipeline
