@@ -34,8 +34,16 @@ append_to_zshrc() {
     # Create .zshrc if it doesn't exist
     if [ ! -f "$zshrc_path" ]; then
         print_status "Creating .zshrc file..."
-        touch "$zshrc_path"
-        chmod 644 "$zshrc_path"
+        sudo touch "$zshrc_path"
+        sudo chown "$USER:$(id -gn)" "$zshrc_path"
+        sudo chmod 644 "$zshrc_path"
+    fi
+    
+    # Check if we have write permissions
+    if [ ! -w "$zshrc_path" ]; then
+        print_status "Fixing permissions for .zshrc..."
+        sudo chown "$USER:$(id -gn)" "$zshrc_path"
+        sudo chmod 644 "$zshrc_path"
     fi
     
     # Check if the line already exists
