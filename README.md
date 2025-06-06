@@ -63,16 +63,6 @@ New metrics that help you speed up your pipelines and maximize your budget:
 Overall, making sense of scientific toolchains with poor/no observability.
 
 
-<br />
-
-
-
-
-## Table of Contents
-- [🔍 Examples](docs/EXAMPLES.md) – Explore real-world use cases 
-- [🤝 Contributing](docs/CONTRIBUTING.md) – Join the community and contribute
-
-
 
 <br />
 
