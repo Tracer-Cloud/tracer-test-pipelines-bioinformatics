@@ -45,7 +45,7 @@ RUN git clone https://github.com/tracer-cloud/tracer-test-pipelines-bioinformati
 
 # Initialize conda environment
 RUN cd /root/tracer-test-pipelines-bioinformatics/pipelines/nextflow/macos-arm64-conda-minimal && \
-    bash ./setup.sh && bash ./run.sh
+    bash ./setup.sh
 
 
 # Auto-update on entry
@@ -57,8 +57,6 @@ RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'bash /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \
     echo 'rm /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \
     echo 'cd /root/tracer-test-pipelines-bioinformatics/pipelines/nextflow/macos-arm64-conda-minimal' >> /usr/local/bin/entrypoint.sh && \
-    echo 'bash ./setup.sh' >> /usr/local/bin/entrypoint.sh && \
-    echo 'bash ./run.sh' >> /usr/local/bin/entrypoint.sh && \
     echo 'exec bash' >> /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/entrypoint.sh
 
