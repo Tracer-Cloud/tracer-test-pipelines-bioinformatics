@@ -19,8 +19,6 @@ java -jar cromwell.jar run fastq_subsample.wdl --inputs ./fastq_subsample.inputs
 ```
 
 
-fastq_subsample.wdl)
-
 # Other notes
 
 WDL workflows for use on AnVIL and other platforms.
