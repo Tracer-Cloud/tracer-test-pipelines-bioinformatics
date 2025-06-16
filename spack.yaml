@@ -10,7 +10,7 @@ spack:
     - py-pip
   view: true
   concretizer:
-    unify: true
+    unify: when_possible
   packages:
     apple-clang:
       externals:
