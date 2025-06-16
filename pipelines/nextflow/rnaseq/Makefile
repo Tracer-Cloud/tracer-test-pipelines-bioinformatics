@@ -23,10 +23,17 @@ install_spack: check_prerequisites
 .PHONY: setup_spack_env
 setup_spack_env: install_spack
 	@if [ ! -f /etc/profile.d/spack.sh ]; then \
-		echo "export SPACK_ROOT=$(SPACK_DIR)" | sudo tee /etc/profile.d/spack.sh > /dev/null; \
-		echo "source \$$SPACK_ROOT/share/spack/setup-env.sh" | sudo tee -a /etc/profile.d/spack.sh > /dev/null; \
-		echo "export PATH=\$$SPACK_ROOT/bin:\$$PATH" | sudo tee -a /etc/profile.d/spack.sh > /dev/null; \
-		sudo chmod +x /etc/profile.d/spack.sh > /dev/null; \
+		if [ "$$(id -u)" = "0" ]; then \
+			echo "export SPACK_ROOT=$(SPACK_DIR)" > /etc/profile.d/spack.sh; \
+			echo "source \$$SPACK_ROOT/share/spack/setup-env.sh" >> /etc/profile.d/spack.sh; \
+			echo "export PATH=\$$SPACK_ROOT/bin:\$$PATH" >> /etc/profile.d/spack.sh; \
+			chmod +x /etc/profile.d/spack.sh; \
+		else \
+			echo "export SPACK_ROOT=$(SPACK_DIR)" | sudo tee /etc/profile.d/spack.sh > /dev/null; \
+			echo "source \$$SPACK_ROOT/share/spack/setup-env.sh" | sudo tee -a /etc/profile.d/spack.sh > /dev/null; \
+			echo "export PATH=\$$SPACK_ROOT/bin:\$$PATH" | sudo tee -a /etc/profile.d/spack.sh > /dev/null; \
+			sudo chmod +x /etc/profile.d/spack.sh > /dev/null; \
+		fi \
 	fi
 	@if ! grep -q "source.*spack/setup-env.sh" ~/.bashrc; then \
 		echo "export SPACK_ROOT=$(SPACK_DIR)" >> ~/.bashrc; \
