@@ -17,53 +17,57 @@ check_prerequisites:
 install_spack: check_prerequisites
 	@if [ ! -d "$(SPACK_DIR)" ]; then \
 		echo "Installing Spack..."; \
-		git clone -c feature.manyFiles=true --depth=2 https://github.com/spack/spack.git > /dev/null 2>&1; \
+		git clone --depth=1 https://github.com/spack/spack.git > /dev/null 2>&1; \
+		echo "Spack repository cloned successfully."; \
 	fi
 
 .PHONY: setup_spack_env
 setup_spack_env: install_spack
-	@if [ ! -f /etc/profile.d/spack.sh ]; then \
-		echo "export SPACK_ROOT=$(SPACK_DIR)" | sudo tee /etc/profile.d/spack.sh > /dev/null; \
-		echo "source \$$SPACK_ROOT/share/spack/setup-env.sh" | sudo tee -a /etc/profile.d/spack.sh > /dev/null; \
-		echo "export PATH=\$$SPACK_ROOT/bin:\$$PATH" | sudo tee -a /etc/profile.d/spack.sh > /dev/null; \
-		sudo chmod +x /etc/profile.d/spack.sh > /dev/null; \
+	@echo "Setting up Spack environment..."
+	@if [ ! -f ~/.spack/setup-env.sh ]; then \
+		mkdir -p ~/.spack; \
+		echo "export SPACK_ROOT=$(SPACK_DIR)" > ~/.spack/setup-env.sh; \
+		echo "source \$$SPACK_ROOT/share/spack/setup-env.sh" >> ~/.spack/setup-env.sh; \
+		echo "export PATH=\$$SPACK_ROOT/bin:\$$PATH" >> ~/.spack/setup-env.sh; \
+		chmod +x ~/.spack/setup-env.sh; \
 	fi
 	@if ! grep -q "source.*spack/setup-env.sh" ~/.bashrc; then \
-		echo "export SPACK_ROOT=$(SPACK_DIR)" >> ~/.bashrc; \
-		echo "source \$$SPACK_ROOT/share/spack/setup-env.sh" >> ~/.bashrc; \
-		echo "export PATH=\$$SPACK_ROOT/bin:\$$PATH" >> ~/.bashrc; \
-		source ~/.bashrc > /dev/null 2>&1; \
+		echo "source ~/.spack/setup-env.sh" >> ~/.bashrc; \
 	fi
+	@echo "Verifying Spack installation..."
 	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && spack --version" > /dev/null 2>&1 || { \
 		echo "Error: Failed to set up Spack environment"; \
 		exit 1; \
 	}
+	@echo "Spack environment setup completed successfully."
 
 .PHONY: verify_spack
 verify_spack: setup_spack_env
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		spack --version > /dev/null 2>&1 && \
-		spack help --all > /dev/null 2>&1" || { \
+	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && spack --version" > /dev/null 2>&1 || { \
 		echo "Error: Spack verification failed"; \
 		exit 1; \
 	}
 
 .PHONY: create_env
 create_env: verify_spack
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		if [ ! -d '$(ENV_DIR)/.spack-env' ]; then \
-			cd $(ENV_DIR) && \
-			spack env create -d . > /dev/null 2>&1 && \
-			spack env activate -d . > /dev/null 2>&1 && \
-			spack add nextflow > /dev/null 2>&1; \
-		fi"
+	@echo "Creating Spack environment..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		if [ ! -d "$(ENV_DIR)/.spack-env" ]; then \
+			cd "$(ENV_DIR)" && \
+			spack env create -d . --with-view "$(ENV_DIR)/.spack-env/view" && \
+			spack env activate -d . && \
+			spack install; \
+		fi'
+	@echo "Spack environment created successfully."
 
 .PHONY: setup_environment
 setup_environment: create_env
+	@echo "Installing dependencies..."
 	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
 		cd $(ENV_DIR) && \
-		spack env activate -d . > /dev/null 2>&1 && \
-		spack install > /dev/null 2>&1"
+		spack env activate -d . && \
+		spack install"
+	@echo "Environment setup completed successfully."
 
 .PHONY: test_rnaseq
 test_rnaseq: setup_environment
@@ -86,7 +90,4 @@ test_rnaseq_full: setup_environment
 .PHONY: clean
 clean:
 	@echo "Cleaning up..."
-	@rm -rf spack
-	@if [ -f /etc/profile.d/spack.sh ]; then \
-		sudo rm /etc/profile.d/spack.sh; \
-	fi
+	@rm -rf spack ~/.spack
