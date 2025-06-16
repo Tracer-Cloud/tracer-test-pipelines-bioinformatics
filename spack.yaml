@@ -5,23 +5,35 @@
 spack:
   # add package specs to the `specs` list
   specs:
-  - nextflow@24.10.0
-  - python@3.12.5
-  - py-pip
+    - nextflow@24.10.0
+    - python@3.12
+    - py-pip
   view: true
   concretizer:
     unify: true
-  compilers:
-  - compiler:
-      spec: apple-clang@=16.0.0
-      paths:
-        cc: /usr/bin/clang
-        cxx: /usr/bin/clang++
-        f77: null
-        fc: null
-      flags: {}
-      operating_system: sonoma
-      target: aarch64
-      modules: []
-      environment: {}
-      extra_rpaths: []
+  packages:
+    apple-clang:
+      externals:
+        - spec: apple-clang@16.0.0
+          prefix: /usr
+          extra_attributes:
+            compilers:
+              c: /usr/bin/clang
+              cxx: /usr/bin/clang++
+    llvm:
+      externals:
+        - spec: llvm@19.1.6+clang~flang~lld+lldb
+          prefix: /opt/homebrew/opt/llvm
+          extra_attributes:
+            compilers:
+              c: /opt/homebrew/opt/llvm/bin/clang
+              cxx: /opt/homebrew/opt/llvm/bin/clang++
+    gcc:
+      externals:
+        - spec: gcc@14.2.0 languages:='c,c++,fortran'
+          prefix: /opt/homebrew
+          extra_attributes:
+            compilers:
+              c: /opt/homebrew/bin/gcc-14
+              cxx: /opt/homebrew/bin/g++-14
+              fortran: /opt/homebrew/bin/gfortran

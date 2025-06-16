@@ -1,9 +1,11 @@
-reads:
-  class: File
-  path: test.fastq
+# RNA-seq job for testing
+fastq_r1: test.fastq
+fastq_r2: test.fastq
+hisat2_index: ../../integrations/cwl/test-index/genome
+genome_fasta: test.fastq
+gtf: test.fastq
 annotation:
   class: File
   path: test.gtf
-hisat2_index: /root/tracer-test-pipelines-bioinformatics/integrations/cwl/test-index/genome
-feature_type: gene  # Try 'gene' first, but you can change this to any type you think might be in your GTF
+feature_type: gene # Try 'gene' first, but you can change this to any type you think might be in your GTF
 output_file: counts.txt
