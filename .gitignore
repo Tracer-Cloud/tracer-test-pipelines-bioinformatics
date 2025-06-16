@@ -46,3 +46,7 @@ Temporary Items
 **spack/
 **spack-*.tar.gz
 **spack.lock
+
+pipelines/nextflow/rnaseq/RAP1_UNINDUCED_REP1.fq_lint.txt
+pipelines/nextflow/rnaseq/results/
+pipelines/nextflow/rnaseq/work/
