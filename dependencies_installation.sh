@@ -399,9 +399,9 @@ install_docker_linux() {
         # Install Docker
         sudo apt install -y docker-ce docker-ce-cli containerd.io
         
-    elif [ -f /etc/redhat-release ]; then
-        # RedHat/CentOS/Fedora
-        print_status "Detected RedHat/CentOS/Fedora system"
+    elif [ -f /etc/redhat-release ] || [ -f /etc/system-release ]; then
+        # RedHat/CentOS/Fedora/Amazon Linux
+        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
         
         if command_exists dnf; then
             # Fedora
@@ -409,12 +409,11 @@ install_docker_linux() {
             sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
             sudo dnf install -y docker-ce docker-ce-cli containerd.io
         elif command_exists yum; then
-            # CentOS/RHEL
-            sudo yum install -y yum-utils
-            # sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-            # sudo yum install -y docker-ce docker-ce-cli containerd.io
-            sudo yum install docker
-            sudo systemctl restart docker
+            # Amazon Linux/CentOS/RHEL
+            sudo yum update -y
+            sudo yum install -y docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
         fi
         
     elif [ -f /etc/arch-release ]; then
@@ -435,7 +434,15 @@ install_docker_linux() {
     # Add current user to docker group
     sudo usermod -aG docker $USER
     
-    print_success "Docker installed successfully"
+    # Verify Docker installation
+    if command_exists docker; then
+        DOCKER_VERSION=$(docker --version)
+        print_success "Docker installed successfully: $DOCKER_VERSION"
+    else
+        print_error "Docker installation failed - docker command not found"
+        exit 1
+    fi
+    
     print_warning "You may need to log out and log back in for the docker group changes to take effect"
 }
 
