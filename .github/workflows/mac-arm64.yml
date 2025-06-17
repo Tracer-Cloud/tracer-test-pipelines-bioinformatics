@@ -40,32 +40,6 @@ jobs:
         curl -s https://get.nextflow.io | bash
         sudo mv nextflow /usr/local/bin/
 
-  execute-pipeline:
-    runs-on: macos-14
-    needs: prepare-environment
-    defaults:
-      run:
-        shell: bash -l {0}
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Restore cached Conda environment and Nextflow
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/miniconda
-          /usr/local/bin/nextflow
-        key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
-
-    - name: Set up Miniconda
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        miniconda-version: "latest"
-        architecture: arm64
-        auto-update-conda: true
-        auto-activate-base: false
-        activate-environment: ""
-
     - name: Verify installations
       run: |
         conda --version
@@ -78,11 +52,6 @@ jobs:
     - name: Run tracer init
       run: |
         tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
-
-    - name: Run pipeline
-      working-directory: pipelines/macos-arm64/nextflow-conda
-      run: |
-        bash run.sh
 
     - name: Run pipeline
       working-directory: pipelines/macos-arm64/nextflow-conda
