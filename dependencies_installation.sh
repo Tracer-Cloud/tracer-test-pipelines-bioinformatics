@@ -301,15 +301,11 @@ install_java_linux() {
         # RedHat/CentOS/Fedora/Amazon Linux
         print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
         if command_exists dnf; then
-            sudo dnf install -y java-17-openjdk-devel
+            sudo dnf install -y java
         elif command_exists yum; then
             # For Amazon Linux and other yum-based systems
             sudo yum update -y
-            sudo yum install -y java-17-amazon-corretto-devel
-            if [ $? -ne 0 ]; then
-                # Fallback to OpenJDK if Amazon Corretto is not available
-                sudo yum install -y java-17-openjdk-devel
-            fi
+            sudo yum install -y java
         fi
         
     elif [ -f /etc/arch-release ]; then
