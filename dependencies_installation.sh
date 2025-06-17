@@ -301,9 +301,9 @@ install_java_linux() {
         # RedHat/CentOS/Fedora
         print_status "Detected RedHat/CentOS/Fedora system"
         if command_exists dnf; then
-            sudo dnf install -y java-17-openjdk-devel
+            sudo dnf install -y java
         elif command_exists yum; then
-            sudo yum install -y java-17-openjdk-devel
+            sudo yum install -y java
         else
             print_error "Neither dnf nor yum package manager found"
             exit 1
@@ -344,6 +344,9 @@ install_nextflow() {
         export PATH="$HOME/bin:$PATH"
     fi
 }
+
+
+## INstall make on amazon linux
 
 # Function to check Docker installation
 check_docker() {
@@ -395,8 +398,10 @@ install_docker_linux() {
         elif command_exists yum; then
             # CentOS/RHEL
             sudo yum install -y yum-utils
-            sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-            sudo yum install -y docker-ce docker-ce-cli containerd.io
+            # sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+            # sudo yum install -y docker-ce docker-ce-cli containerd.io
+            sudo yum install docker
+            sudo systemctl restart docker
         fi
         
     elif [ -f /etc/arch-release ]; then
@@ -419,6 +424,51 @@ install_docker_linux() {
     
     print_success "Docker installed successfully"
     print_warning "You may need to log out and log back in for the docker group changes to take effect"
+}
+
+# Function to check if make is installed
+check_make() {
+    if command_exists make; then
+        print_success "Make is already installed"
+        return 0
+    else
+        print_status "Make is not installed"
+        return 1
+    fi
+}
+
+# Function to install make on Linux
+install_make_linux() {
+    print_status "Installing Make on Linux..."
+    
+    # Detect Linux distribution
+    if [ -f /etc/debian_version ]; then
+        # Debian/Ubuntu
+        print_status "Detected Debian/Ubuntu system"
+        sudo apt update
+        sudo apt install -y make
+        
+    elif [ -f /etc/redhat-release ]; then
+        # RedHat/CentOS/Fedora/Amazon Linux
+        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
+        if command_exists dnf; then
+            sudo dnf install -y make
+        elif command_exists yum; then
+            sudo yum install -y make
+        fi
+        
+    elif [ -f /etc/arch-release ]; then
+        # Arch Linux
+        print_status "Detected Arch Linux system"
+        sudo pacman -S --noconfirm make
+        
+    else
+        print_error "Unsupported Linux distribution for automatic make installation"
+        print_error "Please install make manually and run this script again"
+        exit 1
+    fi
+    
+    print_success "Make installed successfully"
 }
 
 # Function to verify installation
@@ -498,6 +548,11 @@ main() {
             
         "Linux")
             print_status "Linux detected"
+            
+            # Check and install make if needed
+            if ! check_make; then
+                install_make_linux
+            fi
             
             # Check and install Java if needed
             if ! check_java; then
