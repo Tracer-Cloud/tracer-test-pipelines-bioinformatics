@@ -17,10 +17,9 @@ jobs:
         with:
           auto-update-conda: true
           miniforge-variant: Mambaforge
-          miniforge-version: latest
+          miniforge-version: "25.3.0-3"  # Latest explicit version from releases
+          architecture: arm64
           auto-activate-base: false
-          architecture: arm64  # Explicitly ARM64
-
       - name: Install Nextflow
         run: |
           curl -s https://get.nextflow.io | bash
