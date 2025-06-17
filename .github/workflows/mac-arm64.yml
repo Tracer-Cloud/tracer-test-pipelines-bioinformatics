@@ -16,7 +16,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache Conda environment and Nextflow
+        id: cache-env
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/miniconda
+            /usr/local/bin/nextflow
+          key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
+
       - name: Set up Miniconda
+        if: steps.cache-env.outputs.cache-hit != 'true'
         uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
@@ -25,17 +35,10 @@ jobs:
           auto-activate-base: false
 
       - name: Install Nextflow
+        if: steps.cache-env.outputs.cache-hit != 'true'
         run: |
           curl -s https://get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
-
-      - name: Cache Conda environment and Nextflow
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/miniconda
-            /usr/local/bin/nextflow
-          key: ${{ runner.os }}-miniconda-nextflow-arm64-${{ github.sha }}
 
   execute-pipeline:
     runs-on: macos-14
@@ -52,7 +55,7 @@ jobs:
           path: |
             ~/miniconda
             /usr/local/bin/nextflow
-          key: ${{ runner.os }}-miniconda-nextflow-arm64-${{ github.sha }}
+          key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
 
       - name: Verify Nextflow installation
         run: nextflow -v
