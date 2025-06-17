@@ -8,7 +8,7 @@ on:
     - '.github/workflows/mac-arm64.yml'
 
 jobs:
-  prepare-environment:
+  run-pipeline:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
@@ -22,34 +22,17 @@ jobs:
           /usr/local/bin/nextflow
         key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
 
-    - name: Set up Miniconda
-      if: steps.cache-env.outputs.cache-hit != 'true'
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        miniconda-version: "latest"
-        architecture: arm64
-        auto-update-conda: true
-        auto-activate-base: false
-
-    - name: Install Nextflow
+    - name: Set up Miniconda and Nextflow
       if: steps.cache-env.outputs.cache-hit != 'true'
       run: |
+        # Install Miniconda
+        curl -sL https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o miniconda.sh
+        bash miniconda.sh -b -p $HOME/miniconda
+        $HOME/miniconda/bin/conda update -y -n base -c defaults conda
+
+        # Install Nextflow
         curl -s https://get.nextflow.io | bash
         sudo mv nextflow /usr/local/bin/
-
-  execute-pipeline:
-    runs-on: macos-14
-    needs: prepare-environment
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Restore cached Conda environment and Nextflow
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/miniconda
-          /usr/local/bin/nextflow
-        key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
 
     - name: Add Conda to PATH
       run: echo "$HOME/miniconda/bin" >> $GITHUB_PATH
@@ -58,6 +41,14 @@ jobs:
       run: |
         conda --version
         nextflow -v
+
+    - name: Install tracer
+      run: |
+        curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
+
+    - name: Run tracer init
+      run: |
+        tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
     - name: Run pipeline
       working-directory: pipelines/macos-arm64/nextflow-conda
