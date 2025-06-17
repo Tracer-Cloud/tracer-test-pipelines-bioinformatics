@@ -15,8 +15,8 @@ jobs:
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          miniconda-version: ""             # Explicitly required as empty string
           auto-update-conda: true
+          miniconda-version: "py312_24.3.0-0"  # latest ARM64-compatible Miniconda version - need to explicitly specify
           miniforge-variant: Mambaforge
           miniforge-version: "25.3.0-3"  # Latest explicit version from releases
           architecture: arm64
