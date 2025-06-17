@@ -53,7 +53,7 @@ jobs:
 
     - name: Run tracer init
       run: |
-        tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow-conda --is-dev true
+        tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
     - name: Run pipeline
       working-directory: pipelines/macos-arm64/nextflow-conda
