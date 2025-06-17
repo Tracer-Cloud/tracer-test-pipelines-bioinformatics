@@ -8,24 +8,57 @@ on:
       - '.github/workflows/mac-arm64.yml'
 
 jobs:
-  test:
+  prepare-environment:
     runs-on: macos-14
     defaults:
       run:
         shell: bash -l {0}
+    outputs:
+      cache-key: ${{ steps.cache-conda.outputs.cache-primary-key }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache Conda environment
+        id: cache-conda
+        uses: actions/cache@v4
+        with:
+          path: ~/miniconda
+          key: ${{ runner.os }}-miniconda-arm64-${{ hashFiles('environment.yml') }}
+
       - name: Set up Miniconda
+        if: steps.cache-conda.outputs.cache-hit != 'true'
         uses: conda-incubator/setup-miniconda@v2
         with:
-          miniconda-version: "latest"     # or pin e.g. "py312_24.3.0-0"
+          miniconda-version: "latest"
           architecture: arm64
           auto-update-conda: true
           auto-activate-base: false
+
       - name: Install Nextflow
+        if: steps.cache-conda.outputs.cache-hit != 'true'
         run: |
           curl -s https://get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
+
+  execute-pipeline:
+    runs-on: macos-14
+    defaults:
+      run:
+        shell: bash -l {0}
+    needs: prepare-environment
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore cached Conda environment
+        uses: actions/cache@v4
+        with:
+          path: ~/miniconda
+          key: ${{ needs.prepare-environment.outputs.cache-key }}
+
+      - name: Ensure Nextflow is available
+        run: |
+          nextflow -v
+
       - name: Run pipeline
         working-directory: pipelines/nextflow-conda-macos-arm64
         run: |
