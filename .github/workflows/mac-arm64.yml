@@ -57,8 +57,14 @@ jobs:
             /usr/local/bin/nextflow
           key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
 
-      - name: Verify Nextflow installation
-        run: nextflow -v
+      - name: Activate cached Miniconda
+        run: |
+          echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+
+      - name: Verify installations
+        run: |
+          conda --version
+          nextflow -v
 
       - name: Run pipeline
         working-directory: pipelines/macos-arm64/nextflow-conda
