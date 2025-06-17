@@ -406,8 +406,9 @@ install_docker_linux() {
         # Update system
         sudo yum update -y
         
-        # Install Docker from Amazon Linux extras
-        sudo amazon-linux-extras install docker -y
+        # Install Docker from yum
+        # sudo amazon-linux-extras install docker -y
+        sudo yum install -y docker
         
         # Start and enable Docker service
         sudo systemctl start docker
