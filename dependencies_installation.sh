@@ -448,7 +448,7 @@ install_make_linux() {
         sudo apt update
         sudo apt install -y make
         
-    elif [ -f /etc/redhat-release ]; then
+    elif [ -f /etc/redhat-release ] || [ -f /etc/system-release ]; then
         # RedHat/CentOS/Fedora/Amazon Linux
         print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
         if command_exists dnf; then
