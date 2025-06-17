@@ -25,7 +25,7 @@ install_spack: check_prerequisites
 
 .PHONY: setup_spack_env
 setup_spack_env: install_spack
-	@echo "Setting up Spack environment..."
+	@echo "Setting up Spack..."
 	@if [ ! -f ~/.spack/setup-env.sh ]; then \
 		mkdir -p ~/.spack; \
 		echo "export SPACK_ROOT=$(SPACK_DIR)" > ~/.spack/setup-env.sh; \
@@ -41,7 +41,7 @@ setup_spack_env: install_spack
 		echo "Error: Failed to set up Spack environment"; \
 		exit 1; \
 	}
-	@echo "Spack environment setup completed successfully."
+	@echo "Spack setup completed successfully."
 
 .PHONY: verify_spack
 verify_spack: setup_spack_env
@@ -87,6 +87,7 @@ test_rnaseq: setup_environment
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
 			-profile test"
 
 .PHONY: test_rnaseq_full
@@ -96,6 +97,7 @@ test_rnaseq_full: setup_environment
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
 			-profile test_full"
 
 .PHONY: clean_spack

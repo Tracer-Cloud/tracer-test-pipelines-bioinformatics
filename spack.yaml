@@ -6,16 +6,23 @@ spack:
   # add package specs to the `specs` list
   specs:
     - nextflow@24.10.0
-    - java@17
-    - python@3.12.5
-    - fastqc
-  view: true
+    - python@3.12
+    - fastqc@0.12.1
+    - star@2.7.10b
+    - hisat2@2.2.1
+    - fq
+  view: false
   concretizer:
-    unify: true
+    unify: when_possible
   packages:
     all:
       providers:
         mpi: [openmpi]
         blas: [openblas]
         lapack: [openblas]
+    temurin:
+      buildable: true
+      variants: +certs
 ## Reload the shell after running this
+
+## for amazon linux make sure that fq is installed using dependency script
