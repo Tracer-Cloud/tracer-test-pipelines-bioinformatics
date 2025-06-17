@@ -410,10 +410,32 @@ install_docker_linux() {
             sudo dnf install -y docker-ce docker-ce-cli containerd.io
         elif command_exists yum; then
             # Amazon Linux/CentOS/RHEL
+            print_status "Installing Docker on Amazon Linux..."
+            
+            # Update system
             sudo yum update -y
-            sudo yum install -y docker
+            
+            # Install Docker from Amazon Linux extras
+            sudo amazon-linux-extras install docker -y
+            
+            # Start and enable Docker service
             sudo systemctl start docker
             sudo systemctl enable docker
+            
+            # Verify Docker installation
+            if command_exists docker; then
+                DOCKER_VERSION=$(docker --version)
+                print_success "Docker installed successfully: $DOCKER_VERSION"
+            else
+                print_error "Docker installation failed - docker command not found"
+                exit 1
+            fi
+            
+            # Add current user to docker group
+            sudo usermod -aG docker $USER
+            
+            print_warning "You may need to log out and log back in for the docker group changes to take effect"
+            return 0
         fi
         
     elif [ -f /etc/arch-release ]; then
