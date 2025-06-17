@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'pipelines/nextflow-conda-macos-arm64/**'
+      - 'pipelines/macos-arm64/nextflow-conda/**'
       - '.github/workflows/mac-arm64.yml'
 
 jobs:
@@ -58,6 +58,6 @@ jobs:
         run: nextflow -v
 
       - name: Run pipeline
-        working-directory: pipelines/nextflow-conda-macos-arm64
+        working-directory: pipelines/macos-arm64/nextflow-conda
         run: |
           bash run.sh
