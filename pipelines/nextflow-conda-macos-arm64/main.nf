@@ -11,7 +11,6 @@ params.outdir = "results"
 
 process STAR_VERSION {
     label 'version_check'
-    echo true
 
     script:
     """
@@ -80,32 +79,6 @@ process COUNT_SEQUENCES {
     """
 }
 
-// Process 3: Generate summary report
-process SUMMARY_REPORT {
-    publishDir "${params.outdir}", mode: 'copy'
-    
-    input:
-    path count_files
-    
-    output:
-    path "summary_report.txt"
-    
-    script:
-    """
-    echo "=== Pipeline Summary Report ===" > summary_report.txt
-    echo "Generated on: \$(date)" >> summary_report.txt
-    echo "" >> summary_report.txt
-    
-    for file in ${count_files}; do
-        echo "--- \$file ---" >> summary_report.txt
-        cat \$file >> summary_report.txt
-        echo "" >> summary_report.txt
-    done
-    
-    echo "Total files processed: \$(echo ${count_files} | wc -w)" >> summary_report.txt
-    """
-}
-
 // Workflow
 workflow {
     // Create channel from input files
@@ -124,7 +97,4 @@ workflow {
 
     // Count sequences
     COUNT_SEQUENCES(input_ch_copy)
-
-    // Generate summary report
-    SUMMARY_REPORT(COUNT_SEQUENCES.out.collect())
 }
