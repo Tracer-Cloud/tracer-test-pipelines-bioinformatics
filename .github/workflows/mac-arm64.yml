@@ -18,7 +18,7 @@ jobs:
           auto-update-conda: true
           miniconda-version: "py312_24.3.0-0"  # latest ARM64-compatible Miniconda version - need to explicitly specify
           miniforge-variant: Mambaforge
-          miniforge-version: "25.3.0-3"  # Latest explicit version from releases
+          # miniforge-version: "25.3.0-3"  # Latest explicit version from releases
           architecture: arm64
           auto-activate-base: false
       - name: Install Nextflow
