@@ -1,17 +1,19 @@
 SHELL := bash
 SPACK_DIR := $(abspath $(CURDIR)/spack)
-ENV_DIR := $(abspath $(CURDIR)/..)
-CONFIG_DIR := $(abspath $(ENV_DIR)/config)
+ENV_DIR := $(abspath $(CURDIR)/../../..)
+CONFIG_DIR := $(abspath $(CURDIR)/config)
+DEPS_SCRIPT := $(abspath $(ENV_DIR)/dependencies_installation.sh)
 
 # Get parent of makefile which 
 BASEDIR := $(abspath $(CURDIR)/)
 
 .PHONY: check_prerequisites
 check_prerequisites:
-	@if ! command -v python3 &> /dev/null || ! command -v git &> /dev/null; then \
-		echo "Error: Python3 and Git are required."; \
+	@if [ ! -f "$(DEPS_SCRIPT)" ]; then \
+		echo "Error: dependencies_installation.sh not found at $(DEPS_SCRIPT)"; \
 		exit 1; \
 	fi
+	@bash "$(DEPS_SCRIPT)"
 
 .PHONY: install_spack
 install_spack: check_prerequisites
@@ -48,6 +50,26 @@ verify_spack: setup_spack_env
 		exit 1; \
 	}
 
+.PHONY: setup_compiler
+setup_compiler: verify_spack
+	@echo "Setting up compiler..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		if command -v gcc &> /dev/null; then \
+			echo "Using GCC compiler"; \
+			spack compiler find --scope site; \
+		elif command -v clang &> /dev/null; then \
+			echo "Using Clang compiler"; \
+			spack compiler find --scope site; \
+		else \
+			echo "Installing GCC compiler..."; \
+			if command -v yum &> /dev/null; then \
+				sudo yum install -y gcc gcc-c++ make; \
+			elif command -v apt-get &> /dev/null; then \
+				sudo apt-get install -y gcc g++ make; \
+			fi; \
+			spack compiler find --scope site; \
+		fi'
+
 .PHONY: create_env
 create_env: verify_spack
 	@echo "Creating Spack environment..."
@@ -76,6 +98,7 @@ test_rnaseq: setup_environment
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
 			-profile test"
 
 .PHONY: test_rnaseq_full
@@ -85,9 +108,30 @@ test_rnaseq_full: setup_environment
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+<<<<<<< HEAD:pipelines/shared/nextflow/Makefile
+			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
+			-profile test_full"
+
+.PHONY: clean_spack
+clean_spack:
+	@echo "Cleaning Spack environment..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		cd "$(ENV_DIR)" && \
+		if [ -d ".spack-env" ]; then \
+			rm -rf .spack-env; \
+		fi && \
+		if [ -f "spack.lock" ]; then \
+			rm spack.lock; \
+		fi'
+	@echo "Spack environment cleaned successfully."
+
+.PHONY: clean
+clean: clean_spack
+=======
 			-profile test_full"
 
 .PHONY: clean
 clean:
+>>>>>>> main:pipelines/nextflow/Makefile
 	@echo "Cleaning up..."
 	@rm -rf spack ~/.spack
