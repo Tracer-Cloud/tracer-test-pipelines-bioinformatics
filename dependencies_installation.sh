@@ -297,16 +297,15 @@ install_java_linux() {
         sudo apt update
         sudo apt install -y openjdk-17-jdk
         
-    elif [ -f /etc/redhat-release ]; then
-        # RedHat/CentOS/Fedora
-        print_status "Detected RedHat/CentOS/Fedora system"
+    elif [ -f /etc/redhat-release ] || [ -f /etc/system-release ]; then
+        # RedHat/CentOS/Fedora/Amazon Linux
+        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
         if command_exists dnf; then
-            sudo dnf install -y java-17-openjdk-devel
+            sudo dnf install -y java
         elif command_exists yum; then
-            sudo yum install -y java-17-openjdk-devel
-        else
-            print_error "Neither dnf nor yum package manager found"
-            exit 1
+            # For Amazon Linux and other yum-based systems
+            sudo yum update -y
+            sudo yum install -y java
         fi
         
     elif [ -f /etc/arch-release ]; then
@@ -317,6 +316,20 @@ install_java_linux() {
     else
         print_error "Unsupported Linux distribution"
         print_error "Please install Java 17 manually and run this script again"
+        exit 1
+    fi
+    
+    # Verify Java installation
+    if command_exists java; then
+        JAVA_VERSION=$(java -version 2>&1 | head -n1 | cut -d'"' -f2 | cut -d'.' -f1)
+        if [ "$JAVA_VERSION" -ge 11 ]; then
+            print_success "Java $JAVA_VERSION installed successfully"
+        else
+            print_error "Java installation failed - version $JAVA_VERSION is less than required version 11"
+            exit 1
+        fi
+    else
+        print_error "Java installation failed - java command not found"
         exit 1
     fi
 }
@@ -344,6 +357,9 @@ install_nextflow() {
         export PATH="$HOME/bin:$PATH"
     fi
 }
+
+
+## INstall make on amazon linux
 
 # Function to check Docker installation
 check_docker() {
@@ -383,6 +399,36 @@ install_docker_linux() {
         # Install Docker
         sudo apt install -y docker-ce docker-ce-cli containerd.io
         
+    elif [ -f /etc/system-release ]; then
+        # Amazon Linux
+        print_status "Detected Amazon Linux system"
+        
+        # Update system
+        sudo yum update -y
+        
+        # Install Docker from yum
+        # sudo amazon-linux-extras install docker -y
+        sudo yum install -y docker
+        
+        # Start and enable Docker service
+        sudo systemctl start docker
+        sudo systemctl enable docker
+        
+        # Add current user to docker group
+        sudo usermod -aG docker $USER
+        
+        # Verify Docker installation
+        if command_exists docker; then
+            DOCKER_VERSION=$(docker --version)
+            print_success "Docker installed successfully: $DOCKER_VERSION"
+        else
+            print_error "Docker installation failed - docker command not found"
+            exit 1
+        fi
+        
+        print_warning "You may need to log out and log back in for the docker group changes to take effect"
+        return 0
+        
     elif [ -f /etc/redhat-release ]; then
         # RedHat/CentOS/Fedora
         print_status "Detected RedHat/CentOS/Fedora system"
@@ -417,8 +463,121 @@ install_docker_linux() {
     # Add current user to docker group
     sudo usermod -aG docker $USER
     
-    print_success "Docker installed successfully"
+    # Verify Docker installation
+    if command_exists docker; then
+        DOCKER_VERSION=$(docker --version)
+        print_success "Docker installed successfully: $DOCKER_VERSION"
+    else
+        print_error "Docker installation failed - docker command not found"
+        exit 1
+    fi
+    
     print_warning "You may need to log out and log back in for the docker group changes to take effect"
+}
+
+# Function to check if make is installed
+check_make() {
+    if command_exists make; then
+        print_success "Make is already installed"
+        return 0
+    else
+        print_status "Make is not installed"
+        return 1
+    fi
+}
+
+# Function to install make on Linux
+install_make_linux() {
+    print_status "Installing Make on Linux..."
+    
+    # Detect Linux distribution
+    if [ -f /etc/debian_version ]; then
+        # Debian/Ubuntu
+        print_status "Detected Debian/Ubuntu system"
+        sudo apt update
+        sudo apt install -y make
+        
+    elif [ -f /etc/redhat-release ] || [ -f /etc/system-release ]; then
+        # RedHat/CentOS/Fedora/Amazon Linux
+        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
+        if command_exists dnf; then
+            sudo dnf install -y make
+        elif command_exists yum; then
+            sudo yum install -y make
+        fi
+        
+    elif [ -f /etc/arch-release ]; then
+        # Arch Linux
+        print_status "Detected Arch Linux system"
+        sudo pacman -S --noconfirm make
+        
+    else
+        print_error "Unsupported Linux distribution for automatic make installation"
+        print_error "Please install make manually and run this script again"
+        exit 1
+    fi
+    
+    print_success "Make installed successfully"
+}
+
+# Function to install development tools on Linux
+install_dev_tools_linux() {
+    print_status "Installing development tools on Linux..."
+    
+    if [ -f /etc/debian_version ]; then
+        # Debian/Ubuntu
+        print_status "Detected Debian/Ubuntu system"
+        sudo apt update
+        sudo apt install -y build-essential gcc g++ make
+        
+    elif [ -f /etc/redhat-release ]; then
+        # RedHat/CentOS/Fedora/Amazon Linux
+        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
+        if command_exists dnf; then
+            sudo dnf groupinstall -y "Development Tools"
+        elif command_exists yum; then
+            sudo yum groupinstall -y "Development Tools"
+        fi
+        
+    elif [ -f /etc/arch-release ]; then
+        # Arch Linux
+        print_status "Detected Arch Linux system"
+        sudo pacman -S --noconfirm base-devel
+        
+    else
+        print_error "Unsupported Linux distribution for automatic development tools installation"
+        print_error "Please install development tools manually and run this script again"
+        exit 1
+    fi
+}
+
+# Function to install development tools on macOS
+install_dev_tools_macos() {
+    print_status "Installing development tools on macOS..."
+    
+    if command_exists brew; then
+        print_status "Using Homebrew to install development tools..."
+        brew install gcc make
+    else
+        print_warning "Homebrew not found. Please install Xcode Command Line Tools manually:"
+        print_warning "xcode-select --install"
+        exit 1
+    fi
+}
+
+# Function to check and install development tools
+check_and_install_dev_tools() {
+    if command_exists gcc && command_exists g++ && command_exists make; then
+        print_success "Development tools are already installed"
+        return 0
+    else
+        print_status "Development tools are not installed"
+        if [ "$(uname)" == "Darwin" ]; then
+            install_dev_tools_macos
+        else
+            install_dev_tools_linux
+        fi
+    fi
 }
 
 # Function to verify installation
@@ -475,8 +634,19 @@ verify_installation() {
 
 # Main installation function
 main() {
-    print_status "Starting installation of Nextflow, Java, Python3, Miniconda, and Docker..."
-    print_status "Detected OS: $(uname -s)"
+    print_status "Starting installation process..."
+    
+    # Check and install development tools first
+    check_and_install_dev_tools
+    
+    # Check and install Python
+    if ! check_python; then
+        if [ "$(uname)" == "Darwin" ]; then
+            install_python_macos
+        else
+            install_python_linux
+        fi
+    fi
     
     # Detect operating system
     OS=$(uname -s)
@@ -489,24 +659,19 @@ main() {
             if ! check_java; then
                 install_java_macos
             fi
-            
-            # Check and install Python if needed
-            if ! check_python; then
-                install_python_macos
-            fi
             ;;
             
         "Linux")
             print_status "Linux detected"
             
+            # Check and install make if needed
+            if ! check_make; then
+                install_make_linux
+            fi
+            
             # Check and install Java if needed
             if ! check_java; then
                 install_java_linux
-            fi
-            
-            # Check and install Python if needed
-            if ! check_python; then
-                install_python_linux
             fi
             
             # Check and install Docker if needed

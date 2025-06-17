@@ -1,17 +1,19 @@
 SHELL := bash
 SPACK_DIR := $(abspath $(CURDIR)/spack)
-ENV_DIR := $(abspath $(CURDIR)/..)
-CONFIG_DIR := $(abspath $(ENV_DIR)/config)
+ENV_DIR := $(abspath $(CURDIR)/../../..)
+CONFIG_DIR := $(abspath $(ENV_DIR)/pipelines/nextflow/config)
+DEPS_SCRIPT := $(abspath $(ENV_DIR)/dependencies_installation.sh)
 
 # Get parent of makefile which 
 BASEDIR := $(abspath $(CURDIR)/)
 
 .PHONY: check_prerequisites
 check_prerequisites:
-	@if ! command -v python3 &> /dev/null || ! command -v git &> /dev/null; then \
-		echo "Error: Python3 and Git are required."; \
+	@if [ ! -f "$(DEPS_SCRIPT)" ]; then \
+		echo "Error: dependencies_installation.sh not found at $(DEPS_SCRIPT)"; \
 		exit 1; \
 	fi
+	@bash "$(DEPS_SCRIPT)"
 
 .PHONY: install_spack
 install_spack: check_prerequisites
@@ -23,7 +25,7 @@ install_spack: check_prerequisites
 
 .PHONY: setup_spack_env
 setup_spack_env: install_spack
-	@echo "Setting up Spack environment..."
+	@echo "Setting up Spack..."
 	@if [ ! -f ~/.spack/setup-env.sh ]; then \
 		mkdir -p ~/.spack; \
 		echo "export SPACK_ROOT=$(SPACK_DIR)" > ~/.spack/setup-env.sh; \
@@ -39,7 +41,7 @@ setup_spack_env: install_spack
 		echo "Error: Failed to set up Spack environment"; \
 		exit 1; \
 	}
-	@echo "Spack environment setup completed successfully."
+	@echo "Spack setup completed successfully."
 
 .PHONY: verify_spack
 verify_spack: setup_spack_env
@@ -48,25 +50,34 @@ verify_spack: setup_spack_env
 		exit 1; \
 	}
 
-.PHONY: create_env
-create_env: verify_spack
-	@echo "Creating Spack environment..."
+.PHONY: setup_compiler
+setup_compiler: verify_spack
+	@echo "Setting up compiler..."
 	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
-		if [ ! -d "$(ENV_DIR)/.spack-env" ]; then \
-			cd "$(ENV_DIR)" && \
-			spack env create -d . --with-view "$(ENV_DIR)/.spack-env/view" && \
-			spack env activate -d . && \
-			spack install; \
+		if command -v gcc &> /dev/null; then \
+			echo "Using GCC compiler"; \
+			spack compiler find --scope site; \
+		elif command -v clang &> /dev/null; then \
+			echo "Using Clang compiler"; \
+			spack compiler find --scope site; \
+		else \
+			echo "Installing GCC compiler..."; \
+			if command -v yum &> /dev/null; then \
+				sudo yum install -y gcc gcc-c++ make; \
+			elif command -v apt-get &> /dev/null; then \
+				sudo apt-get install -y gcc g++ make; \
+			fi; \
+			spack compiler find --scope site; \
 		fi'
-	@echo "Spack environment created successfully."
 
 .PHONY: setup_environment
-setup_environment: create_env
-	@echo "Installing dependencies..."
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		cd $(ENV_DIR) && \
+setup_environment: verify_spack
+	@echo "Setting up Spack environment..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		cd "$(ENV_DIR)" && \
 		spack env activate -d . && \
-		spack install"
+		spack concretize && \
+		spack install'
 	@echo "Environment setup completed successfully."
 
 .PHONY: test_rnaseq
@@ -76,6 +87,7 @@ test_rnaseq: setup_environment
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
 			-profile test"
 
 .PHONY: test_rnaseq_full
@@ -85,9 +97,23 @@ test_rnaseq_full: setup_environment
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
 			-profile test_full"
 
+.PHONY: clean_spack
+clean_spack:
+	@echo "Cleaning Spack environment..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		cd "$(ENV_DIR)" && \
+		if [ -d ".spack-env" ]; then \
+			rm -rf .spack-env; \
+		fi && \
+		if [ -f "spack.lock" ]; then \
+			rm spack.lock; \
+		fi'
+	@echo "Spack environment cleaned successfully."
+
 .PHONY: clean
-clean:
+clean: clean_spack
 	@echo "Cleaning up..."
 	@rm -rf spack ~/.spack
