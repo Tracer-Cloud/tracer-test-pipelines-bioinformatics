@@ -25,32 +25,35 @@ jobs:
     - name: Set up Miniconda and Nextflow
       if: steps.cache-env.outputs.cache-hit != 'true'
       run: |
-        # Install Miniconda
         curl -sL https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o miniconda.sh
         bash miniconda.sh -b -p $HOME/miniconda
-        $HOME/miniconda/bin/conda update -y -n base -c defaults conda
+        export PATH="$HOME/miniconda/bin:$PATH"
+        conda update -y -n base -c defaults conda
 
-        # Install Nextflow
         curl -s https://get.nextflow.io | bash
         sudo mv nextflow /usr/local/bin/
 
-    - name: Add Conda to PATH
-      run: echo "$HOME/miniconda/bin" >> $GITHUB_PATH
-
-    - name: Verify installations
+    - name: Install tracer and initialize pipeline
       run: |
+        export PATH="$HOME/miniconda/bin:$PATH"
+
+        echo "Verifying Conda and Nextflow:"
         conda --version
         nextflow -v
 
-    - name: Install tracer
-      run: |
+        echo "Installing tracer:"
         curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
 
-    - name: Run tracer init
-      run: |
-        tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+        echo "Initializing tracer:"
+        tracer init \
+          --pipeline-name github-actions \
+          --environment github-actions \
+          --user-operator github-actions \
+          --pipeline-type nextflow \
+          --is-dev true
 
     - name: Run pipeline
       working-directory: pipelines/macos-arm64/nextflow-conda
       run: |
+        export PATH="$HOME/miniconda/bin:$PATH"
         bash run.sh
