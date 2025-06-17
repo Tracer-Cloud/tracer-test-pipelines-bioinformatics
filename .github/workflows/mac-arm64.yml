@@ -46,8 +46,10 @@ jobs:
         nextflow -v
 
     - name: Install tracer
+      continue-on-error: true
       run: |
-        curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
+        curl -sSL https://install.tracer.cloud/ | bash
+        source ~/.bashrc
 
     - name: Run tracer init
       run: |
