@@ -48,8 +48,23 @@ verify_spack: setup_spack_env
 		exit 1; \
 	}
 
+.PHONY: setup_compiler
+setup_compiler: verify_spack
+	@echo "Setting up compiler..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		if command -v gcc &> /dev/null; then \
+			echo "Using GCC compiler"; \
+			spack compiler find --scope site; \
+		elif command -v clang &> /dev/null; then \
+			echo "Using Clang compiler"; \
+			spack compiler find --scope site; \
+		else \
+			echo "Error: No suitable compiler found. Please install GCC or Clang."; \
+			exit 1; \
+		fi'
+
 .PHONY: setup_environment
-setup_environment: verify_spack
+setup_environment: setup_compiler
 	@echo "Setting up Spack environment..."
 	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
 		cd "$(ENV_DIR)" && \

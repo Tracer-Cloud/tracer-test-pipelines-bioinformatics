@@ -12,17 +12,50 @@ spack:
   view: true
   concretizer:
     unify: true
+  packages:
+    all:
+      compiler: [gcc@:13, clang@:16, apple-clang@:16]
+      providers:
+        mpi: [openmpi]
+        blas: [openblas]
+        lapack: [openblas]
   compilers:
     - compiler:
-        spec: apple-clang@=16.0.0
+        spec: gcc@13.2.0
+        paths:
+          cc: /usr/bin/gcc
+          cxx: /usr/bin/g++
+          f77: /usr/bin/gfortran
+          fc: /usr/bin/gfortran
+        flags: {}
+        operating_system: any
+        target: any
+        modules: []
+        environment: {}
+        extra_rpaths: []
+    - compiler:
+        spec: clang@16.0.0
         paths:
           cc: /usr/bin/clang
           cxx: /usr/bin/clang++
           f77: null
           fc: null
         flags: {}
-        operating_system: sonoma
-        target: aarch64
+        operating_system: any
+        target: any
+        modules: []
+        environment: {}
+        extra_rpaths: []
+    - compiler:
+        spec: apple-clang@16.0.0
+        paths:
+          cc: /usr/bin/clang
+          cxx: /usr/bin/clang++
+          f77: null
+          fc: null
+        flags: {}
+        operating_system: any
+        target: any
         modules: []
         environment: {}
         extra_rpaths: []
