@@ -520,6 +520,66 @@ install_make_linux() {
     print_success "Make installed successfully"
 }
 
+# Function to install development tools on Linux
+install_dev_tools_linux() {
+    print_status "Installing development tools on Linux..."
+    
+    if [ -f /etc/debian_version ]; then
+        # Debian/Ubuntu
+        print_status "Detected Debian/Ubuntu system"
+        sudo apt update
+        sudo apt install -y build-essential gcc g++ make
+        
+    elif [ -f /etc/redhat-release ]; then
+        # RedHat/CentOS/Fedora/Amazon Linux
+        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
+        if command_exists dnf; then
+            sudo dnf groupinstall -y "Development Tools"
+        elif command_exists yum; then
+            sudo yum groupinstall -y "Development Tools"
+        fi
+        
+    elif [ -f /etc/arch-release ]; then
+        # Arch Linux
+        print_status "Detected Arch Linux system"
+        sudo pacman -S --noconfirm base-devel
+        
+    else
+        print_error "Unsupported Linux distribution for automatic development tools installation"
+        print_error "Please install development tools manually and run this script again"
+        exit 1
+    fi
+}
+
+# Function to install development tools on macOS
+install_dev_tools_macos() {
+    print_status "Installing development tools on macOS..."
+    
+    if command_exists brew; then
+        print_status "Using Homebrew to install development tools..."
+        brew install gcc make
+    else
+        print_warning "Homebrew not found. Please install Xcode Command Line Tools manually:"
+        print_warning "xcode-select --install"
+        exit 1
+    fi
+}
+
+# Function to check and install development tools
+check_and_install_dev_tools() {
+    if command_exists gcc && command_exists g++ && command_exists make; then
+        print_success "Development tools are already installed"
+        return 0
+    else
+        print_status "Development tools are not installed"
+        if [ "$(uname)" == "Darwin" ]; then
+            install_dev_tools_macos
+        else
+            install_dev_tools_linux
+        fi
+    fi
+}
+
 # Function to verify installation
 verify_installation() {
     print_status "Verifying installation..."
@@ -574,8 +634,19 @@ verify_installation() {
 
 # Main installation function
 main() {
-    print_status "Starting installation of Nextflow, Java, Python3, Miniconda, and Docker..."
-    print_status "Detected OS: $(uname -s)"
+    print_status "Starting installation process..."
+    
+    # Check and install development tools first
+    check_and_install_dev_tools
+    
+    # Check and install Python
+    if ! check_python; then
+        if [ "$(uname)" == "Darwin" ]; then
+            install_python_macos
+        else
+            install_python_linux
+        fi
+    fi
     
     # Detect operating system
     OS=$(uname -s)
@@ -587,11 +658,6 @@ main() {
             # Check and install Java if needed
             if ! check_java; then
                 install_java_macos
-            fi
-            
-            # Check and install Python if needed
-            if ! check_python; then
-                install_python_macos
             fi
             ;;
             
@@ -606,11 +672,6 @@ main() {
             # Check and install Java if needed
             if ! check_java; then
                 install_java_linux
-            fi
-            
-            # Check and install Python if needed
-            if ! check_python; then
-                install_python_linux
             fi
             
             # Check and install Docker if needed

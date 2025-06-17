@@ -2,16 +2,18 @@ SHELL := bash
 SPACK_DIR := $(abspath $(CURDIR)/spack)
 ENV_DIR := $(abspath $(CURDIR)/../../..)
 CONFIG_DIR := $(abspath $(ENV_DIR)/pipelines/nextflow/config)
+DEPS_SCRIPT := $(abspath $(ENV_DIR)/dependencies_installation.sh)
 
 # Get parent of makefile which 
 BASEDIR := $(abspath $(CURDIR)/)
 
 .PHONY: check_prerequisites
 check_prerequisites:
-	@if ! command -v python3 &> /dev/null || ! command -v git &> /dev/null; then \
-		echo "Error: Python3 and Git are required."; \
+	@if [ ! -f "$(DEPS_SCRIPT)" ]; then \
+		echo "Error: dependencies_installation.sh not found at $(DEPS_SCRIPT)"; \
 		exit 1; \
 	fi
+	@bash "$(DEPS_SCRIPT)"
 
 .PHONY: install_spack
 install_spack: check_prerequisites
@@ -59,12 +61,17 @@ setup_compiler: verify_spack
 			echo "Using Clang compiler"; \
 			spack compiler find --scope site; \
 		else \
-			echo "Error: No suitable compiler found. Please install GCC or Clang."; \
-			exit 1; \
+			echo "Installing GCC compiler..."; \
+			if command -v yum &> /dev/null; then \
+				sudo yum install -y gcc gcc-c++ make; \
+			elif command -v apt-get &> /dev/null; then \
+				sudo apt-get install -y gcc g++ make; \
+			fi; \
+			spack compiler find --scope site; \
 		fi'
 
 .PHONY: setup_environment
-setup_environment: setup_compiler
+setup_environment: verify_spack
 	@echo "Setting up Spack environment..."
 	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
 		cd "$(ENV_DIR)" && \
