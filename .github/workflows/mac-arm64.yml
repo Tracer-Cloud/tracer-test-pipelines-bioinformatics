@@ -10,9 +10,6 @@ on:
 jobs:
   prepare-environment:
     runs-on: macos-14
-    defaults:
-      run:
-        shell: bash -l {0}
     steps:
     - uses: actions/checkout@v4
 
@@ -43,9 +40,6 @@ jobs:
   execute-pipeline:
     runs-on: macos-14
     needs: prepare-environment
-    defaults:
-      run:
-        shell: bash -l {0}
     steps:
     - uses: actions/checkout@v4
 
@@ -57,14 +51,8 @@ jobs:
           /usr/local/bin/nextflow
         key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
 
-    - name: Set up Miniconda
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        miniconda-version: "latest"
-        architecture: arm64
-        auto-update-conda: true
-        auto-activate-base: false
-        activate-environment: ""
+    - name: Add Conda to PATH
+      run: echo "$HOME/miniconda/bin" >> $GITHUB_PATH
 
     - name: Verify installations
       run: |
