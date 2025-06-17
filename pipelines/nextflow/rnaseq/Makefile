@@ -2,9 +2,26 @@ SHELL := bash
 SPACK_DIR := $(abspath $(CURDIR)/spack)
 ENV_DIR := $(abspath $(CURDIR)/..)
 CONFIG_DIR := $(abspath $(ENV_DIR)/config)
+PARAMS_DIR := $(abspath $(CONFIG_DIR))
+MULTIQC_CONFIG := $(abspath $(CONFIG_DIR)/custom_multiqc_config.yml)
+TEMP_PARAMS := $(abspath $(CURDIR)/temp_params.json)
 
 # Get parent of makefile which 
 BASEDIR := $(abspath $(CURDIR)/)
+
+# Function to create dynamic params file
+define create_dynamic_params
+	@echo "Creating dynamic params file..."
+	@echo '{' > $(TEMP_PARAMS)
+	@echo '    "outdir": "$(1)",' >> $(TEMP_PARAMS)
+	@echo '    "multiqc_config": "$(MULTIQC_CONFIG)"' >> $(TEMP_PARAMS)
+	@echo '}' >> $(TEMP_PARAMS)
+endef
+
+# Function to clean up temp params file
+define cleanup_temp_params
+	@rm -f $(TEMP_PARAMS)
+endef
 
 .PHONY: check_prerequisites
 check_prerequisites:
@@ -71,23 +88,60 @@ setup_environment: create_env
 
 .PHONY: test_rnaseq
 test_rnaseq: setup_environment
+	$(call create_dynamic_params,output/rnaseq-test)
 	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
 		cd $(ENV_DIR) && \
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
-			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+			-params-file $(TEMP_PARAMS) \
 			-profile test"
+	$(call cleanup_temp_params)
 
 .PHONY: test_rnaseq_full
 test_rnaseq_full: setup_environment
+	$(call create_dynamic_params,output/rnaseq-test)
 	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
 		cd $(ENV_DIR) && \
 		spack env activate -d . && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
-			-params-file $(CONFIG_DIR)/rnaseq-params.json \
+			-params-file $(TEMP_PARAMS) \
 			-profile test_full"
+	$(call cleanup_temp_params)
+
+.PHONY: test_rnaseq_right_size_default
+test_rnaseq_right_size_default: setup_environment
+	$(call create_dynamic_params,s3://tracer-nxf-outputs/rnaseq/right-size-tests/default)
+	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
+		cd $(ENV_DIR) && \
+		spack env activate -d . && \
+		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
+			-params-file $(TEMP_PARAMS) \
+			-profile test_full"
+	$(call cleanup_temp_params)
+
+.PHONY: test_rnaseq_right_size_half_cpu
+test_rnaseq_right_size_half_cpu: setup_environment
+	$(call create_dynamic_params,s3://tracer-nxf-outputs/rnaseq/right-size-tests/half-cpu)
+	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
+		cd $(ENV_DIR) && \
+		spack env activate -d . && \
+		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
+			-params-file $(TEMP_PARAMS) \
+			-profile test_full"
+	$(call cleanup_temp_params)
+
+.PHONY: test_rnaseq_right_size_double_cpu
+test_rnaseq_right_size_double_cpu: setup_environment
+	$(call create_dynamic_params,s3://tracer-nxf-outputs/rnaseq/right-size-tests/double-cpu)
+	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
+		cd $(ENV_DIR) && \
+		spack env activate -d . && \
+		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
+			-params-file $(TEMP_PARAMS) \
+			-profile test_full"
+	$(call cleanup_temp_params)
 
 .PHONY: clean
 clean:
 	@echo "Cleaning up..."
-	@rm -rf spack ~/.spack
+	@rm -rf spack ~/.spack $(TEMP_PARAMS)
