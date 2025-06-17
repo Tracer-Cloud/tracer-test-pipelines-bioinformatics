@@ -10,16 +10,17 @@ on:
 jobs:
   test:
     runs-on: macos-14
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          auto-update-conda: true
-          miniconda-version: "py312_24.3.0-0"  # latest ARM64-compatible Miniconda version - need to explicitly specify
-          miniforge-variant: Mambaforge
-          # miniforge-version: "25.3.0-3"  # Latest explicit version from releases
+          miniconda-version: "latest"     # or pin e.g. "py312_24.3.0-0"
           architecture: arm64
+          auto-update-conda: true
           auto-activate-base: false
       - name: Install Nextflow
         run: |
