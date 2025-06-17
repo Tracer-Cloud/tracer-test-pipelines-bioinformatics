@@ -1,7 +1,7 @@
 SHELL := bash
 SPACK_DIR := $(abspath $(CURDIR)/spack)
-ENV_DIR := $(abspath $(CURDIR)/..)
-CONFIG_DIR := $(abspath $(ENV_DIR)/config)
+ENV_DIR := $(abspath $(CURDIR)/../../..)
+CONFIG_DIR := $(abspath $(ENV_DIR)/pipelines/nextflow/config)
 
 # Get parent of makefile which 
 BASEDIR := $(abspath $(CURDIR)/)
