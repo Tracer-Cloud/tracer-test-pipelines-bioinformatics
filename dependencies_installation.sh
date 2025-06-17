@@ -297,16 +297,19 @@ install_java_linux() {
         sudo apt update
         sudo apt install -y openjdk-17-jdk
         
-    elif [ -f /etc/redhat-release ]; then
-        # RedHat/CentOS/Fedora
-        print_status "Detected RedHat/CentOS/Fedora system"
+    elif [ -f /etc/redhat-release ] || [ -f /etc/system-release ]; then
+        # RedHat/CentOS/Fedora/Amazon Linux
+        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
         if command_exists dnf; then
-            sudo dnf install -y java
+            sudo dnf install -y java-17-openjdk-devel
         elif command_exists yum; then
-            sudo yum install -y java
-        else
-            print_error "Neither dnf nor yum package manager found"
-            exit 1
+            # For Amazon Linux and other yum-based systems
+            sudo yum update -y
+            sudo yum install -y java-17-amazon-corretto-devel
+            if [ $? -ne 0 ]; then
+                # Fallback to OpenJDK if Amazon Corretto is not available
+                sudo yum install -y java-17-openjdk-devel
+            fi
         fi
         
     elif [ -f /etc/arch-release ]; then
@@ -317,6 +320,20 @@ install_java_linux() {
     else
         print_error "Unsupported Linux distribution"
         print_error "Please install Java 17 manually and run this script again"
+        exit 1
+    fi
+    
+    # Verify Java installation
+    if command_exists java; then
+        JAVA_VERSION=$(java -version 2>&1 | head -n1 | cut -d'"' -f2 | cut -d'.' -f1)
+        if [ "$JAVA_VERSION" -ge 11 ]; then
+            print_success "Java $JAVA_VERSION installed successfully"
+        else
+            print_error "Java installation failed - version $JAVA_VERSION is less than required version 11"
+            exit 1
+        fi
+    else
+        print_error "Java installation failed - java command not found"
         exit 1
     fi
 }
