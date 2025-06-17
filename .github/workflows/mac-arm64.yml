@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'pipelines/macos-arm64/nextflow-conda/**'
-      - '.github/workflows/mac-arm64.yml'
+    - 'pipelines/macos-arm64/nextflow-conda/**'
+    - '.github/workflows/mac-arm64.yml'
 
 jobs:
   prepare-environment:
@@ -14,59 +14,54 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Cache Conda environment and Nextflow
-        id: cache-env
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/miniconda
-            /usr/local/bin/nextflow
-          key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
+    - name: Cache Conda environment and Nextflow
+      id: cache-env
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/miniconda
+          /usr/local/bin/nextflow
+        key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
 
-      - name: Set up Miniconda
-        if: steps.cache-env.outputs.cache-hit != 'true'
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniconda-version: "latest"
-          architecture: arm64
-          auto-update-conda: true
-          auto-activate-base: false
+    - name: Set up Miniconda
+      if: steps.cache-env.outputs.cache-hit != 'true'
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: "latest"
+        architecture: arm64
+        auto-update-conda: true
+        auto-activate-base: false
 
-      - name: Install Nextflow
-        if: steps.cache-env.outputs.cache-hit != 'true'
-        run: |
-          curl -s https://get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
+    - name: Install Nextflow
+      if: steps.cache-env.outputs.cache-hit != 'true'
+      run: |
+        curl -s https://get.nextflow.io | bash
+        sudo mv nextflow /usr/local/bin/
 
   execute-pipeline:
     runs-on: macos-14
     needs: prepare-environment
-    defaults:
-      run:
-        shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Restore cached Conda environment and Nextflow
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/miniconda
-            /usr/local/bin/nextflow
-          key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
+    - name: Restore cached Conda environment and Nextflow
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/miniconda
+          /usr/local/bin/nextflow
+        key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
 
-      - name: Activate cached Miniconda
-        run: |
-          echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+    - name: Verify installations
+      run: |
+        export PATH="$HOME/miniconda/bin:$PATH"
+        conda --version
+        nextflow -v
 
-      - name: Verify installations
-        run: |
-          conda --version
-          nextflow -v
-
-      - name: Run pipeline
-        working-directory: pipelines/macos-arm64/nextflow-conda
-        run: |
-          bash run.sh
+    - name: Run pipeline
+      working-directory: pipelines/macos-arm64/nextflow-conda
+      run: |
+        export PATH="$HOME/miniconda/bin:$PATH"
+        bash run.sh
