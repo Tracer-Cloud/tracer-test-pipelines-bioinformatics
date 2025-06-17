@@ -48,25 +48,14 @@ verify_spack: setup_spack_env
 		exit 1; \
 	}
 
-.PHONY: create_env
-create_env: verify_spack
-	@echo "Creating Spack environment..."
-	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
-		if [ ! -d "$(ENV_DIR)/.spack-env" ]; then \
-			cd "$(ENV_DIR)" && \
-			spack env create -d . --with-view "$(ENV_DIR)/.spack-env/view" && \
-			spack env activate -d . && \
-			spack install; \
-		fi'
-	@echo "Spack environment created successfully."
-
 .PHONY: setup_environment
-setup_environment: create_env
-	@echo "Installing dependencies..."
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		cd $(ENV_DIR) && \
+setup_environment: verify_spack
+	@echo "Setting up Spack environment..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		cd "$(ENV_DIR)" && \
 		spack env activate -d . && \
-		spack install"
+		spack concretize && \
+		spack install'
 	@echo "Environment setup completed successfully."
 
 .PHONY: test_rnaseq
@@ -87,7 +76,20 @@ test_rnaseq_full: setup_environment
 			-params-file $(CONFIG_DIR)/rnaseq-params.json \
 			-profile test_full"
 
+.PHONY: clean_spack
+clean_spack:
+	@echo "Cleaning Spack environment..."
+	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
+		cd "$(ENV_DIR)" && \
+		if [ -d ".spack-env" ]; then \
+			rm -rf .spack-env; \
+		fi && \
+		if [ -f "spack.lock" ]; then \
+			rm spack.lock; \
+		fi'
+	@echo "Spack environment cleaned successfully."
+
 .PHONY: clean
-clean:
+clean: clean_spack
 	@echo "Cleaning up..."
 	@rm -rf spack ~/.spack
