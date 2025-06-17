@@ -49,15 +49,29 @@ jobs:
       continue-on-error: true
       run: |
         curl -sSL https://install.tracer.cloud/ | bash
-        source ~/.bashrc
-        # Add tracer to GitHub Actions PATH for subsequent steps
+
+        # Source shell config files to get updated PATH
+        source ~/.bashrc 2>/dev/null || true
+        source ~/.bash_profile 2>/dev/null || true
+        source ~/.zshrc 2>/dev/null || true
+        source ~/.profile 2>/dev/null || true
+
+        # Add tracer installation directories to GitHub Actions PATH
+        echo "$HOME/bin" >> $GITHUB_PATH
         echo "$HOME/.local/bin" >> $GITHUB_PATH
-        echo "/usr/local/bin" >> $GITHUB_PATH
+        echo "$HOME/.tracerbio/bin" >> $GITHUB_PATH
+
+        # Verify tracer installation
+        TRACER_DIRS=("$HOME/bin" "$HOME/.local/bin" "$HOME/.tracerbio/bin")
+        for dir in "${TRACER_DIRS[@]}"; do
+          if [ -f "$dir/tracer" ]; then
+            echo "✅ Found tracer at: $dir/tracer"
+            break
+          fi
+        done
 
     - name: Run tracer init
       run: |
-        # Ensure tracer is in PATH
-        export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
         tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
     - name: Run pipeline
@@ -67,6 +81,4 @@ jobs:
 
     - name: Run tracer INFO to verify that the right packages have been installed
       run: |
-        # Ensure tracer is in PATH
-        export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
         tracer info
