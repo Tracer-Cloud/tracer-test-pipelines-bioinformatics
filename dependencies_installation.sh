@@ -399,9 +399,38 @@ install_docker_linux() {
         # Install Docker
         sudo apt install -y docker-ce docker-ce-cli containerd.io
         
-    elif [ -f /etc/redhat-release ] || [ -f /etc/system-release ]; then
-        # RedHat/CentOS/Fedora/Amazon Linux
-        print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
+    elif [ -f /etc/system-release ]; then
+        # Amazon Linux
+        print_status "Detected Amazon Linux system"
+        
+        # Update system
+        sudo yum update -y
+        
+        # Install Docker from Amazon Linux extras
+        sudo amazon-linux-extras install docker -y
+        
+        # Start and enable Docker service
+        sudo systemctl start docker
+        sudo systemctl enable docker
+        
+        # Add current user to docker group
+        sudo usermod -aG docker $USER
+        
+        # Verify Docker installation
+        if command_exists docker; then
+            DOCKER_VERSION=$(docker --version)
+            print_success "Docker installed successfully: $DOCKER_VERSION"
+        else
+            print_error "Docker installation failed - docker command not found"
+            exit 1
+        fi
+        
+        print_warning "You may need to log out and log back in for the docker group changes to take effect"
+        return 0
+        
+    elif [ -f /etc/redhat-release ]; then
+        # RedHat/CentOS/Fedora
+        print_status "Detected RedHat/CentOS/Fedora system"
         
         if command_exists dnf; then
             # Fedora
@@ -409,33 +438,10 @@ install_docker_linux() {
             sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
             sudo dnf install -y docker-ce docker-ce-cli containerd.io
         elif command_exists yum; then
-            # Amazon Linux/CentOS/RHEL
-            print_status "Installing Docker on Amazon Linux..."
-            
-            # Update system
-            sudo yum update -y
-            
-            # Install Docker from Amazon Linux extras
-            sudo amazon-linux-extras install docker -y
-            
-            # Start and enable Docker service
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            
-            # Verify Docker installation
-            if command_exists docker; then
-                DOCKER_VERSION=$(docker --version)
-                print_success "Docker installed successfully: $DOCKER_VERSION"
-            else
-                print_error "Docker installation failed - docker command not found"
-                exit 1
-            fi
-            
-            # Add current user to docker group
-            sudo usermod -aG docker $USER
-            
-            print_warning "You may need to log out and log back in for the docker group changes to take effect"
-            return 0
+            # CentOS/RHEL
+            sudo yum install -y yum-utils
+            sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+            sudo yum install -y docker-ce docker-ce-cli containerd.io
         fi
         
     elif [ -f /etc/arch-release ]; then
