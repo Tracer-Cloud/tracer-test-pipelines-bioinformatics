@@ -1,10 +1,9 @@
 # SHELL := bash
-SPACK_DIR := $(abspath $(CURDIR)/spack)
 ENV_DIR := $(abspath $(CURDIR))
 CONFIG_DIR := $(abspath $(CURDIR)/config)
-
-# Get parent of makefile which 
-BASEDIR := $(abspath $(CURDIR)/)
+CONDA_ENV_NAME := nextflow-minimal
+CONDA_ENV_FILE := $(abspath $(CURDIR)/environment.yml)
+CONDA_BIN := $(HOME)/miniconda3/bin/conda
 
 .PHONY: check_prerequisites
 check_prerequisites:
@@ -13,95 +12,42 @@ check_prerequisites:
 		exit 1; \
 	fi
 
-.PHONY: install_spack
-install_spack: check_prerequisites
-	@if [ ! -d "$(SPACK_DIR)" ]; then \
-		echo "Installing Spack..."; \ 
-		git clone --depth=1 https://github.com/spack/spack.git > /dev/null 2>&1; \
-		echo "Spack repository cloned successfully."; \
-	fi
-
-.PHONY: setup_spack_env
-setup_spack_env: install_spack
-	@echo "Setting up Spack environment..."
-	@if [ ! -f ~/.spack/setup-env.sh ]; then \
-		mkdir -p ~/.spack; \
-		echo "export SPACK_ROOT=$(SPACK_DIR)" > ~/.spack/setup-env.sh; \
-		echo "source \$SPACK_ROOT/share/spack/setup-env.sh" >> ~/.spack/setup-env.sh; \
-		echo "export PATH=\$SPACK_ROOT/bin:\$PATH" >> ~/.spack/setup-env.sh; \
-		chmod +x ~/.spack/setup-env.sh; \
-	fi
-	@SHELL_NAME=$(shell basename $$SHELL); \
-	if [ "$$SHELL_NAME" = "zsh" ]; then \
-		RC_FILE=~/.zshrc; \
+.PHONY: install_conda
+install_conda:
+	@if [ ! -x "$(CONDA_BIN)" ]; then \
+		echo "Conda not found. Installing Miniconda..."; \
+		bash ../macos-arm64/nextflow-conda/setup.sh; \
 	else \
-		RC_FILE=~/.bashrc; \
-	fi; \
-	if ! grep -q "source ~/.spack/setup-env.sh" $$RC_FILE; then \
-		echo "source ~/.spack/setup-env.sh" >> $$RC_FILE; \
+		echo "Conda already installed at $(CONDA_BIN)"; \
 	fi
-	@echo "Verifying Spack installation..."
-	@. $(SPACK_DIR)/share/spack/setup-env.sh; \
-	if ! command -v spack > /dev/null 2>&1; then \
-		echo "Error: 'spack' not found in PATH after sourcing Spack environment."; \
-		exit 1; \
-	fi; \
-	if ! spack --version; then \
-		echo "Error: 'spack --version' failed. Spack may not be installed correctly."; \
-		exit 1; \
-	fi
-	@echo "Spack environment setup completed successfully."
 
-.PHONY: verify_spack
-verify_spack: setup_spack_env
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && spack --version" > /dev/null 2>&1 || { \
-		echo "Error: Spack verification failed"; \
-		exit 1; \
-	}
-
-.PHONY: create_env
-	@echo "Creating or activating Spack environment..."
-	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
-		cd "$(ENV_DIR)" && \
-		if [ -f "spack.yaml" ]; then \
-			spack env activate -d . && \
-			spack install; \
-		else \
-			spack env create -d . --with-view "$(ENV_DIR)/.spack-env/view" && \
-			spack env activate -d . && \
-			spack install; \
-		fi'
-	@echo "Spack environment ready."
+.PHONY: create_conda_env
+create_conda_env: install_conda
+	@echo "Creating or updating conda environment..."
+	@$(CONDA_BIN) env update -f $(CONDA_ENV_FILE) --name $(CONDA_ENV_NAME) --prune
+	@echo "Conda environment '$(CONDA_ENV_NAME)' is ready."
 
 .PHONY: setup_environment
-	@echo "Installing dependencies..."
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		cd $(ENV_DIR) && \
-		spack env activate -d . && \
-		spack install"
+setup_environment: create_conda_env
 	@echo "Environment setup completed successfully."
 
 .PHONY: test_rnaseq
 test_rnaseq: setup_environment
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		cd $(ENV_DIR) && \
-		spack env activate -d . && \
+	@bash -c "source $(HOME)/miniconda3/etc/profile.d/conda.sh && conda activate $(CONDA_ENV_NAME) && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
-			-params-file $(CONFIG_DIR)/rnaseq-params.json \
-			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
-			-profile test"
+		-params-file $(CONFIG_DIR)/rnaseq-params.json \
+		--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
+		-profile test"
 
 .PHONY: test_rnaseq_full
 test_rnaseq_full: setup_environment
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		cd $(ENV_DIR) && \
-		spack env activate -d . && \
+	@bash -c "source $(HOME)/miniconda3/etc/profile.d/conda.sh && conda activate $(CONDA_ENV_NAME) && \
 		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
-			-params-file $(CONFIG_DIR)/rnaseq-params.json \
-			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
-			-profile test_full"
+		-params-file $(CONFIG_DIR)/rnaseq-params.json \
+		--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
+		-profile test_full"
 
 .PHONY: clean
 clean:
 	@echo "Cleaning up..."
-	@rm -rf spack ~/.spack
+	@$(CONDA_BIN) env remove -n $(CONDA_ENV_NAME) || true

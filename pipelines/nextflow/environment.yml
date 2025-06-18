@@ -1,0 +1,19 @@
+name: nextflow-minimal
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  # Core tools
+  - fastqc=0.12.1
+  - coreutils=9.1
+  - bc # Calculator for arithmetic operations
+  - STAR=2.7.11b
+  - hisat2
+  - trimgalore
+  - salmon
+  - samtools
+  - bbmap
+  - subread
+  - fq
