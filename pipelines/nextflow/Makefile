@@ -60,7 +60,6 @@ verify_spack: setup_spack_env
 	}
 
 .PHONY: create_env
-create_env: verify_spack
 	@echo "Creating or activating Spack environment..."
 	@bash -c 'source "$(SPACK_DIR)/share/spack/setup-env.sh" && \
 		cd "$(ENV_DIR)" && \
@@ -75,7 +74,6 @@ create_env: verify_spack
 	@echo "Spack environment ready."
 
 .PHONY: setup_environment
-setup_environment: create_env
 	@echo "Installing dependencies..."
 	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
 		cd $(ENV_DIR) && \
