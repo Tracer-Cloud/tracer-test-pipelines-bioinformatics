@@ -580,14 +580,79 @@ check_and_install_dev_tools() {
     fi
 }
 
+# Function to check if Spack is installed
+check_spack() {
+    if [ -d "$HOME/spack" ] && [ -f "$HOME/spack/bin/spack" ]; then
+        print_success "Spack is already installed"
+        return 0
+    elif command_exists spack; then
+        print_success "Spack is already available in PATH"
+        return 0
+    else
+        print_status "Spack is not installed"
+        return 1
+    fi
+}
+
+# Function to install Spack
+install_spack() {
+    print_status "Installing Spack..."
+    # Only install if not already present
+    if [ -d "$HOME/spack" ] || command_exists spack; then
+        print_status "Spack is already installed or available in PATH. Skipping install."
+    else
+        if [ "$(uname)" = "Darwin" ]; then
+            if command_exists brew; then
+                print_status "Using Homebrew to install Spack..."
+                brew install spack
+                SPACK_ROOT="$(brew --prefix spack)"
+            else
+                print_status "Homebrew not found. Cloning Spack from GitHub..."
+                git clone https://github.com/spack/spack.git "$HOME/spack"
+                SPACK_ROOT="$HOME/spack"
+            fi
+        else
+            git clone https://github.com/spack/spack.git "$HOME/spack"
+            SPACK_ROOT="$HOME/spack"
+        fi
+    fi
+    # Set up Spack environment
+    if [ -z "$SPACK_ROOT" ]; then
+        if [ -d "$HOME/spack" ]; then
+            SPACK_ROOT="$HOME/spack"
+        elif command_exists brew; then
+            SPACK_ROOT="$(brew --prefix spack)"
+        fi
+    fi
+    mkdir -p ~/.spack
+    echo "export SPACK_ROOT=$SPACK_ROOT" > ~/.spack/setup-env.sh
+    echo "source \$SPACK_ROOT/share/spack/setup-env.sh" >> ~/.spack/setup-env.sh
+    echo "export PATH=\$SPACK_ROOT/bin:\$PATH" >> ~/.spack/setup-env.sh
+    chmod +x ~/.spack/setup-env.sh
+    # Add to shell config if not already present
+    if [ -n "$ZSH_VERSION" ]; then
+        SHELL_RC=~/.zshrc
+    else
+        SHELL_RC=~/.bashrc
+    fi
+    if ! grep -q 'spack/share/spack/setup-env.sh' "$SHELL_RC"; then
+        echo '# Spack environment setup' >> "$SHELL_RC"
+        echo ". ~/.spack/setup-env.sh" >> "$SHELL_RC"
+    fi
+    # Source for current session
+    . ~/.spack/setup-env.sh
+    print_success "Spack installed and configured successfully"
+    print_status "You may need to restart your terminal or run 'source $SHELL_RC' to activate Spack."
+}
+
 # Function to verify installation
 verify_installation() {
     print_status "Verifying installation..."
     
-    # Source the shell configuration
-    if [ -f ~/.zshrc ]; then
+    # Source the shell configuration only if in the correct shell
+    if [ -n "$ZSH_VERSION" ] && [ -f ~/.zshrc ]; then
         source ~/.zshrc
-    elif [ -f ~/.bashrc ]; then
+    elif [ -n "$BASH_VERSION" ] && [ -f ~/.bashrc ]; then
         source ~/.bashrc
     fi
     
@@ -611,6 +676,13 @@ verify_installation() {
         print_success "Miniconda verification passed"
     else
         print_warning "Miniconda verification failed - may need terminal restart"
+    fi
+    
+    # Check Spack
+    if check_spack; then
+        print_success "Spack verification passed"
+    else
+        print_warning "Spack verification failed - may need terminal restart"
     fi
     
     # Check Docker on Linux
@@ -691,6 +763,11 @@ main() {
     if ! check_miniconda; then
         install_miniconda
     fi
+
+    # Check and install Spack if needed
+    if ! check_spack; then
+        install_spack
+    fi
     
     # Install Nextflow
     if command_exists nextflow; then
@@ -708,6 +785,7 @@ main() {
     print_status "  - Java (OpenJDK 17)"
     print_status "  - Python3"
     print_status "  - Miniconda"
+    print_status "  - Spack"
     if [ "$(uname -s)" = "Linux" ]; then
         print_status "  - Docker"
     fi
