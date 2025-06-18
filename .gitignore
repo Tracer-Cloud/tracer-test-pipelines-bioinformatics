@@ -50,3 +50,18 @@ Temporary Items
 pipelines/nextflow/rnaseq/RAP1_UNINDUCED_REP1.fq_lint.txt
 pipelines/nextflow/rnaseq/results/
 pipelines/nextflow/rnaseq/work/
+
+# Generated reports and outputs
+*.html
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*_fastqc.zip
+*_fastqc/
+**/results/
+**/work/
+**/*.log
+timeline.html
+report.html
+trace.txt

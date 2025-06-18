@@ -1,0 +1,27 @@
+# Override GitHub language detection
+*.html linguist-generated=true
+*.css linguist-generated=true
+*.js linguist-generated=true
+
+# Mark configuration files as the primary language
+*.nf linguist-language=Nextflow
+*.config linguist-language=Nextflow
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+*.cwl linguist-language=CWL
+*.wdl linguist-language=WDL
+
+# Mark documentation as documentation
+*.md linguist-documentation=true
+*.rst linguist-documentation=true
+*.txt linguist-documentation=true
+
+# Mark test data and outputs as generated
+**/test_data/** linguist-generated=true
+**/results/** linguist-generated=true
+**/work/** linguist-generated=true
+**/*.log linguist-generated=true
+**/*.html linguist-generated=true
+**/*.png linguist-generated=true
+**/*.jpg linguist-generated=true
+**/*.pdf linguist-generated=true
