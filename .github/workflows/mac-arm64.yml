@@ -10,7 +10,7 @@ on:
   - cron: '0 11 * * *' # Daily at 11:00 UTC (12:00 BST)
 
 jobs:
-  prepare-environment:
+  setup-and-run-pipeline:
     runs-on: macos-14
     defaults:
       run:
@@ -50,6 +50,7 @@ jobs:
     - name: Install tracer
       continue-on-error: true
       run: |
+        echo "Installing tracer..."
         curl -sSL https://install.tracer.cloud/ | bash
 
         # Source shell config files to get updated PATH
@@ -58,23 +59,55 @@ jobs:
         source ~/.zshrc 2>/dev/null || true
         source ~/.profile 2>/dev/null || true
 
-        # Add tracer installation directories to GitHub Actions PATH
-        echo "$HOME/bin" >> $GITHUB_PATH
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        echo "$HOME/.tracerbio/bin" >> $GITHUB_PATH
-
-        # Verify tracer installation
+        # Find where tracer was actually installed
         TRACER_DIRS=("$HOME/bin" "$HOME/.local/bin" "$HOME/.tracerbio/bin")
+        TRACER_FOUND=""
+
         for dir in "${TRACER_DIRS[@]}"; do
           if [ -f "$dir/tracer" ]; then
             echo "✅ Found tracer at: $dir/tracer"
+            TRACER_FOUND="$dir"
             break
           fi
         done
 
+        # Add all potential tracer directories to GitHub Actions PATH
+        echo "$HOME/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.tracerbio/bin" >> $GITHUB_PATH
+
+        # Also create a tracer wrapper script in a known location
+        if [ -n "$TRACER_FOUND" ]; then
+          echo "Creating tracer wrapper in /usr/local/bin..."
+          sudo ln -sf "$TRACER_FOUND/tracer" /usr/local/bin/tracer || true
+          echo "/usr/local/bin" >> $GITHUB_PATH
+        fi
+
+        # Test tracer availability
+        export PATH="$HOME/bin:$HOME/.local/bin:$HOME/.tracerbio/bin:/usr/local/bin:$PATH"
+        if command -v tracer &> /dev/null; then
+          echo "✅ Tracer is available in PATH"
+          tracer --version || echo "Tracer version check failed but command exists"
+        else
+          echo "❌ Tracer still not found in PATH"
+        fi
+
     - name: Run tracer init
       run: |
-        tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+        # Ensure tracer is in PATH
+        export PATH="$HOME/bin:$HOME/.local/bin:$HOME/.tracerbio/bin:/usr/local/bin:$PATH"
+
+        # Verify tracer is available
+        if command -v tracer &> /dev/null; then
+          echo "✅ Tracer found: $(which tracer)"
+          tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+        else
+          echo "❌ Tracer not found in PATH"
+          echo "Current PATH: $PATH"
+          echo "Searching for tracer binary..."
+          find /Users/runner -name "tracer" -type f 2>/dev/null || echo "No tracer binary found"
+          exit 1
+        fi
 
     - name: Run pipeline
       working-directory: pipelines/macos-arm64/nextflow-conda
@@ -83,4 +116,17 @@ jobs:
 
     - name: Run tracer INFO to verify that the right packages have been installed
       run: |
-        tracer info
+        # Ensure tracer is in PATH
+        export PATH="$HOME/bin:$HOME/.local/bin:$HOME/.tracerbio/bin:/usr/local/bin:$PATH"
+
+        # Verify tracer is available
+        if command -v tracer &> /dev/null; then
+          echo "✅ Tracer found: $(which tracer)"
+          tracer info
+        else
+          echo "❌ Tracer not found in PATH"
+          echo "Current PATH: $PATH"
+          echo "Searching for tracer binary..."
+          find /Users/runner -name "tracer" -type f 2>/dev/null || echo "No tracer binary found"
+          exit 1
+        fi
