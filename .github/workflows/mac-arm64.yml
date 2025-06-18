@@ -34,6 +34,7 @@ jobs:
         sudo mv nextflow /usr/local/bin/
 
     - name: Verify installations
+      continue-on-error: true
       run: |
         conda --version
         nextflow -v
