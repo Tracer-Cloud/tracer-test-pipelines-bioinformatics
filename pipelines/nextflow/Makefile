@@ -16,7 +16,7 @@ check_prerequisites:
 .PHONY: install_spack
 install_spack: check_prerequisites
 	@if [ ! -d "$(SPACK_DIR)" ]; then \
-		echo "Installing Spack..."; \
+		echo "Installing Spack..."; \ 
 		git clone --depth=1 https://github.com/spack/spack.git > /dev/null 2>&1; \
 		echo "Spack repository cloned successfully."; \
 	fi

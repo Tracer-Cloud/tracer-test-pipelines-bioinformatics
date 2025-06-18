@@ -580,9 +580,12 @@ check_and_install_dev_tools() {
     fi
 }
 
+# Set REPO_ROOT to the directory containing this script
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+
 # Function to check if Spack is installed
 check_spack() {
-    if [ -d "$HOME/spack" ] && [ -f "$HOME/spack/bin/spack" ]; then
+    if [ -d "$REPO_ROOT/spack" ] && [ -f "$REPO_ROOT/spack/bin/spack" ]; then
         print_success "Spack is already installed"
         return 0
     elif command_exists spack; then
@@ -598,39 +601,18 @@ check_spack() {
 install_spack() {
     print_status "Installing Spack..."
     # Only install if not already present
-    if [ -d "$HOME/spack" ] || command_exists spack; then
+    if [ -d "$REPO_ROOT/spack" ] || command_exists spack; then
         print_status "Spack is already installed or available in PATH. Skipping install."
     else
-        if [ "$(uname)" = "Darwin" ]; then
-            if command_exists brew; then
-                print_status "Using Homebrew to install Spack..."
-                brew install spack
-                SPACK_ROOT="$(brew --prefix spack)"
-            else
-                print_status "Homebrew not found. Cloning Spack from GitHub..."
-                git clone https://github.com/spack/spack.git "$HOME/spack"
-                SPACK_ROOT="$HOME/spack"
-            fi
-        else
-            git clone https://github.com/spack/spack.git "$HOME/spack"
-            SPACK_ROOT="$HOME/spack"
-        fi
+        git clone https://github.com/spack/spack.git "$REPO_ROOT/spack"
     fi
-    # Set up Spack environment
-    if [ -z "$SPACK_ROOT" ]; then
-        if [ -d "$HOME/spack" ]; then
-            SPACK_ROOT="$HOME/spack"
-        elif command_exists brew; then
-            SPACK_ROOT="$(brew --prefix spack)"
-        fi
-    fi
+    SPACK_ROOT="$REPO_ROOT/spack"
     mkdir -p ~/.spack
     echo "export SPACK_ROOT=$SPACK_ROOT" > ~/.spack/setup-env.sh
     echo "source \$SPACK_ROOT/share/spack/setup-env.sh" >> ~/.spack/setup-env.sh
     echo "export PATH=\$SPACK_ROOT/bin:\$PATH" >> ~/.spack/setup-env.sh
     chmod +x ~/.spack/setup-env.sh
     # Add to shell config if not already present
-    # Support both root and non-root, bash and zsh
     if [ -n "$ZSH_VERSION" ] || [ -f ~/.zshrc ]; then
         SHELL_RC=~/.zshrc
     else

@@ -2,6 +2,9 @@
 
 all: test_rnaseq_light test_rnaseq_quant_only test_rnaseq_align_count
 
+REPO_ROOT := $(abspath ../..)
+SPACK_ROOT := $(REPO_ROOT)/spack
+
 check_deps:
 	@if ! command -v nextflow > /dev/null 2>&1 || ! command -v java > /dev/null 2>&1 || ! command -v spack > /dev/null 2>&1; then \
 		echo "Installing missing dependencies with dependencies_installation.sh..."; \
@@ -10,7 +13,7 @@ check_deps:
 
 spack_env: check_deps
 	@echo "Activating and installing Spack environment..."
-	@export SPACK_ROOT=$(abspath ../spack); \
+	@export SPACK_ROOT=$(SPACK_ROOT); \
 	source $$SPACK_ROOT/share/spack/setup-env.sh; \
 	if [ -f "spack.yaml" ]; then \
 		spack env activate -d . && spack install; \
@@ -24,7 +27,7 @@ setup_environment: spack_env
 # Run lightweight RNA-seq test pipeline
 .PHONY: test_rnaseq_light
 test_rnaseq_light: setup_environment
-	@export SPACK_ROOT=$(abspath ../spack); \
+	@export SPACK_ROOT=$(SPACK_ROOT); \
 	source $$SPACK_ROOT/share/spack/setup-env.sh; \
 	spack env activate -d .; \
 	cd test-rnaseq-light && nextflow run main.nf
@@ -32,7 +35,7 @@ test_rnaseq_light: setup_environment
 # Run quantification-only RNA-seq pipeline
 .PHONY: test_rnaseq_quant_only
 test_rnaseq_quant_only: setup_environment
-	@export SPACK_ROOT=$(abspath ../spack); \
+	@export SPACK_ROOT=$(SPACK_ROOT); \
 	source $$SPACK_ROOT/share/spack/setup-env.sh; \
 	spack env activate -d .; \
 	cd test-rnaseq-quant-only && nextflow run main.nf
@@ -40,7 +43,7 @@ test_rnaseq_quant_only: setup_environment
 # Run alignment + quantification RNA-seq pipeline
 .PHONY: test_rnaseq_align_count
 test_rnaseq_align_count: setup_environment
-	@export SPACK_ROOT=$(abspath ../spack); \
+	@export SPACK_ROOT=$(SPACK_ROOT); \
 	source $$SPACK_ROOT/share/spack/setup-env.sh; \
 	spack env activate -d .; \
 	cd test-rnaseq-align-count && nextflow run main.nf
