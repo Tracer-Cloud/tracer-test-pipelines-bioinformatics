@@ -50,3 +50,4 @@ Temporary Items
 pipelines/nextflow/rnaseq/RAP1_UNINDUCED_REP1.fq_lint.txt
 pipelines/nextflow/rnaseq/results/
 pipelines/nextflow/rnaseq/work/
+pipelines/nextflow/work/
