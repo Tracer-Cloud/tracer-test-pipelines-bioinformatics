@@ -6,6 +6,10 @@ Tracer Linux Agent: Observability for Scientific HPC Workloads
 
 Follow the instructions on https://sandbox.tracer.cloud/ to get started.
 
+## Pipelines
+
+Below is a list of pipelines available for a quickstart setup in the [pipelines](./pipelines/) directory.
+
 ### Install Tracer
 
 Before running any pipeline, you need to install Tracer into your operating system. This is a one-time installation.
@@ -20,25 +24,48 @@ curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
 
 To launch a new pipeline with a new name, run the following command in the Codespaces terminal:
 
+Make sure the environment has root priviliges you're running tracer in, `sudo su` if needed.
+
 ```bash
 tracer init
 ```
 
+## Dependencies
+
+run the dependency install script
+
+List out all the dependeicnes here
+
+- Java (OpenJDK 17)
+- Python 3
+- Miniconda
+- Docker
+- Nextflow
+- Spack
+
 ### Run pipeline
 
-We have pre-installed some pipelines in the Codespaces for you to run.
-We would recommend to start with a simple rnaseq pipeline in Nextflow:
+We have pre-installed some pipelines in Codespaces for you to run.
+We recommend starting with a simple RNA-seq pipeline in Nextflow:
 
 ```bash
 nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
 ```
 
-> ⚠️ This pipeline uses a small dataset for demo purposes. Feel free to adapt the dataset or explore other prepard pipelines under the pipelines tab.
+> ⚠️ This pipeline uses a small dataset for demonstration purposes. Feel free to adapt the dataset or explore other prepared pipelines under the pipelines tab.
+
+To install all dependencies, simply run:
+
+```bash
+bash dependencies_installation.sh
+```
+
+This script will install all required tools, including Spack, and set up your environment for running the pipelines.
 
 ### Monitor your Pipeline
 
-Watch your pipeline in action via the Tracer monitoring dashboard, which you access by clicking the ‘Open Grafana Dashboard’ button.
-You’ll see real-time execution metrics, stages, and status updates.
+Watch your pipeline in action via the Tracer monitoring dashboard, which you access by clicking the 'Open Grafana Dashboard' button.
+You'll see real-time execution metrics, stages, and status updates.
 
 <br />
 
@@ -68,4 +95,4 @@ New metrics that help you speed up your pipelines and maximize your budget:
 
 ## Mission
 
-> _"The goal of Tracer's Rust agent is to equip scientists and engineers with DevOps intelligence to efficiently harness massive computational power for humanity's most critical challenges."_
+> "_The goal of Tracer's Rust agent is to equip scientists and engineers with DevOps intelligence to efficiently harness massive computational power for humanity's most critical challenges."_
