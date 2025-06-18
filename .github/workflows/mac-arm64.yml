@@ -6,6 +6,8 @@ on:
     paths:
     - 'pipelines/macos-arm64/nextflow-conda/**'
     - '.github/workflows/mac-arm64.yml'
+  schedule:
+  - cron: '0 11 * * *' # Daily at 11:00 UTC (12:00 BST)
 
 jobs:
   prepare-environment:
