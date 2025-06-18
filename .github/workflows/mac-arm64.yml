@@ -10,7 +10,7 @@ on:
   - cron: '0 11 * * *' # Daily at 11:00 UTC (12:00 BST)
 
 jobs:
-  prepare-environment:
+  setup-and-run-pipeline:
     runs-on: macos-14
     defaults:
       run:
@@ -50,6 +50,7 @@ jobs:
     - name: Install tracer
       continue-on-error: true
       run: |
+        echo "Installing tracer..."
         curl -sSL https://install.tracer.cloud/ | bash
 
         # Source shell config files to get updated PATH
