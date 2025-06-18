@@ -4,27 +4,83 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'pipelines/nextflow-conda-macos-arm64/**'
-      - '.github/workflows/mac-arm64.yml'
+    - 'pipelines/macos-arm64/nextflow-conda/**'
+    - '.github/workflows/mac-arm64.yml'
+  schedule:
+  - cron: '0 11 * * *' # Daily at 11:00 UTC (12:00 BST)
 
 jobs:
-  test:
+  prepare-environment:
     runs-on: macos-14
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
-          architecture: arm64
-          auto-activate-base: false
-      - name: Install Nextflow
-        run: |
-          curl -s https://get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-      - name: Run pipeline
-        working-directory: pipelines/nextflow-conda-macos-arm64
-        run: |
-          bash run.sh
+    - uses: actions/checkout@v4
+
+    - name: Cache Conda environment and Nextflow
+      id: cache-env
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/miniconda
+          /usr/local/bin/nextflow
+        key: ${{ runner.os }}-miniconda-nextflow-arm64-stable
+
+    - name: Set up Miniconda
+      if: steps.cache-env.outputs.cache-hit != 'true'
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: "latest"
+        architecture: arm64
+        auto-update-conda: true
+        auto-activate-base: false
+
+    - name: Install Nextflow
+      if: steps.cache-env.outputs.cache-hit != 'true'
+      run: |
+        curl -s https://get.nextflow.io | bash
+        sudo mv nextflow /usr/local/bin/
+
+    - name: Verify installations
+      run: |
+        conda --version
+        nextflow -v
+
+    - name: Install tracer
+      continue-on-error: true
+      run: |
+        curl -sSL https://install.tracer.cloud/ | bash
+
+        # Source shell config files to get updated PATH
+        source ~/.bashrc 2>/dev/null || true
+        source ~/.bash_profile 2>/dev/null || true
+        source ~/.zshrc 2>/dev/null || true
+        source ~/.profile 2>/dev/null || true
+
+        # Add tracer installation directories to GitHub Actions PATH
+        echo "$HOME/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.tracerbio/bin" >> $GITHUB_PATH
+
+        # Verify tracer installation
+        TRACER_DIRS=("$HOME/bin" "$HOME/.local/bin" "$HOME/.tracerbio/bin")
+        for dir in "${TRACER_DIRS[@]}"; do
+          if [ -f "$dir/tracer" ]; then
+            echo "✅ Found tracer at: $dir/tracer"
+            break
+          fi
+        done
+
+    - name: Run tracer init
+      run: |
+        tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+
+    - name: Run pipeline
+      working-directory: pipelines/macos-arm64/nextflow-conda
+      run: |
+        bash run.sh
+
+    - name: Run tracer INFO to verify that the right packages have been installed
+      run: |
+        tracer info
