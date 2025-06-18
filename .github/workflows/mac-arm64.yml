@@ -114,6 +114,33 @@ jobs:
     - name: Run pipeline
       working-directory: pipelines/macos-arm64/nextflow-conda
       run: |
+        # Initialize conda properly
+        if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+          source "$HOME/miniconda3/etc/profile.d/conda.sh"
+        elif [ -f "/Users/runner/miniconda3/etc/profile.d/conda.sh" ]; then
+          source "/Users/runner/miniconda3/etc/profile.d/conda.sh"
+        fi
+
+        # Ensure conda is in PATH
+        export PATH="$HOME/miniconda3/bin:/Users/runner/miniconda3/bin:$PATH"
+
+        # Initialize conda for this shell
+        conda init bash 2>/dev/null || true
+
+        # Verify conda is available
+        if command -v conda &> /dev/null; then
+          echo "✅ Conda found: $(which conda)"
+          conda --version
+          conda info --envs
+        else
+          echo "❌ Conda not found in PATH"
+          echo "Current PATH: $PATH"
+          echo "Searching for conda..."
+          find /Users/runner -name "conda" -type f 2>/dev/null | head -5
+          exit 1
+        fi
+
+        # Run the pipeline
         bash run.sh
 
     - name: Run tracer INFO to verify that the right packages have been installed
