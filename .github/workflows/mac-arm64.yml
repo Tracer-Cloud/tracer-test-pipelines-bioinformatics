@@ -10,7 +10,7 @@ on:
   - cron: '0 11 * * *' # Daily at 11:00 UTC (12:00 BST)
 
 jobs:
-  setup-and-run-pipeline:
+  macos-arm-setup-and-run-pipeline:
     runs-on: macos-14
     defaults:
       run:

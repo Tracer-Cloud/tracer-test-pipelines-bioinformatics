@@ -10,7 +10,7 @@ on:
   - cron: '0 12 * * *' # Daily at 12:00 UTC (13:00 BST)
 
 jobs:
-  setup-and-run-pipeline:
+  macos-intel-x86-setup-and-run-pipeline:
     runs-on: macos-13
     defaults:
       run:
