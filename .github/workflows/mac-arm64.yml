@@ -58,7 +58,17 @@ jobs:
 
     - name: Run tracer init
       run: |
-        sudo tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+        # Ensure tracer is in PATH and use full path for sudo commands
+        export PATH="$HOME/bin:$PATH"
+        TRACER_PATH=$(which tracer 2>/dev/null || echo "$HOME/bin/tracer")
+
+        if [ -f "$TRACER_PATH" ]; then
+          echo "✅ Using tracer at: $TRACER_PATH"
+          sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+        else
+          echo "❌ Tracer not found at $TRACER_PATH"
+          exit 1
+        fi
 
     - name: Run pipeline
       working-directory: pipelines/macos-arm64/nextflow-conda
@@ -69,4 +79,14 @@ jobs:
 
     - name: Verify tracer packages
       run: |
-        sudo tracer info
+        # Ensure tracer is in PATH and use full path for sudo commands
+        export PATH="$HOME/bin:$PATH"
+        TRACER_PATH=$(which tracer 2>/dev/null || echo "$HOME/bin/tracer")
+
+        if [ -f "$TRACER_PATH" ]; then
+          echo "✅ Using tracer at: $TRACER_PATH"
+          sudo env "PATH=$PATH" "$TRACER_PATH" info
+        else
+          echo "❌ Tracer not found at $TRACER_PATH"
+          exit 1
+        fi
