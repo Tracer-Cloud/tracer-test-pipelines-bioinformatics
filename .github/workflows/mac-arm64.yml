@@ -69,4 +69,4 @@ jobs:
 
     - name: Verify tracer packages
       run: |
-        tracer info
+        sudo tracer info
