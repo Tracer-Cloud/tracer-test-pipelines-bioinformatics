@@ -8,7 +8,7 @@ Follow the instructions on https://sandbox.tracer.cloud/ to get started.
 
 ## Pipelines
 
-Please find the list of pipelines that for a quickstart setup in [pipelines](./pipelines/)
+Below is a list of pipelines available for a quickstart setup in the [pipelines](./pipelines/) directory.
 
 ### Install Tracer
 
@@ -36,7 +36,7 @@ run the dependency install script
 
 List out all the dependeicnes here
 
-- Java Openjdk 17
+- Java (OpenJDK 17)
 - Python 3
 - Miniconda
 - Docker
@@ -45,14 +45,14 @@ List out all the dependeicnes here
 
 ### Run pipeline
 
-We have pre-installed some pipelines in the Codespaces for you to run.
-We would recommend to start with a simple rnaseq pipeline in Nextflow:
+We have pre-installed some pipelines in Codespaces for you to run.
+We recommend starting with a simple RNA-seq pipeline in Nextflow:
 
 ```bash
 nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
 ```
 
-> ⚠️ This pipeline uses a small dataset for demo purposes. Feel free to adapt the dataset or explore other prepard pipelines under the pipelines tab.
+> ⚠️ This pipeline uses a small dataset for demonstration purposes. Feel free to adapt the dataset or explore other prepared pipelines under the pipelines tab.
 
 To install all dependencies, simply run:
 
