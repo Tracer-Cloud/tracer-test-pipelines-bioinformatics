@@ -1,0 +1,57 @@
+spack:
+  # add package specs to the `specs` list
+  specs:
+  - nextflow@24.10.0   # managed through bash script
+  - python@3.12   # managed through bash script
+  - openjdk@21
+    # - fastqc@0.12.1
+  - fastqc
+  - star@2.7.10b
+  - hisat2@2.2.1
+  - trimgalore
+  - salmon
+  - samtools
+  - bbmap
+  - subread
+  - fq   # fix this, stuck while installing
+    # spack load trimgalore fastqc openjdk@21 samtools star bbmap salmon subread
+  view: false
+  concretizer:
+    unify: when_possible
+  packages:
+    gcc:
+      externals:
+      - spec: gcc@14.2.0 languages:='c,c++,fortran'
+        prefix: /opt/homebrew
+        extra_attributes:
+          compilers:
+            c: /opt/homebrew/bin/gcc-14
+            cxx: /opt/homebrew/bin/g++-14
+            fortran: /opt/homebrew/bin/gfortran
+    llvm:
+      externals:
+      - spec: llvm@19.1.6+clang~flang~lld+lldb
+        prefix: /opt/homebrew/opt/llvm
+        extra_attributes:
+          compilers:
+            c: /opt/homebrew/opt/llvm/bin/clang
+            cxx: /opt/homebrew/opt/llvm/bin/clang++
+    apple-clang:
+      externals:
+      - spec: apple-clang@16.0.0
+        prefix: /usr
+        extra_attributes:
+          compilers:
+            c: /usr/bin/clang
+            cxx: /usr/bin/clang++
+    all:
+      providers:
+        mpi: [openmpi]
+        blas: [openblas]
+        lapack: [openblas]
+    temurin:
+      buildable: true
+      variants: +certs
+## Reload the shell after running this
+
+## for amazon linux make sure that fq is installed using dependency script

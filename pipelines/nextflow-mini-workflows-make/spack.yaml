@@ -5,12 +5,12 @@
 spack:
   # add package specs to the `specs` list
   specs:
-    - nextflow@24.10.0
-    - python@3.12
-    - fastqc@0.12.1
-    - star@2.7.10b
-    - hisat2@2.2.1
-    - fq
+    - subread
+    - star
+    - trimgalore
+    - salmon
+    - fastqc
+    # spack load trimgalore fastqc openjdk@21 samtools star bbmap salmon subread
   view: false
   concretizer:
     unify: when_possible
@@ -26,3 +26,4 @@ spack:
 ## Reload the shell after running this
 
 ## for amazon linux make sure that fq is installed using dependency script
+
