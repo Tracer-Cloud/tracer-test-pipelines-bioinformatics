@@ -34,12 +34,12 @@ jobs:
         sudo mv nextflow /usr/local/bin/
 
     - name: Verify installations
-      continue-on-error: true
       run: |
         conda --version
         nextflow -v
 
     - name: Install tracer
+      continue-on-error: true
       run: |
         echo "Installing tracer..."
         sudo curl -sSL https://install.tracer.cloud/binary-installer.sh  | bash -s ci_cd_user_123 && source ~/.bashrc
