@@ -585,12 +585,16 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 # Function to check if Spack is installed
 check_spack() {
-    if [ -d "$REPO_ROOT/spack" ] && [ -f "$REPO_ROOT/spack/bin/spack" ]; then
-        print_success "Spack is already installed"
-        return 0
-    elif command_exists spack; then
-        print_success "Spack is already available in PATH"
-        return 0
+    if [ -x "$REPO_ROOT/spack/bin/spack" ]; then
+        if bash -l -c 'command -v spack >/dev/null 2>&1'; then
+            print_success "Spack is already installed and available globally"
+            return 0
+        else
+            print_warning "Spack is installed but not available globally in new shells."
+            print_warning "Please ensure you have the following line in your ~/.bashrc, ~/.bash_profile, or ~/.zshrc:"
+            print_warning ". ~/.spack/setup-env.sh"
+            return 1
+        fi
     else
         print_status "Spack is not installed"
         return 1
@@ -600,34 +604,43 @@ check_spack() {
 # Function to install Spack
 install_spack() {
     print_status "Installing Spack..."
-    # Only install if not already present
-    if [ -d "$REPO_ROOT/spack" ] || command_exists spack; then
-        print_status "Spack is already installed or available in PATH. Skipping install."
-    else
+    # Remove broken or partial spack directory if present
+    if [ -d "$REPO_ROOT/spack" ] && [ ! -x "$REPO_ROOT/spack/bin/spack" ]; then
+        print_warning "Removing incomplete or broken Spack installation at $REPO_ROOT/spack"
+        rm -rf "$REPO_ROOT/spack"
+    fi
+    # Install Spack if not present
+    if [ ! -x "$REPO_ROOT/spack/bin/spack" ]; then
         git clone https://github.com/spack/spack.git "$REPO_ROOT/spack"
     fi
     SPACK_ROOT="$REPO_ROOT/spack"
+    if [ ! -x "$SPACK_ROOT/bin/spack" ]; then
+        print_error "Spack installation failed: $SPACK_ROOT/bin/spack not found or not executable."
+        exit 1
+    fi
     mkdir -p ~/.spack
     echo "export SPACK_ROOT=$SPACK_ROOT" > ~/.spack/setup-env.sh
     echo "source \$SPACK_ROOT/share/spack/setup-env.sh" >> ~/.spack/setup-env.sh
     echo "export PATH=\$SPACK_ROOT/bin:\$PATH" >> ~/.spack/setup-env.sh
     chmod +x ~/.spack/setup-env.sh
-    # Add to shell config if not already present
-    if [ -n "$ZSH_VERSION" ] || [ -f ~/.zshrc ]; then
-        SHELL_RC=~/.zshrc
+    # Add to ~/.bashrc and ~/.zshrc if not present
+    for shellrc in ~/.bashrc ~/.zshrc; do
+        if [ -f "$shellrc" ] && ! grep -q 'spack/share/spack/setup-env.sh' "$shellrc" 2>/dev/null; then
+            echo '# Spack environment setup' >> "$shellrc"
+            echo '. ~/.spack/setup-env.sh' >> "$shellrc"
+            export SHELL_RC="$shellrc"
+        fi
+    done
+    # Source for current session
+    . ~/.spack/setup-env.sh
+    # Check if spack is available in a new login shell
+    if bash -l -c 'command -v spack >/dev/null 2>&1'; then
+        print_success "Spack installed and configured successfully and is available globally."
     else
-        SHELL_RC=~/.bashrc
+        print_error "Spack is installed but not available globally in new shells."
+        print_error "Please ensure you have the following line in your ~/.bashrc or ~/.zshrc:"
+        print_error ". ~/.spack/setup-env.sh"
     fi
-    if ! grep -q 'spack/share/spack/setup-env.sh' "$SHELL_RC" 2>/dev/null; then
-        echo '# Spack environment setup' >> "$SHELL_RC"
-        echo ". ~/.spack/setup-env.sh" >> "$SHELL_RC"
-    fi
-    # Source for current session if not already sourced
-    if ! echo "$PATH" | grep -q "$SPACK_ROOT/bin"; then
-        . ~/.spack/setup-env.sh
-    fi
-    print_success "Spack installed and configured successfully"
-    print_status "You may need to restart your terminal or run 'source $SHELL_RC' to activate Spack."
 }
 
 # Function to verify installation
@@ -764,6 +777,12 @@ main() {
     
     # Verify installation
     verify_installation
+    
+    # Source the shell config if it was modified
+    if [ -n "$SHELL_RC" ]; then
+        print_status "Sourcing $SHELL_RC to activate Spack in this session..."
+        . "$SHELL_RC"
+    fi
     
     print_success "Installation completed successfully!"
     print_status "Installed components:"
