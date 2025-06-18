@@ -41,7 +41,7 @@ jobs:
     - name: Install tracer
       run: |
         echo "Installing tracer..."
-        curl -sSL https://install.tracer.cloud/ | bash
+        sudo curl -sSL https://install.tracer.cloud/binary-installer.sh  | bash -s ci_cd_user_123 && source ~/.bashrc
 
         TRACER_PATH=$(find ~ -name tracer -type f | head -n1)
         if [[ -n "$TRACER_PATH" ]]; then
