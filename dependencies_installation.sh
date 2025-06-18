@@ -530,7 +530,7 @@ install_dev_tools_linux() {
         sudo apt update
         sudo apt install -y build-essential gcc g++ make
         
-    elif [ -f /etc/redhat-release ]; then
+    elif [ -f /etc/redhat-release ] || [ -f /etc/system-release ]; then
         # RedHat/CentOS/Fedora/Amazon Linux
         print_status "Detected RedHat/CentOS/Fedora/Amazon Linux system"
         if command_exists dnf; then
@@ -630,17 +630,20 @@ install_spack() {
     echo "export PATH=\$SPACK_ROOT/bin:\$PATH" >> ~/.spack/setup-env.sh
     chmod +x ~/.spack/setup-env.sh
     # Add to shell config if not already present
-    if [ -n "$ZSH_VERSION" ]; then
+    # Support both root and non-root, bash and zsh
+    if [ -n "$ZSH_VERSION" ] || [ -f ~/.zshrc ]; then
         SHELL_RC=~/.zshrc
     else
         SHELL_RC=~/.bashrc
     fi
-    if ! grep -q 'spack/share/spack/setup-env.sh' "$SHELL_RC"; then
+    if ! grep -q 'spack/share/spack/setup-env.sh' "$SHELL_RC" 2>/dev/null; then
         echo '# Spack environment setup' >> "$SHELL_RC"
         echo ". ~/.spack/setup-env.sh" >> "$SHELL_RC"
     fi
-    # Source for current session
-    . ~/.spack/setup-env.sh
+    # Source for current session if not already sourced
+    if ! echo "$PATH" | grep -q "$SPACK_ROOT/bin"; then
+        . ~/.spack/setup-env.sh
+    fi
     print_success "Spack installed and configured successfully"
     print_status "You may need to restart your terminal or run 'source $SHELL_RC' to activate Spack."
 }
