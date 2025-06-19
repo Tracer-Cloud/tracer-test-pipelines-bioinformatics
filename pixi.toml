@@ -1,0 +1,22 @@
+[workspace]
+authors = ["Vaibhav Upreti <vaibhav@tracer.cloud>"]
+channels = ["conda-forge", "bioconda"]
+name = "tracer-test-pipelines-bioinformatics"
+platforms = ["linux-64", "linux-aarch64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+nextflow = "24.10.0"
+python = "3.12"
+openjdk = "21"
+fastqc = "0.12.1"
+star = "2.7.11b"
+hisat2 = "2.2.1"
+fq = "0.15.0"
+trim-galore = "0.6.10"
+salmon = "1.10.3"
+samtools = "1.22"
+bbmap = "39.26"
+subread = "2.1.1"

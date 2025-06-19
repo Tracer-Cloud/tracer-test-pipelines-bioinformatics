@@ -1,0 +1,40 @@
+[project]
+name = "rnaseq-nfcore-pixi"
+description = "nf-core/rnaseq pipeline using Pixi for dependency management"
+version = "1.0.0"
+authors = ["Tracer Bioinformatics Team"]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64", "linux-aarch64"]
+
+[dependencies]
+nextflow = ">=24.10.0,<26"
+openjdk = "21"
+python = "3.12"
+
+fastqc = "0.12.1"
+star = "2.7.11b"
+hisat2 = "2.2.1"
+trim-galore = "0.6.10"
+salmon = "1.10.3"
+samtools = "1.21"
+fq = "0.12.0"
+bbmap = "39.26"
+subread = "2.1.1"
+
+
+[tasks]
+setup = "echo 'Environment ready! Use: pixi run pipeline'"
+
+pipeline = "nextflow -c ../config/local.config run https://github.com/nf-core/rnaseq -params-file ../config/rnaseq-params.json --multiqc_config ../config/custom_multiqc_config.yml -profile test"
+
+pipeline-full = "nextflow -c ../config/local.config run https://github.com/nf-core/rnaseq -params-file ../config/rnaseq-params.json --multiqc_config ../config/custom_multiqc_config.yml -profile test_full"
+
+clean = "rm -rf .nextflow work results output"
+
+check-env = "nextflow -v && java -version && python --version"
+
+[feature.dev.dependencies]
+nextflow = ">=24.10.0"
+
+[environments]
+default = ["dev"] 

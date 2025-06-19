@@ -39,7 +39,6 @@ List of all the dependencies:
 - Miniconda
 - Docker
 - Nextflow
-- Spack
 
 To install all dependencies, simply run:
 
@@ -63,6 +62,7 @@ cd pipelines/codespaces/bash
 ```
 
 This script will:
+
 - Install Pixi and Nextflow automatically
 - Set up a Linux-compatible version of our macOS Pixi pipeline
 - Run a complete bioinformatics workflow with sample data
