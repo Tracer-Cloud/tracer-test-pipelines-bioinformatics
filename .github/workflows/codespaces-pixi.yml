@@ -1,0 +1,95 @@
+name: Codespaces Pixi Pipeline Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - 'pipelines/codespaces/bash/**'
+    - '.github/workflows/codespaces-pixi.yml'
+  schedule:
+  - cron: '0 13 * * *' # Daily at 13:00 UTC
+
+jobs:
+  codespaces-pixi-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Test Codespaces Pixi setup
+      working-directory: pipelines/codespaces/bash
+      run: |
+        echo "=== Testing Codespaces Pixi Setup ==="
+        ./test_setup.sh
+
+    - name: Run Codespaces Pixi pipeline
+      working-directory: pipelines/codespaces/bash
+      run: |
+        echo "=== Running Codespaces Pixi Pipeline ==="
+        ./run_pixi_pipeline.sh
+
+    - name: Verify pipeline results
+      working-directory: pipelines/codespaces/bash
+      run: |
+        echo "=== Verifying Pipeline Results ==="
+        
+        # Check if pipeline directory was created
+        if [ -d "nextflow-pixi-linux" ]; then
+          echo "✅ Pipeline directory created successfully"
+          cd nextflow-pixi-linux
+          
+          # Check if results were generated
+          if [ -d "test_results" ]; then
+            echo "✅ Test results directory found"
+            
+            # List all result files
+            echo "Generated files:"
+            find test_results -type f -name "*.txt" | head -10
+            
+            # Show sample content
+            echo "Sample result content:"
+            find test_results -name "*_stats.txt" -exec echo "=== {} ===" \; -exec head -5 {} \; | head -20
+            
+          else
+            echo "❌ Test results directory not found"
+            exit 1
+          fi
+          
+          # Check if logs were generated
+          if [ -d "logs" ]; then
+            echo "✅ Logs directory found"
+            ls -la logs/
+          else
+            echo "❌ Logs directory not found"
+            exit 1
+          fi
+          
+        else
+          echo "❌ Pipeline directory not created"
+          exit 1
+        fi
+
+    - name: Upload pipeline results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: codespaces-pixi-pipeline-results
+        path: |
+          pipelines/codespaces/bash/nextflow-pixi-linux/test_results/
+          pipelines/codespaces/bash/nextflow-pixi-linux/logs/
+        retention-days: 7
+
+    - name: Clean up
+      if: always()
+      working-directory: pipelines/codespaces/bash
+      run: |
+        echo "=== Cleaning up ==="
+        if [ -d "nextflow-pixi-linux" ]; then
+          cd nextflow-pixi-linux
+          # Use pixi to clean up if available
+          if command -v pixi >/dev/null 2>&1; then
+            pixi run clean || true
+          fi
+          # Manual cleanup
+          rm -rf test_results logs work .nextflow* 2>/dev/null || true
+        fi
+        echo "✅ Cleanup completed"
