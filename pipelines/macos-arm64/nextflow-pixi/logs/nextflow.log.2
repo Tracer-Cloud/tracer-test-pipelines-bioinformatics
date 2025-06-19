@@ -1,0 +1,87 @@
+Jun-19 01:06:12.070 [main] DEBUG nextflow.cli.Launcher - $> nextflow -log logs/nextflow.log run main.nf --input test_data/sample1.fasta test_data/sample2.fasta --outdir test_results
+Jun-19 01:06:12.119 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 25.04.4
+Jun-19 01:06:12.140 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/Users/janvincentfranciszek/.nextflow/plugins; core-plugins: nf-amazon@2.15.0,nf-azure@1.16.0,nf-cloudcache@0.4.3,nf-codecommit@0.2.3,nf-console@1.2.1,nf-google@1.21.0,nf-k8s@1.0.0,nf-tower@1.11.3,nf-wave@1.12.1
+Jun-19 01:06:12.169 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jun-19 01:06:12.170 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jun-19 01:06:12.171 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Jun-19 01:06:12.179 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jun-19 01:06:12.190 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/nextflow.config
+Jun-19 01:06:12.191 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/nextflow.config
+Jun-19 01:06:12.211 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /Users/janvincentfranciszek/.nextflow/secrets/store.json
+Jun-19 01:06:12.212 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@2b0b4d53] - activable => nextflow.secret.LocalSecretsProvider@2b0b4d53
+Jun-19 01:06:12.220 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jun-19 01:06:12.552 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declaration
+Jun-19 01:06:12.562 [main] DEBUG nextflow.cli.CmdRun - Launching `main.nf` [fervent_cori] DSL2 - revision: f9f55cff05
+Jun-19 01:06:12.564 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jun-19 01:06:12.564 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Jun-19 01:06:12.602 [main] DEBUG nextflow.Session - Session UUID: c894c900-240b-4d4e-9187-cee1755fb08a
+Jun-19 01:06:12.602 [main] DEBUG nextflow.Session - Run name: fervent_cori
+Jun-19 01:06:12.602 [main] DEBUG nextflow.Session - Executor pool size: 8
+Jun-19 01:06:12.608 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Jun-19 01:06:12.611 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=24; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Jun-19 01:06:12.632 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 25.04.4 build 5950
+  Created: 16-06-2025 14:23 UTC (15:23 BST)
+  System: Mac OS X 14.6
+  Runtime: Groovy 4.0.26 on OpenJDK 64-Bit Server VM 23.0.2+7
+  Encoding: UTF-8 (UTF-8)
+  Process: 22977@Jans-MacBook-Air-2.local [127.0.0.1]
+  CPUs: 8 - Mem: 16 GB (49.8 MB) - Swap: 4 GB (1.5 GB)
+Jun-19 01:06:12.641 [main] DEBUG nextflow.Session - Work-dir: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/work [Mac OS X]
+Jun-19 01:06:12.641 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/bin
+Jun-19 01:06:12.652 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jun-19 01:06:12.658 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jun-19 01:06:12.665 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Jun-19 01:06:12.677 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Jun-19 01:06:12.682 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 9; maxThreads: 1000
+Jun-19 01:06:12.732 [main] DEBUG nextflow.Session - Session start
+Jun-19 01:06:12.735 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow started -- trace file: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/logs/trace.txt
+Jun-19 01:06:12.990 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jun-19 01:06:13.066 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:STAR_VERSION` matches process STAR_VERSION
+Jun-19 01:06:13.069 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jun-19 01:06:13.069 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-19 01:06:13.073 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jun-19 01:06:13.078 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=8; memory=16 GB; capacity=8; pollInterval=100ms; dumpInterval=5m
+Jun-19 01:06:13.080 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Jun-19 01:06:13.092 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'STAR_VERSION': maxForks=0; fair=false; array=0
+Jun-19 01:06:13.114 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:FASTA_STATS` matches process FASTA_STATS
+Jun-19 01:06:13.115 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jun-19 01:06:13.115 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-19 01:06:13.116 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'FASTA_STATS': maxForks=0; fair=false; array=0
+Jun-19 01:06:13.118 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:COUNT_SEQUENCES` matches process COUNT_SEQUENCES
+Jun-19 01:06:13.119 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jun-19 01:06:13.119 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-19 01:06:13.119 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'COUNT_SEQUENCES': maxForks=0; fair=false; array=0
+Jun-19 01:06:13.120 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: COUNT_SEQUENCES, FASTA_STATS, STAR_VERSION
+Jun-19 01:06:13.121 [main] DEBUG nextflow.Session - Igniting dataflow network (4)
+Jun-19 01:06:13.125 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > STAR_VERSION
+Jun-19 01:06:13.125 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > FASTA_STATS
+Jun-19 01:06:13.126 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > COUNT_SEQUENCES
+Jun-19 01:06:13.126 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_e1d06a1171be01e1: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/main.nf
+Jun-19 01:06:13.126 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Jun-19 01:06:13.126 [main] DEBUG nextflow.Session - Session await
+Jun-19 01:06:13.194 [Task submitter] WARN  n.executor.BashWrapperBuilder - Task runtime metrics are not reported when using macOS without a container engine
+Jun-19 01:06:13.207 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-19 01:06:13.208 [Task submitter] INFO  nextflow.Session - [6b/340871] Submitted process > COUNT_SEQUENCES (1)
+Jun-19 01:06:13.215 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-19 01:06:13.215 [Task submitter] INFO  nextflow.Session - [db/83309a] Submitted process > STAR_VERSION
+Jun-19 01:06:13.220 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-19 01:06:13.220 [Task submitter] INFO  nextflow.Session - [17/aa65e3] Submitted process > FASTA_STATS (1)
+Jun-19 01:06:13.255 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 3; name: COUNT_SEQUENCES (1); status: COMPLETED; exit: 0; error: -; workDir: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/work/6b/3408712cbed8a776bd8f9df86483a9]
+Jun-19 01:06:13.255 [Task monitor] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'TaskFinalizer' minSize=10; maxSize=24; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Jun-19 01:06:13.268 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: FASTA_STATS (1); status: COMPLETED; exit: 0; error: -; workDir: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/work/17/aa65e36d1396303200269bd8fa178d]
+Jun-19 01:06:13.275 [TaskFinalizer-1] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'PublishDir' minSize=10; maxSize=24; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Jun-19 01:06:13.333 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: STAR_VERSION; status: COMPLETED; exit: 0; error: -; workDir: /Users/janvincentfranciszek/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-pixi/work/db/83309a134101a738012680c78046d2]
+Jun-19 01:06:13.337 [main] DEBUG nextflow.Session - Session await > all processes finished
+Jun-19 01:06:13.438 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local) - terminating tasks monitor poll loop
+Jun-19 01:06:13.439 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jun-19 01:06:13.440 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'TaskFinalizer' shutdown completed (hard=false)
+Jun-19 01:06:13.441 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'PublishDir' shutdown completed (hard=false)
+Jun-19 01:06:13.444 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=3; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=124ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=3; peakCpus=3; peakMemory=4 GB; ]
+Jun-19 01:06:13.444 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow completed -- saving trace file
+Jun-19 01:06:13.444 [main] DEBUG nextflow.trace.ReportObserver - Workflow completed -- rendering execution report
+Jun-19 01:06:14.309 [main] DEBUG nextflow.trace.TimelineObserver - Workflow completed -- rendering execution timeline
+Jun-19 01:06:14.417 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Jun-19 01:06:14.424 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Jun-19 01:06:14.424 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
