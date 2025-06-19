@@ -2,7 +2,7 @@
 name = "rnaseq-nfcore-pixi"
 description = "nf-core/rnaseq pipeline using Pixi for dependency management"
 version = "1.0.0"
-authors = ["Tracer Bioinformatics Team"]
+authors = ["Tracer Cloud"]
 channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64", "linux-aarch64"]
 
@@ -20,14 +20,28 @@ samtools = "1.21"
 fq = "0.12.0"
 bbmap = "39.26"
 subread = "2.1.1"
+picard = "*"
+gawk = "*"
+qualimap = "*"
+stringtie = "*"
+bedtools = "*"
+ucsc-bedclip = "*"
+ucsc-bedgraphtobigwig = "*"
+bioconductor-dupradar = "*"
+rseqc = "*"
+multiqc = "*"
+bioconductor-tximeta = "*"
+bioconductor-tximport = "*"
+bioconductor-summarizedexperiment = "*"
+bioconductor-genomeinfodbdata = "*"
 
 
 [tasks]
-setup = "echo 'Environment ready! Use: pixi run pipeline'"
+setup = "echo 'Environment ready! Use: pixi run rnaseq'"
 
-pipeline = "nextflow -c ../config/local.config run https://github.com/nf-core/rnaseq -params-file ../config/rnaseq-params.json --multiqc_config ../config/custom_multiqc_config.yml -profile test"
+rnaseq = "nextflow -c ../config/local.config run https://github.com/nf-core/rnaseq -params-file ../config/rnaseq-params.json --multiqc_config ../config/custom_multiqc_config.yml -profile test"
 
-pipeline-full = "nextflow -c ../config/local.config run https://github.com/nf-core/rnaseq -params-file ../config/rnaseq-params.json --multiqc_config ../config/custom_multiqc_config.yml -profile test_full"
+rnaseq-full = "nextflow -c ../config/local.config run https://github.com/nf-core/rnaseq -params-file ../config/rnaseq-params.json --multiqc_config ../config/custom_multiqc_config.yml -profile test_full"
 
 clean = "rm -rf .nextflow work results output"
 
