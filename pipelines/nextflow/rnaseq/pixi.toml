@@ -34,7 +34,12 @@ bioconductor-tximeta = "*"
 bioconductor-tximport = "*"
 bioconductor-summarizedexperiment = "*"
 bioconductor-genomeinfodbdata = "*"
-
+bioconductor-genomicranges = "*"
+bioconductor-iranges = "*"
+bioconductor-s4vectors = "*"
+bioconductor-biocgenerics = "*"
+bioconductor-genomeinfodb = "*"
+r-tximport = "*"
 
 [tasks]
 setup = "echo 'Environment ready! Use: pixi run rnaseq'"
