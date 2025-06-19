@@ -1,23 +1,52 @@
-# Tracer Workload Validation & Installation Guide
+# Tracer Bioinformatics Test Pipelines
 
-This document provides an overview of Tracer workloads, tracks technical development progress, and ensures validated workflow coverage.
+This repository contains validated test pipelines for various bioinformatics platforms and environments, with **Pixi as the default dependency management solution**.
+
+## 🚀 Quick Start (Recommended)
+
+### Pixi-based Pipelines (Default)
+```bash
+# For Apple Silicon Macs
+cd macos-arm64/nextflow-pixi && pixi run pipeline
+
+# For Intel Macs
+cd macos-intel-x86/nextflow-pixi && pixi run pipeline
+```
 
 ## Workloads Validation Status
 
-| Workload                 | Status     | Example Configuration                |
-| ------------------------ | ---------- | ------------------------------------ |
-| AWS Batch                | Validated  | [Link](./aws-batch/README.md)        |
-| Bash (RNA-seq, ChIP-seq) | Validated  | [Link](./bash/README.md)             |
-| Nextflow                 | Validated  | [Link](./nextflow)                   |
-| Nextflow (Conda)         | Validated  | [Link](./nextflow-conda-macos-arm64) |
-| Nextflow (AWS x86)       | Validated  | [Link](./nextlow-aws-x86-ubuntu)     |
-| Airflow                  | Validated  | [Link](./airflow/README.md)          |
-| CWL                      | Validated  | [Link](./cwl)                        |
-| WDL                      | Validated  | [Link](./wdl)                        |
-| Slurm                    | Not Tested | [Link](./slurm/README.md)            |
-| R Bioconductor           | Not Tested | [Link](#)                            |
-| AlphaFold                | Not Tested | [Link](#)                            |
-| OpenFold                 | Not Tested | [Link](#)                            |
+| Workload                 | Status     | Dependency Manager | Example Configuration                |
+| ------------------------ | ---------- | ------------------ | ------------------------------------ |
+| **Nextflow (Pixi ARM64)** | ✅ **Default** | Pixi | [Link](./macos-arm64/nextflow-pixi) |
+| **Nextflow (Pixi Intel)** | ✅ **Default** | Pixi | [Link](./macos-intel-x86/nextflow-pixi) |
+| AWS Batch                | ✅ Validated  | Direct | [Link](./aws-batch/README.md)        |
+| Bash (RNA-seq, ChIP-seq) | ✅ Validated  | System | [Link](./bash/README.md)             |
+| Nextflow (Config)        | ✅ Validated  | Various | [Link](./nextflow)                   |
+| Airflow                  | ✅ Validated  | Conda | [Link](./airflow/README.md)          |
+| CWL                      | ✅ Validated  | System | [Link](./shared/cwl)                        |
+| WDL                      | ✅ Validated  | System | [Link](./wdl)                        |
+| Slurm                    | ⏳ Not Tested | System | [Link](./slurm/README.md)            |
+| R Bioconductor           | ⏳ Not Tested | R | [Link](#)                            |
+| AlphaFold                | ⏳ Not Tested | Conda/Docker | [Link](#)                            |
+| OpenFold                 | ⏳ Not Tested | Conda/Docker | [Link](#)                            |
+
+## ⚡ Why Pixi? (Migration from Conda)
+
+We've migrated from Conda to Pixi as our default dependency manager:
+
+### **Performance Benefits:**
+- **5-10x faster** environment creation (30-60s vs 2-5 minutes)
+- **Better dependency resolution** with fewer conflicts
+- **Faster CI/CD** with reliable caching
+
+### **Developer Experience:**
+- **Task-based workflow**: `pixi run pipeline`, `pixi run test`
+- **Automatic environment activation**: No manual conda activate
+- **Built-in lock files**: Guaranteed reproducibility
+
+### **Migration Path:**
+- ❌ **Old**: `pipelines/macos-*/nextflow-conda` (removed)
+- ✅ **New**: `pipelines/macos-*/nextflow-pixi` (default)
 
 # Core Functionality Requirements
 

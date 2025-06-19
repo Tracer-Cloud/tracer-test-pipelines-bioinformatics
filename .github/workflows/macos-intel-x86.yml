@@ -10,8 +10,8 @@ on:
   - cron: '0 12 * * *' # Daily at 12:00 UTC (13:00 BST)
 
 jobs:
-  setup-and-run-pipeline:
-    runs-on: macos-13
+  macos-intel-x86-setup-and-run-pipeline:
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
 
