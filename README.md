@@ -53,7 +53,24 @@ This script will install all required tools, including Spack, and set up your en
 
 We have pre-installed some pipelines in Codespaces for you to run.
 
-We recommend starting with a simple RNA-seq pipeline in Nextflow:
+#### Option 1: Quick Pixi Pipeline (Recommended for Codespaces)
+
+For a fast, self-contained pipeline experience using Pixi package management:
+
+```bash
+cd pipelines/codespaces/bash
+./run_pixi_pipeline.sh
+```
+
+This script will:
+- Install Pixi and Nextflow automatically
+- Set up a Linux-compatible version of our macOS Pixi pipeline
+- Run a complete bioinformatics workflow with sample data
+- Display results and logs
+
+#### Option 2: Traditional RNA-seq Pipeline
+
+For a more comprehensive RNA-seq analysis:
 
 ```bash
 nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
