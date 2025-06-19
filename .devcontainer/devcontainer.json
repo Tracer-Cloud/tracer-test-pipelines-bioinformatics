@@ -1,6 +1,6 @@
 {
   "name": "RNA-seq Analysis with eBPF",
-  "image": "micheleverriellotracer/tracer:latest",
+  "image": "tracercloud/tracer:latest",
   "runArgs": [
     "--privileged",
     "--cap-add=ALL",
@@ -10,15 +10,11 @@
     "--volume=/lib/modules:/lib/modules:ro",
     "--volume=/sys/fs/bpf:/sys/fs/bpf"
   ],
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/workspaces,type=bind"
-  ],
+  "mounts": ["source=${localWorkspaceFolder},target=/workspaces,type=bind"],
   "settings": {
     "terminal.integrated.defaultProfile.linux": "bash"
   },
-  "extensions": [
-    "ms-azuretools.vscode-docker"
-  ],
+  "extensions": ["ms-azuretools.vscode-docker"],
   "remoteUser": "root",
   "hostRequirements": {
     "cpus": 4,
