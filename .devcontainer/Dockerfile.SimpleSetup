@@ -44,13 +44,16 @@ RUN git clone https://github.com/tracer-cloud/tracer-test-pipelines-bioinformati
     git config --global --add safe.directory /root/tracer-test-pipelines-bioinformatics
 
 # Initialize conda environment
-RUN cd /root/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-conda && \
-    conda env create -f environment.yml && \
-    conda clean -afy && \
-    mkdir -p test_data results && \
-    echo '>sequence1\nATCGATCGATCGATCG\n>sequence2\nGCTAGCTAGCTAGCTA\n>sequence3\nTTTTAAAACCCCGGGG' > test_data/sample1.fasta && \
-    echo '>seq_A\nAAAAAAAAA\n>seq_B\nTTTTTTTTTT\n>seq_C\nCCCCCCCCCC\n>seq_D\nGGGGGGGGGG\n>seq_E\nATCGATCGAT' > test_data/sample2.fasta
+# RUN cd /root/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-conda && \
+#     conda env create -f environment.yml && \
+#     conda clean -afy && \
+#     mkdir -p test_data results && \
+#     echo '>sequence1\nATCGATCGATCGATCG\n>sequence2\nGCTAGCTAGCTAGCTA\n>sequence3\nTTTTAAAACCCCGGGG' > test_data/sample1.fasta && \
+#     echo '>seq_A\nAAAAAAAAA\n>seq_B\nTTTTTTTTTT\n>seq_C\nCCCCCCCCCC\n>seq_D\nGGGGGGGGGG\n>seq_E\nATCGATCGAT' > test_data/sample2.fasta
 
+# Install Pixi globally for all users
+RUN curl -fsSL https://pixi.sh/install.sh | bash
+ENV PATH="/root/.pixi/bin:${PATH}"
 
 # Auto-update on entry
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
@@ -60,7 +63,6 @@ RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'head -20 /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \
     echo 'bash /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \
     echo 'rm /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \
-    echo 'cd /root/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-conda' >> /usr/local/bin/entrypoint.sh && \
     echo 'exec bash' >> /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/entrypoint.sh
 
