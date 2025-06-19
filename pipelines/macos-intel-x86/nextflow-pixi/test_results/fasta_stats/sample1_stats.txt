@@ -1,0 +1,13 @@
+=== FASTA Statistics for sample1.fasta ===
+File: sample1.fasta
+Generated on: Thu Jun 19 01:06:46 BST 2025
+Environment: Pixi-managed
+
+Number of sequences: 3
+Total sequence length: 48 bp
+Average sequence length: 16.00 bp
+
+Sequence IDs:
+>sequence1
+>sequence2
+>sequence3

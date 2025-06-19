@@ -2,6 +2,7 @@
 
 // Simple pipeline that processes FASTA files
 // Uses FastQC for quality control and basic Unix tools
+// Optimized for Pixi environment management
 
 nextflow.enable.dsl = 2
 
@@ -14,14 +15,16 @@ process STAR_VERSION {
 
     script:
     """
+    echo "=== Tool Versions in Pixi Environment ==="
     echo "FASTQC VERSION:"
     fastqc --version
 
     echo "STAR VERSION:"
     STAR --version
+    
+    echo "Environment managed by Pixi"
     """
 }
-
 
 // Process 1: Analyze FASTA files (basic statistics)
 process FASTA_STATS {
@@ -38,6 +41,7 @@ process FASTA_STATS {
     echo "=== FASTA Statistics for ${fasta_file} ===" > ${fasta_file.baseName}_stats.txt
     echo "File: ${fasta_file}" >> ${fasta_file.baseName}_stats.txt
     echo "Generated on: \$(date)" >> ${fasta_file.baseName}_stats.txt
+    echo "Environment: Pixi-managed" >> ${fasta_file.baseName}_stats.txt
     echo "" >> ${fasta_file.baseName}_stats.txt
 
     # Count sequences
@@ -76,6 +80,7 @@ process COUNT_SEQUENCES {
     grep -c '^>' ${fasta_file} > ${fasta_file.baseName}_count.txt
     echo "File: ${fasta_file}" >> ${fasta_file.baseName}_count.txt
     echo "Sequences: \$(grep -c '^>' ${fasta_file})" >> ${fasta_file.baseName}_count.txt
+    echo "Environment: Pixi-managed" >> ${fasta_file.baseName}_count.txt
     """
 }
 

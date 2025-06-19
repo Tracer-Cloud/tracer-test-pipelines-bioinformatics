@@ -65,3 +65,6 @@ pipelines/nextflow/rnaseq/work/
 timeline.html
 report.html
 trace.txt
+
+# Pixi lock files should be committed for reproducibility
+!pixi.lock
