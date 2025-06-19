@@ -54,7 +54,7 @@ echo "=== Running Nextflow Pipeline ==="
 
 # Run Nextflow with explicit log file location
 # Pass all command line arguments to nextflow
-nextflow -log logs/nextflow.log run main.nf "$@"
+pixi run nextflow -log logs/nextflow.log run main.nf "$@"
 
 echo ""
 echo "=== Pipeline Completed ==="
