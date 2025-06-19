@@ -28,6 +28,23 @@ Make sure the environment has root privileges you're running tracer in, `sudo su
 tracer init
 ```
 
+## QuickStart
+
+Supported on: GitHub Codespaces, osx-64, linux-64, linux-aarch64
+
+Install pixi
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | sh
+```
+
+Run a pipeline
+
+```bash
+pixi setup
+pixi run rnaseq
+```
+
 ## Dependencies
 
 Run the dependency install script.

@@ -1,22 +1,54 @@
-[workspace]
-authors = ["Vaibhav Upreti <vaibhav@tracer.cloud>"]
-channels = ["conda-forge", "bioconda"]
+[project]
 name = "tracer-test-pipelines-bioinformatics"
-platforms = ["linux-64", "linux-aarch64"]
+description = "Bioinformatics pipelines with Nextflow, Tracer, and Pixi"
 version = "0.1.0"
-
-[tasks]
+authors = ["Tracer Cloud"]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64", "linux-aarch64", "osx-64"]
 
 [dependencies]
 nextflow = "24.10.0"
-python = "3.12"
 openjdk = "21"
+python = "3.12"
+
 fastqc = "0.12.1"
 star = "2.7.11b"
 hisat2 = "2.2.1"
-fq = "0.15.0"
 trim-galore = "0.6.10"
 salmon = "1.10.3"
-samtools = "1.22"
+samtools = "1.21"
 bbmap = "39.26"
+fq = "0.12.0"
 subread = "2.1.1"
+picard = "*"
+gawk = "*"
+qualimap = "*"
+stringtie = "*"
+bedtools = "*"
+ucsc-bedclip = "*"
+ucsc-bedgraphtobigwig = "*"
+bioconductor-dupradar = "*"
+rseqc = "*"
+multiqc = "*"
+bioconductor-tximeta = "*"
+bioconductor-tximport = "*"
+bioconductor-summarizedexperiment = "*"
+bioconductor-genomeinfodbdata = "*"
+bioconductor-genomicranges = "*"
+bioconductor-iranges = "*"
+bioconductor-s4vectors = "*"
+bioconductor-biocgenerics = "*"
+bioconductor-genomeinfodb = "*"
+
+[tasks]
+setup = "'Getting environment ready! Use: pixi run rnaseq'"
+rnaseq = "nextflow -c pipelines/nextflow/config/local.config run https://github.com/nf-core/rnaseq -params-file pipelines/nextflow/config/rnaseq-params.json --multiqc_config pipelines/nextflow/config/custom_multiqc_config.yml -profile test"
+rnaseq-full = "nextflow -c pipelines/nextflow/config/local.config run https://github.com/nf-core/rnaseq -params-file pipelines/nextflow/config/rnaseq-params.json --multiqc_config pipelines/nextflow/config/custom_multiqc_config.yml -profile test_full"
+clean = "rm -rf .nextflow work results output"
+check-env = "nextflow -v && java -version && python --version"
+
+[feature.dev.dependencies]
+nextflow = ">=24.10.0"
+
+[environments]
+default = ["dev"] 
