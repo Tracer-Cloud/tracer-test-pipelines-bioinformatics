@@ -1,48 +1,58 @@
-name: Nextflow Conda MacOS ARM64 Pipeline
+name: Nextflow Pixi MacOS ARM64 Pipeline
 
 on:
   workflow_dispatch:
   push:
     paths:
-    - 'pipelines/macos-arm64/nextflow-conda/**'
-    - '.github/workflows/mac-arm64.yml'
+    - 'pipelines/macos-arm64/nextflow-pixi/**'
+    - '.github/workflows/macos-arm64.yml'
   schedule:
   - cron: '0 11 * * *' # Daily at 11:00 UTC (12:00 BST)
 
 jobs:
-  macos-arm-setup-and-run-pipeline:
+  setup-and-run-pipeline:
     runs-on: macos-14
-    defaults:
-      run:
-        shell: bash -l {0}
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Miniconda
-      env:
-        PYTHONWARNINGS: "ignore::DeprecationWarning"
-      uses: conda-incubator/setup-miniconda@v3
+    - name: Install Pixi manually
+      run: |
+        curl -fsSL https://pixi.sh/install.sh | bash
+        echo "$HOME/.pixi/bin" >> $GITHUB_PATH
+
+    - name: Cache Pixi environment
+      uses: actions/cache@v4
       with:
-        miniconda-version: "latest"
-        architecture: arm64
-        auto-update-conda: true
-        auto-activate-base: false
+        path: |
+          pipelines/macos-arm64/nextflow-pixi/.pixi
+        key: pixi-${{ runner.os }}-${{ hashFiles('pipelines/macos-arm64/nextflow-pixi/pixi.lock') }}
+        restore-keys: |
+          pixi-${{ runner.os }}-
 
     - name: Install Nextflow
       run: |
         curl -s https://get.nextflow.io | bash
         sudo mv nextflow /usr/local/bin/
 
-    - name: Verify installations
+    - name: Install Pixi dependencies
+      working-directory: pipelines/macos-arm64/nextflow-pixi
       run: |
-        conda --version
+        export PATH="$HOME/.pixi/bin:$PATH"
+        pixi install
+
+    - name: Verify installations
+      working-directory: pipelines/macos-arm64/nextflow-pixi
+      run: |
+        export PATH="$HOME/.pixi/bin:$PATH"
+        pixi --version
         nextflow -v
+        pixi run check-env
 
     - name: Install tracer
       continue-on-error: true
       run: |
         echo "Installing tracer..."
-
+        
         # Try the binary installer first
         if curl -sSL https://install.tracer.cloud/binary-installer.sh | bash -s ci_cd_user_123; then
           echo "✅ Binary installer completed"
@@ -50,26 +60,26 @@ jobs:
           echo "⚠️ Binary installer failed, trying standard installer..."
           curl -sSL https://install.tracer.cloud/ | bash || echo "Standard installer also failed"
         fi
-
+        
         # Source shell configs to update PATH
         source ~/.bashrc 2>/dev/null || true
         source ~/.bash_profile 2>/dev/null || true
         source ~/.zshrc 2>/dev/null || true
-
+        
         # Search for tracer binary
         echo "Searching for tracer binary..."
         TRACER_PATH=$(find /Users/runner -name "tracer" -type f 2>/dev/null | head -1)
-
+        
         if [[ -n "$TRACER_PATH" ]]; then
           echo "✅ Found tracer at: $TRACER_PATH"
-
+          
           # Create ~/bin directory and symlink
           mkdir -p ~/bin
           ln -sf "$TRACER_PATH" ~/bin/tracer
-
+          
           # Also try to create symlink in /usr/local/bin
           sudo ln -sf "$TRACER_PATH" /usr/local/bin/tracer 2>/dev/null || echo "Could not create /usr/local/bin symlink"
-
+          
           echo "✅ Tracer installation completed successfully"
         else
           echo "❌ Tracer binary not found after installation"
@@ -84,7 +94,7 @@ jobs:
       run: |
         # Search for tracer in multiple locations
         echo "Searching for tracer binary..."
-
+        
         # Check common locations
         POSSIBLE_PATHS=(
           "$HOME/bin/tracer"
@@ -93,7 +103,7 @@ jobs:
           "/usr/local/bin/tracer"
           "/opt/tracer/bin/tracer"
         )
-
+        
         TRACER_PATH=""
         for path in "${POSSIBLE_PATHS[@]}"; do
           if [ -f "$path" ]; then
@@ -102,7 +112,7 @@ jobs:
             break
           fi
         done
-
+        
         # If not found in common locations, search the entire system
         if [ -z "$TRACER_PATH" ]; then
           echo "Searching entire system for tracer binary..."
@@ -112,7 +122,7 @@ jobs:
             TRACER_PATH="$FOUND_TRACER"
           fi
         fi
-
+        
         # Try to run tracer if found
         if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
           echo "Running tracer init with: $TRACER_PATH"
@@ -123,18 +133,23 @@ jobs:
           echo "Skipping tracer init..."
         fi
 
-    - name: Run pipeline
-      working-directory: pipelines/macos-arm64/nextflow-conda
+    - name: Run pipeline with Pixi
+      working-directory: pipelines/macos-arm64/nextflow-pixi
       run: |
-        source ~/miniconda3/etc/profile.d/conda.sh
-        conda init bash
-        bash run.sh
+        export PATH="$HOME/.pixi/bin:$PATH"
+        echo "=== Running Nextflow Pipeline with Pixi ==="
+
+        # Add nextflow to the Pixi environment
+        pixi add nextflow
+
+        # Run the pipeline using Pixi
+        pixi run pipeline
 
     - name: Verify tracer packages
       run: |
         # Search for tracer in multiple locations
         echo "Searching for tracer binary..."
-
+        
         # Check common locations
         POSSIBLE_PATHS=(
           "$HOME/bin/tracer"
@@ -143,7 +158,7 @@ jobs:
           "/usr/local/bin/tracer"
           "/opt/tracer/bin/tracer"
         )
-
+        
         TRACER_PATH=""
         for path in "${POSSIBLE_PATHS[@]}"; do
           if [ -f "$path" ]; then
@@ -154,7 +169,7 @@ jobs:
             echo "❌ Not found at: $path"
           fi
         done
-
+        
         # If not found in common locations, search the entire system
         if [ -z "$TRACER_PATH" ]; then
           echo "Searching entire system for tracer binary..."
@@ -164,7 +179,7 @@ jobs:
             TRACER_PATH="$FOUND_TRACER"
           fi
         fi
-
+        
         # Try to run tracer if found
         if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
           echo "Running tracer info with: $TRACER_PATH"
@@ -174,3 +189,13 @@ jobs:
           echo "This might indicate the tracer installation failed"
           echo "Continuing without tracer verification..."
         fi
+
+    - name: Upload pipeline results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: pixi-arm64-pipeline-results
+        path: |
+          pipelines/macos-arm64/nextflow-pixi/results/
+          pipelines/macos-arm64/nextflow-pixi/logs/
+        retention-days: 7
