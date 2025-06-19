@@ -1,20 +1,42 @@
 #!/bin/bash
 
+# Ensure the script is run with bash
+if [ -z "$BASH_VERSION" ]; then
+    echo "❌ This script must be run with bash."
+    echo "   Try: bash setup.sh"
+    exit 1
+fi
+
 # Setup script for Nextflow Pixi pipeline
 # This script prepares the environment and validates the setup
 
 set -euo pipefail
 
 echo "=== Nextflow Pixi Pipeline Setup ==="
+echo "(Tip: If you are using zsh and see errors, run this script with: bash setup.sh)"
 
 # Check if Pixi is installed
 if ! command -v pixi &> /dev/null; then
     echo "❌ Pixi is not installed!"
-    echo "   Install with: curl -fsSL https://pixi.sh/install.sh | bash"
-    exit 1
+    echo "   Installing Pixi using: curl -fsSL https://pixi.sh/install.sh | sh"
+    curl -fsSL https://pixi.sh/install.sh | sh
+    # Add Pixi to PATH for this session if installed in ~/.pixi/bin or ~/.local/bin
+    if [ -d "$HOME/.pixi/bin" ]; then
+        export PATH="$HOME/.pixi/bin:$PATH"
+    fi
+    if [ -d "$HOME/.local/bin" ]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+    # Re-check if pixi is now available
+    if ! command -v pixi &> /dev/null; then
+        echo "❌ Pixi installation failed. Please install manually from https://pixi.sh/install.sh."
+        echo "   If you just installed Pixi, make sure to add \"export PATH=\"\$HOME/.pixi/bin:\$PATH\"\" to your shell profile (e.g., ~/.zshrc or ~/.bashrc)."
+        exit 1
+    fi
+    echo "✅ Pixi installed successfully: $(pixi --version)"
+else
+    echo "✅ Pixi is available: $(pixi --version)"
 fi
-
-echo "✅ Pixi is available: $(pixi --version)"
 
 # Check if we're in the right directory
 if [ ! -f "pixi.toml" ]; then
