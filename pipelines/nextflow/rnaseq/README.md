@@ -18,13 +18,13 @@ Run from within this directory:
 
 ```bash
 make test_rnaseq
-````
+```
 
 This executes the pipeline with:
 
-* `../config/local.config` as the config
-* `../config/rnaseq-params.json` as the input parameter file
-* `-profile test`
+- `../config/local.config` as the config
+- `../config/rnaseq-params.json` as the input parameter file
+- `-profile test`
 
 To run the extended/full test:
 
@@ -40,8 +40,3 @@ This switches the profile to `test_full`.
 | ----------------------- | ------------------------------------------ |
 | `make test_rnaseq`      | Runs a minimal test pipeline               |
 | `make test_rnaseq_full` | Runs extended version of the test pipeline |
-
-
-
-
-

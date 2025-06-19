@@ -28,6 +28,23 @@ Make sure the environment has root privileges you're running tracer in, `sudo su
 tracer init
 ```
 
+## QuickStart
+
+Supported on: GitHub Codespaces, osx-64, linux-64, linux-aarch64
+
+Install pixi
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | sh
+```
+
+Run a pipeline
+
+```bash
+pixi setup
+pixi run rnaseq
+```
+
 ## Dependencies
 
 Run the dependency install script.
@@ -39,7 +56,6 @@ List of all the dependencies:
 - Miniconda
 - Docker
 - Nextflow
-- Spack
 
 To install all dependencies, simply run:
 
@@ -63,6 +79,7 @@ cd pipelines/codespaces/bash
 ```
 
 This script will:
+
 - Install Pixi and Nextflow automatically
 - Set up a Linux-compatible version of our macOS Pixi pipeline
 - Run a complete bioinformatics workflow with sample data
