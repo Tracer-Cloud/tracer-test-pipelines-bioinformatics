@@ -41,7 +41,7 @@ curl -fsSL https://pixi.sh/install.sh | sh
 Run a pipeline
 
 ```bash
-pixi setup
+pixi install
 pixi run rnaseq
 ```
 
