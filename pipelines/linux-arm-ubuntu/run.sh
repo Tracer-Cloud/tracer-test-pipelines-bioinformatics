@@ -7,18 +7,24 @@ echo "[INFO] Starting minimal setup for ARM-based Nextflow pipeline..."
 if ! command -v java &> /dev/null; then
     echo "[INFO] Installing OpenJDK 17..."
     sudo apt-get update && sudo apt-get install -y openjdk-17-jdk
+else
+    echo "[INFO] Java is already installed."
 fi
 
-# Step 2: Install Miniforge (ARM-friendly Conda)
+# Step 2: Install Miniforge (ARM-compatible Conda)
 if ! command -v conda &> /dev/null; then
     echo "[INFO] Installing Miniforge (ARM-compatible Conda)..."
     wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -O miniforge.sh
     bash miniforge.sh -b -p "$HOME/miniforge"
-    export PATH="$HOME/miniforge/bin:$PATH"
     echo 'export PATH="$HOME/miniforge/bin:$PATH"' >> ~/.bashrc
-    source ~/.bashrc
+    export PATH="$HOME/miniforge/bin:$PATH"
 else
-    echo "[INFO] Conda is already installed."
+    echo "[INFO] Conda (Miniforge) is already installed."
+fi
+
+# Activate conda in current shell
+if [ -f "$HOME/miniforge/bin/conda" ]; then
+    eval "$($HOME/miniforge/bin/conda shell.bash hook)" || true
 fi
 
 # Step 3: Install Nextflow
@@ -33,5 +39,5 @@ fi
 
 # Done
 echo "[✅] Environment setup complete."
-echo "You can now run:"
+echo "You can now run the pipeline with:"
 echo "   nextflow run main.nf -c nextflow.config"
