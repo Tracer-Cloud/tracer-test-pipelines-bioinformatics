@@ -1,35 +1,37 @@
 nextflow.enable.dsl=2
 
-process get_versions_process {
-    output:
-    stdout into versions_output
+workflow {
+    main:
+        fastqc_process(params.input)
+        get_versions_process()
 
-    script:
-    """
-    echo 'fastqc'
-    fastqc --version
-    """
+    emit:
+        fastqc_process.out
 }
 
 process fastqc_process {
+    tag "$sample"
+
     input:
-    path sample_file
+    path sample
 
     output:
-    path "*.html"
-    path "*.zip"
-
-    conda:
-    'bioconda::fastqc=0.11.9'
+    path "${params.outdir}"
 
     script:
     """
-    fastqc $sample_file --outdir ${params.outdir}
+    mkdir -p ${params.outdir}
+    fastqc $sample --outdir ${params.outdir}
     """
 }
 
-workflow {
-    samples_ch = Channel.fromPath(params.input)
-    fastqc_process(samples_ch)
-    get_versions_process()
+process get_versions_process {
+    output:
+    stdout into version_output
+
+    script:
+    """
+    echo "FastQC version:"
+    fastqc --version
+    """
 }
