@@ -1,32 +1,46 @@
 #!/bin/bash
 # This script has been shared by @ceisenhart to the Tracer team
-# Usage: ./bioinformatics_pipeline.sh <fastq1> <fastq2> <output_vcf> [ref_dir]
+# Usage: ./run.sh <fastq1> <fastq2> <output_vcf> [ref_dir]
 set -e  # Exit on error
 
 # Validate arguments
 if [ "$#" -lt 3 ] || [ "$#" -gt 4 ]; then
     echo "Usage: $0 <fastq1> <fastq2> <output_vcf> [ref_dir]"
+    echo "Example: $0 small_test_fastq_1.fastq small_test_fastq_2.fastq output.vcf"
     exit 1
 fi
+
+# Get script directory for relative paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 FASTQ1=$(realpath "$1" 2>/dev/null || { echo "Error: $1 not found"; exit 1; })
 FASTQ2=$(realpath "$2" 2>/dev/null || { echo "Error: $2 not found"; exit 1; })
 OUTPUT_VCF=$(realpath "$(dirname "$3")/$(basename "$3")" 2>/dev/null || { echo "Error: Invalid output VCF path"; exit 1; })
 DATA_DIR=$(dirname "$OUTPUT_VCF")
-REF_DIR=${4:-"/Users/ceisenhart/Bioinformatics/data/bwa_indeces"}
-REF_FA="hg19_chr19.fa"
+REF_DIR=${4:-"$SCRIPT_DIR/reference"}
+REF_FA="chr19.fa"
 BASE_NAME=$(basename "$OUTPUT_VCF" .vcf)
 
-# Validate reference directory and files
-if [ ! -d "$REF_DIR" ] || [ ! -f "$REF_DIR/$REF_FA" ]; then
-    echo "Error: Reference directory $REF_DIR or $REF_FA not found"
-    exit 1
-fi
+# Create output directory if it doesn't exist
+mkdir -p "$DATA_DIR"
 
 # Log function
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
+
+# Check if Docker is available
+if ! command -v docker &> /dev/null; then
+    echo "Error: Docker is not installed or not in PATH"
+    exit 1
+fi
+
+# Validate reference directory and files
+if [ ! -d "$REF_DIR" ] || [ ! -f "$REF_DIR/$REF_FA" ]; then
+    echo "Error: Reference directory $REF_DIR or $REF_FA not found"
+    echo "Please run setup_reference.sh first to download reference files"
+    exit 1
+fi
 
 # Pull Docker images
 log "Pulling Docker images..."

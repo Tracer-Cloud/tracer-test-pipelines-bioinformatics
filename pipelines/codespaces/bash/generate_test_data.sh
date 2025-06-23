@@ -1,0 +1,60 @@
+#!/bin/bash
+# Generate small test FASTQ files for testing the pipeline
+set -e
+
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Log function
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
+
+log "Generating test FASTQ files..."
+
+# Create test data directory
+mkdir -p "$SCRIPT_DIR/test_data"
+cd "$SCRIPT_DIR/test_data"
+
+# Generate small test FASTQ files
+log "Creating test FASTQ files..."
+
+# Create a simple FASTQ file with some reads
+cat > test_1.fastq << 'EOF'
+@SRR001666.1 071112_SLXA-EAS1_s_7:5:1:817:345 length=36
+GGGTGATGGCCGCTGCCGATGGCGTCAAATCCCACC
++SRR001666.1 071112_SLXA-EAS1_s_7:5:1:817:345 length=36
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIII9IG9IC
+@SRR001666.2 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+GTTCAGGGATACGACGTTTGTATTTTAAGAATCTGA
++SRR001666.2 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII6IBI
+@SRR001666.3 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+CGTGCTGCGCCGTCGCGGCCGCGGCGGCGGCGGCGGC
++SRR001666.3 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+EOF
+
+# Create paired FASTQ file
+cat > test_2.fastq << 'EOF'
+@SRR001666.1 071112_SLXA-EAS1_s_7:5:1:817:345 length=36
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
++SRR001666.1 071112_SLXA-EAS1_s_7:5:1:817:345 length=36
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIII9IG9IC
+@SRR001666.2 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
++SRR001666.2 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII6IBI
+@SRR001666.3 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
++SRR001666.3 071112_SLXA-EAS1_s_7:5:1:801:338 length=36
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+EOF
+
+log "Test FASTQ files created:"
+ls -la test_*.fastq
+
+log "Test data generation completed!"
+log "You can now run the pipeline with:"
+log "cd $SCRIPT_DIR"
+log "./run.sh test_data/test_1.fastq test_data/test_2.fastq output/test_output.vcf" 
