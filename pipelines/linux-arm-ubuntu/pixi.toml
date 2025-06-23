@@ -1,14 +1,11 @@
 [project]
-name = "tracer-arm"
-channels = ["conda-forge", "bioconda"]
-platforms = ["linux-arm64"]
-
-[tasks]
-setup = "pixi install"
+name = "nextflow-minimal"
+channels = ["conda-forge", "bioconda", "defaults"]
+platforms = ["linux-aarch64"]
 
 [dependencies]
 nextflow = "*"
-openjdk = "17.*"
-wget = "*"
-star = ">=2.7.10"
-fastqc = "*"
+fastqc = "0.12.1"
+STAR = "2.7.11b"
+coreutils = "9.1"
+bc = "*"
