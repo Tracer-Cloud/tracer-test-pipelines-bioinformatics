@@ -1,18 +1,27 @@
-nextflow.enable.dsl=2
-
-params.input = "test_data/*.fasta"
-params.outdir = "results"
+nextflow.enable.dsl = 2
 
 workflow {
-    fastqc_process(params.input)
     get_versions_process()
+    fastqc_process()
+}
+
+process get_versions_process {
+    label 'conda'
+
+    output:
+    stdout into versions_out
+
+    script:
+    """
+    fastqc --version
+    """
 }
 
 process fastqc_process {
-    tag "$sample"
+    label 'conda'
 
     input:
-    path sample
+    path sample from file(params.input)
 
     output:
     path "${params.outdir}"
@@ -21,16 +30,5 @@ process fastqc_process {
     """
     mkdir -p ${params.outdir}
     fastqc \$sample --outdir ${params.outdir}
-    """
-}
-
-process get_versions_process {
-    output:
-    stdout
-
-    script:
-    """
-    echo "FastQC version:"
-    fastqc --version
     """
 }
