@@ -1,11 +1,13 @@
 [project]
-name = "nextflow-minimal"
-channels = ["conda-forge", "bioconda", "defaults"]
+name = "nextflow-arm"
+channels = ["conda-forge", "bioconda"]
 platforms = ["linux-aarch64"]
 
+[tasks]
+default = "nextflow run main.nf -c nextflow.config"
+
 [dependencies]
+openjdk = "17"
 nextflow = "*"
-fastqc = "0.12.1"
-STAR = "2.7.11b"
-coreutils = "9.1"
-bc = "*"
+fastqc = "*"
+star = "*"
