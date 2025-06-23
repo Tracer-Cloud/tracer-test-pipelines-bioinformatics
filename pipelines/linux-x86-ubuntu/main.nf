@@ -1,12 +1,11 @@
 nextflow.enable.dsl=2
 
-workflow {
-    main:
-        fastqc_process(params.input)
-        get_versions_process()
+params.input = "test_data/*.fasta"
+params.outdir = "results"
 
-    emit:
-        fastqc_process.out
+workflow {
+    fastqc_process(params.input)
+    get_versions_process()
 }
 
 process fastqc_process {
@@ -21,13 +20,13 @@ process fastqc_process {
     script:
     """
     mkdir -p ${params.outdir}
-    fastqc $sample --outdir ${params.outdir}
+    fastqc \$sample --outdir ${params.outdir}
     """
 }
 
 process get_versions_process {
     output:
-    stdout into version_output
+    stdout
 
     script:
     """
