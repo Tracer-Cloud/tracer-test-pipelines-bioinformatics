@@ -1,38 +1,41 @@
-params.input      = "${params.input}"
-params.outdir     = "${params.outdir}"
-params.genome_dir = "${params.genome_dir}"
+nextflow.enable.dsl=2
+
+workflow {
+  GET_VERSIONS()
+  FASTQC()
+  STAR_ALIGN()
+}
 
 process GET_VERSIONS {
-    output:
-    stdout into version_log
-
-    script:
-    """
-    fastqc --version
-    STAR --version
-    """
+  script:
+  """
+  fastqc --version
+  """
 }
 
 process FASTQC {
-    input:
-    path input_files from Channel.fromPath(params.input)
-    output:
-    path "${input_files.simpleName}_fastqc.html" into qc_files
+  input:
+    path fastq_files from file(params.input)
 
-    script:
-    """
-    fastqc $input_files
-    """
+  output:
+    path "*.html"
+    path "*.zip"
+
+  script:
+  """
+  fastqc $fastq_files
+  """
 }
 
 process STAR_ALIGN {
-    input:
-    path input_files from Channel.fromPath(params.input)
-    output:
-    path "star_output_${input_files.simpleName}.bam"
+  input:
+    path fastq_files from file(params.input)
 
-    script:
-    """
-    STAR --genomeDir ${params.genome_dir} --readFilesIn $input_files --runThreadN 2 --outFileNamePrefix star_output_
-    """
+  output:
+    path "*.bam"
+
+  script:
+  """
+  STAR --genomeDir ${params.genome_dir} --readFilesIn $fastq_files --runThreadN ${task.cpus}
+  """
 }
