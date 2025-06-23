@@ -1,6 +1,7 @@
 #!/bin/bash
-set -e
 
-echo "Manually run:"
-echo "  tracer init"
-echo "  nextflow run main.nf -c nextflow.config"
+echo "[INFO] Launching Pixi Shell + Tracer Init"
+pixi run tracer init
+
+echo "[INFO] Running Nextflow Pipeline..."
+nextflow run main.nf -c nextflow.config
