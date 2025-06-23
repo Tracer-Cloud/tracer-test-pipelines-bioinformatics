@@ -1,41 +1,35 @@
 nextflow.enable.dsl=2
 
-params.input = "$params.input"
-params.outdir = "$params.outdir"
+process get_versions_process {
+    output:
+    stdout into versions_output
 
-workflow {
-    Channel
-        .fromPath(params.input)
-        .ifEmpty { error "❌ No input files found at: ${params.input}" }
-        .set { fasta_files }
-
-    fastqc_process(fasta_files)
-    get_versions_process()
+    script:
+    """
+    echo 'fastqc'
+    fastqc --version
+    """
 }
 
 process fastqc_process {
-    label 'conda'
-    publishDir params.outdir, mode: 'copy'
-
     input:
-    path fasta_file
+    path sample_file
 
     output:
     path "*.html"
     path "*.zip"
 
+    conda:
+    'bioconda::fastqc=0.11.9'
+
     script:
     """
-    fastqc $fasta_file --outdir ${params.outdir}
+    fastqc $sample_file --outdir ${params.outdir}
     """
 }
 
-process get_versions_process {
-    label 'conda'
-    cpus 1
-
-    script:
-    """
-    fastqc --version || echo 'fastqc not installed'
-    """
+workflow {
+    samples_ch = Channel.fromPath(params.input)
+    fastqc_process(samples_ch)
+    get_versions_process()
 }
