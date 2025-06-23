@@ -81,24 +81,12 @@ setup_environment: verify_spack
 	@echo "Environment setup completed successfully."
 
 .PHONY: test_rnaseq
-test_rnaseq: setup_environment
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		cd $(ENV_DIR) && \
-		spack env activate -d . && \
-		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
-			-params-file $(CONFIG_DIR)/rnaseq-params.json \
-			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
-			-profile test"
+test_rnaseq:
+	nextflow run nf-core/rnaseq -c $(CURDIR)/../../../custom.config -profile docker,test --outdir results -resume
 
 .PHONY: test_rnaseq_full
-test_rnaseq_full: setup_environment
-	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
-		cd $(ENV_DIR) && \
-		spack env activate -d . && \
-		nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
-			-params-file $(CONFIG_DIR)/rnaseq-params.json \
-			--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
-			-profile test_full"
+test_rnaseq_full:
+	nextflow run nf-core/rnaseq -c $(CURDIR)/../../../custom.config -profile docker,test --outdir results --full -resume
 
 .PHONY: clean_spack
 clean_spack:
@@ -117,3 +105,17 @@ clean_spack:
 clean: clean_spack
 	@echo "Cleaning up..."
 	@rm -rf spack ~/.spack
+
+.PHONY: run_rnaseq_spack
+run_rnaseq_spack:
+	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
+	cd $(ENV_DIR) && \
+	spack env activate -d . && \
+	nextflow run nf-core/rnaseq -c $(CONFIG_DIR)/local.config -profile test --outdir results -resume"
+
+.PHONY: run_rnaseq_spack_full
+run_rnaseq_spack_full:
+	@bash -c "source $(SPACK_DIR)/share/spack/setup-env.sh && \
+	cd $(ENV_DIR) && \
+	spack env activate -d . && \
+	nextflow run nf-core/rnaseq -c $(CONFIG_DIR)/local.config -profile test --outdir results --full -resume"
