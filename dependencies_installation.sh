@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Nextflow Installation Script for macOS and Linux
-# This script installs Java (if needed) and Nextflow
+# This script installs Java, Python, Miniconda, Spack, Pixi, Docker (Linux), and Nextflow
 
 set -e  # Exit on any error
 
@@ -601,6 +601,65 @@ check_spack() {
     fi
 }
 
+# Function to check if Pixi is installed
+check_pixi() {
+    if command_exists pixi; then
+        PIXI_VERSION=$(pixi --version 2>&1 | head -n1)
+        print_success "Pixi is already installed: $PIXI_VERSION"
+        return 0
+    else
+        print_status "Pixi is not installed"
+        return 1
+    fi
+}
+
+# Function to install Pixi
+install_pixi() {
+    print_status "Installing Pixi..."
+    
+    # Create temporary directory
+    TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+    
+    # Detect OS and architecture
+    OS=$(uname -s)
+    ARCH=$(uname -m)
+    
+    # Download and install Pixi using the official installer
+    if [ "$OS" = "Darwin" ]; then
+        # macOS
+        if [ "$ARCH" = "arm64" ]; then
+            # Apple Silicon
+            curl -fsSL https://pixi.sh/install.sh | bash
+        else
+            # Intel Mac
+            curl -fsSL https://pixi.sh/install.sh | bash
+        fi
+    elif [ "$OS" = "Linux" ]; then
+        # Linux - works for all distributions
+        curl -fsSL https://pixi.sh/install.sh | bash
+    else
+        print_error "Unsupported operating system for Pixi installation: $OS"
+        cd - > /dev/null
+        rm -rf "$TEMP_DIR"
+        return 1
+    fi
+    
+    # Clean up
+    cd - > /dev/null
+    rm -rf "$TEMP_DIR"
+    
+    # Verify installation
+    if command_exists pixi; then
+        PIXI_VERSION=$(pixi --version 2>&1 | head -n1)
+        print_success "Pixi installed successfully: $PIXI_VERSION"
+    else
+        print_error "Pixi installation failed - pixi command not found"
+        print_warning "You may need to restart your terminal or run 'source ~/.bashrc' (or ~/.zshrc)"
+        return 1
+    fi
+}
+
 # Function to install Spack
 install_spack() {
     print_status "Installing Spack..."
@@ -692,6 +751,13 @@ verify_installation() {
         fi
     fi
     
+    # Check Pixi
+    if check_pixi; then
+        print_success "Pixi verification passed"
+    else
+        print_warning "Pixi verification failed - may need terminal restart"
+    fi
+    
     # Check Nextflow
     if command_exists nextflow; then
         NF_VERSION=$(nextflow -version 2>&1 | head -n1)
@@ -767,6 +833,11 @@ main() {
         install_spack
     fi
     
+    # Check and install Pixi if needed
+    if ! check_pixi; then
+        install_pixi
+    fi
+    
     # Install Nextflow
     if command_exists nextflow; then
         print_success "Nextflow is already installed"
@@ -790,6 +861,7 @@ main() {
     print_status "  - Python3"
     print_status "  - Miniconda"
     print_status "  - Spack"
+    print_status "  - Pixi"
     if [ "$(uname -s)" = "Linux" ]; then
         print_status "  - Docker"
     fi
@@ -800,6 +872,7 @@ main() {
     print_status "  - nextflow run hello"
     print_status "  - python3 --version"
     print_status "  - conda --version"
+    print_status "  - pixi --version"
     if [ "$(uname -s)" = "Linux" ]; then
         print_status "  - docker --version"
     fi
