@@ -21,7 +21,7 @@ else
     echo "[INFO] Miniconda already installed at $CONDA_DIR"
 fi
 
-# Ensure conda is in PATH
+# Ensure Conda is in PATH
 export PATH="$CONDA_DIR/bin:$PATH"
 if ! command -v conda &> /dev/null; then
     echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.bashrc
@@ -42,11 +42,11 @@ else
     echo "[INFO] Nextflow is already installed."
 fi
 
-# Confirm installs
+# Final check
 echo "[✅] Setup complete."
 java -version
-conda --version
-nextflow -version
+conda --version || echo "⚠️ Conda not found"
+nextflow -version || echo "⚠️ Nextflow not found"
 
 echo "You can now run:"
 echo "   nextflow run main.nf -c nextflow.config"
