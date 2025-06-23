@@ -1,40 +1,41 @@
-// Use Nextflow DSL2
 nextflow.enable.dsl=2
 
-// Create channel from input files
+params.input = "test_data/*.fasta"
+params.outdir = "pipelines/linux-arm-ubuntu/results"
+
 Channel
     .fromPath(params.input)
     .ifEmpty { error "❌ No input files found at: ${params.input}" }
     .set { fasta_files }
 
-// Optional: print detected input files for debugging
 fasta_files.view()
 
-// Define workflow
 workflow {
     GET_VERSIONS()
     FASTQC(fasta_files)
 }
 
-// Process to show tool versions
 process GET_VERSIONS {
+    cpus 1
+
     script:
     """
     fastqc --version
     """
 }
 
-// Process to run FastQC on each input file
 process FASTQC {
+    cpus 1
+
     input:
-        path fasta_file
+    path fasta_file from fasta_files
 
     output:
-        path "*.html"
-        path "*.zip"
+    path "*.html" into html_files
+    path "*.zip" into zip_files
 
     script:
     """
-    fastqc $fasta_file
+    fastqc $fasta_file --outdir ${params.outdir}
     """
 }
