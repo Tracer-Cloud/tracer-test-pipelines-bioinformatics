@@ -1,30 +1,35 @@
 #!/bin/bash
 
-echo "[INFO] Launching Pixi Shell + Tracer Init"
+echo "[INFO] Preparing environment: installing Pixi and Nextflow (if needed)..."
 
-# Check for Pixi, install if missing
+# 1. Ensure Pixi is installed
 if ! command -v pixi &> /dev/null; then
-    echo "[ERROR] Pixi not found. Installing Pixi..."
+    echo "[INFO] Pixi not found. Installing..."
     curl -sSf https://pixi.sh/install.sh | bash
     export PATH="$HOME/.pixi/bin:$PATH"
+    echo 'export PATH="$HOME/.pixi/bin:$PATH"' >> ~/.bashrc
 fi
 
-# Run Pixi init (comment this out if not needed)
-pixi run tracer init
+# 2. Optionally initialize Pixi environment (safe to skip if not needed)
+# You will manually run `tracer init` later
+echo "[INFO] Skipping automatic tracer init. You can run it manually later with:"
+echo "       tracer init"
 
-# Check for Nextflow, install if missing
+# 3. Install Nextflow if not available
 if ! command -v nextflow &> /dev/null; then
     echo "[INFO] Installing Nextflow..."
     curl -s https://get.nextflow.io | bash
     chmod +x nextflow
-    mv nextflow /usr/local/bin/ 2>/dev/null || sudo mv nextflow /usr/local/bin/
+    sudo mv nextflow /usr/local/bin/
 fi
 
-# Confirm Nextflow is available
-if ! command -v nextflow &> /dev/null; then
-    echo "[ERROR] Nextflow installation failed or is not in PATH"
+# 4. Confirm everything is ready
+if command -v nextflow &> /dev/null; then
+    echo "[✅] Setup complete. You can now run manually:"
+    echo
+    echo "    tracer init"
+    echo "    nextflow run main.nf -c nextflow.config"
+else
+    echo "[❌] Nextflow install failed. Please check for issues."
     exit 1
 fi
-
-echo "[INFO] Running Nextflow Pipeline..."
-nextflow run main.nf -c nextflow.config
