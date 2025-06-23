@@ -27,6 +27,8 @@ if ! command -v nextflow &> /dev/null; then
     curl -s https://get.nextflow.io | bash
     chmod +x nextflow
     sudo mv nextflow /usr/local/bin/
+else
+    echo "[INFO] Nextflow is already installed."
 fi
 
 # Done
