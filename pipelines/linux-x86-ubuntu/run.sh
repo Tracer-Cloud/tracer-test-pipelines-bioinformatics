@@ -3,43 +3,47 @@ set -e
 
 echo "[INFO] Starting environment setup for linux-x86-ubuntu..."
 
-# Step 1: Install Java
-if ! command -v java &>/dev/null; then
-    echo "[INFO] Installing OpenJDK 17..."
-    sudo apt-get update
-    sudo apt-get install -y openjdk-17-jdk
+# Install Java if not present
+if ! command -v java &> /dev/null; then
+    echo "[INFO] Installing Java..."
+    apt-get update && apt-get install -y openjdk-17-jdk
 else
     echo "[INFO] Java is already installed."
 fi
 
-# Step 2: Install Miniconda for x86_64
-if ! command -v conda &>/dev/null; then
+# Install Miniconda if not present
+if [ ! -d "$HOME/miniconda" ]; then
     echo "[INFO] Installing Miniconda for x86_64..."
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-    bash miniconda.sh -b -p "$HOME/miniconda"
-    
-    # Set up PATH
-    export PATH="$HOME/miniconda/bin:$PATH"
-    echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
+    bash miniconda.sh -b -p $HOME/miniconda
+    rm miniconda.sh
 else
-    echo "[INFO] Conda already installed."
+    echo "[INFO] Miniconda already installed."
 fi
 
+export PATH="$HOME/miniconda/bin:$PATH"
 
-# Step 3: Install Nextflow
-if ! command -v nextflow &>/dev/null; then
+# Initialize conda if needed
+if ! grep -q "conda initialize" ~/.bashrc; then
+    $HOME/miniconda/bin/conda init bash
+    source ~/.bashrc
+fi
+
+# Install Nextflow if not present
+if ! command -v nextflow &> /dev/null; then
     echo "[INFO] Installing Nextflow..."
     curl -s https://get.nextflow.io | bash
-    chmod +x nextflow
-    sudo mv nextflow /usr/local/bin/
+    mv nextflow /usr/local/bin/
 else
     echo "[INFO] Nextflow already installed."
 fi
 
-echo "[✅] Setup complete."
+mkdir -p test_data results
+
+echo "[INFO] Setup complete."
 echo "Java version:"
 java -version
 echo "Conda version:"
-conda --version || echo "⚠️ Conda not found"
+conda --version
 echo "Nextflow version:"
-nextflow -version || echo "⚠️ Nextflow not found"
+nextflow -version
