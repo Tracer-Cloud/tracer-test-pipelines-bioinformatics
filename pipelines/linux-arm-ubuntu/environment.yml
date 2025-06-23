@@ -4,4 +4,7 @@ pipelines/
     ├── environment.yml
     ├── main.nf
     ├── nextflow.config
-    └── run.sh
+    ├── run.sh
+    └── test_data/
+        ├── sample1.fasta
+        └── sample2.fasta
