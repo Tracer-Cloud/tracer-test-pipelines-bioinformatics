@@ -28,14 +28,14 @@ process FASTQC {
     cpus 1
 
     input:
-    path fasta_file from fasta_files
+    path fasta_file
 
     output:
-    path "*.html" into html_files
-    path "*.zip" into zip_files
+    path "*.html"
+    path "*.zip"
 
     script:
     """
-    fastqc $fasta_file --outdir ${params.outdir}
+    fastqc \$fasta_file --outdir ${params.outdir}
     """
 }
