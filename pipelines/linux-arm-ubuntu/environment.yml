@@ -1,10 +1,7 @@
-pipelines/
-└── linux-arm-ubuntu/
-    └── pixi.toml
-    ├── environment.yml
-    ├── main.nf
-    ├── nextflow.config
-    ├── run.sh
-    └── test_data/
-        ├── sample1.fasta
-        └── sample2.fasta
+# environment.yml
+name: nf-fastqc-env
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - fastqc=0.11.9
