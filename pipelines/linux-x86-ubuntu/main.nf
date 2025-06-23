@@ -1,27 +1,22 @@
 nextflow.enable.dsl = 2
 
+params.input = "test_data/*.fasta"
+params.outdir = "results"
+
 workflow {
-    get_versions_process()
-    fastqc_process()
-}
+    Channel
+        .fromPath(params.input)
+        .ifEmpty { error "❌ No input files found at: ${params.input}" }
+        .set { fasta_files }
 
-process get_versions_process {
-    label 'conda'
-
-    output:
-    stdout into versions_out
-
-    script:
-    """
-    fastqc --version
-    """
+    fastqc_process(fasta_files)
 }
 
 process fastqc_process {
     label 'conda'
 
     input:
-    path sample from file(params.input)
+    path fasta_file
 
     output:
     path "${params.outdir}"
@@ -29,6 +24,6 @@ process fastqc_process {
     script:
     """
     mkdir -p ${params.outdir}
-    fastqc \$sample --outdir ${params.outdir}
+    fastqc \$fasta_file --outdir ${params.outdir}
     """
 }
