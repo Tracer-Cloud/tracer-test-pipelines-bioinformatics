@@ -1,18 +1,27 @@
 FROM --platform=linux/arm64 ubuntu:22.04
 
 RUN apt-get update && apt-get install -y \
-    wget unzip default-jre build-essential \
+    wget \
+    unzip \
+    default-jre \
+    build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Install FastQC
 RUN wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.12.1.zip \
     && unzip fastqc_v0.12.1.zip \
     && chmod +x FastQC/fastqc \
     && ln -s /FastQC/fastqc /usr/local/bin/fastqc
 
+# Install STAR from source
 RUN wget https://github.com/alexdobin/STAR/archive/2.7.10b.tar.gz \
     && tar -xzf 2.7.10b.tar.gz \
-    && cd STAR-2.7.10b/source \
-    && make STAR \
+    && cd STAR-2.7.10b/source && make STAR \
     && cp STAR /usr/local/bin/
+
+# Install Nextflow
+RUN curl -s https://get.nextflow.io | bash \
+    && mv nextflow /usr/local/bin/
 
 WORKDIR /data
