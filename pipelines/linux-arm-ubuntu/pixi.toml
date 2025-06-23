@@ -7,7 +7,7 @@ platforms = ["linux-aarch64"]
 default = "nextflow run main.nf -c nextflow.config"
 
 [dependencies]
-openjdk = "17"
+openjdk = "17.0.3"
 nextflow = "*"
 fastqc = "*"
 star = "*"
