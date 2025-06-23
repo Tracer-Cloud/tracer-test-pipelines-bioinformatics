@@ -1,49 +1,24 @@
 #!/bin/bash
 
-echo "[INFO] Preparing environment: installing Java, Pixi and Nextflow (if needed)..."
+set -e
 
-# Step 0: Ensure Java is available
-if ! command -v java &> /dev/null; then
-    echo "[INFO] Java not found. Installing OpenJDK 17..."
-    sudo apt update && sudo apt install -y openjdk-17-jdk
-fi
+echo "[INFO] Starting pipeline setup..."
 
-# Verify Java installation
-if command -v java &> /dev/null; then
-    echo "[INFO] Java installed:"
-    java -version
+# Step 1: Install Conda (if not available)
+if ! command -v conda &> /dev/null; then
+    echo "[INFO] Conda not found. Installing Miniconda for ARM..."
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O miniconda.sh
+    bash miniconda.sh -b -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+    echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.bashrc
+    source ~/.bashrc
 else
-    echo "[ERROR] Java installation failed. Exiting."
-    exit 1
+    echo "[INFO] Conda is already installed."
 fi
 
-# Step 1: Ensure Pixi is installed
-if ! command -v pixi &> /dev/null; then
-    echo "[INFO] Pixi not found. Installing..."
-    curl -sSf https://pixi.sh/install.sh | bash
-    export PATH="$HOME/.pixi/bin:$PATH"
-    echo 'export PATH="$HOME/.pixi/bin:$PATH"' >> ~/.bashrc
-fi
+# Step 2: Initialize Conda (just in case)
+eval "$($HOME/miniconda/bin/conda shell.bash hook)" || true
 
-# Step 2: Skip automatic tracer init
-echo "[INFO] Skipping automatic tracer init. You can run it manually later with:"
-echo "       tracer init"
-
-# Step 3: Install Nextflow if not available
-if ! command -v nextflow &> /dev/null; then
-    echo "[INFO] Installing Nextflow..."
-    curl -s https://get.nextflow.io | bash
-    chmod +x nextflow
-    sudo mv nextflow /usr/local/bin/
-fi
-
-# Step 4: Confirm readiness
-if command -v nextflow &> /dev/null; then
-    echo "[✅] Setup complete. You can now run manually:"
-    echo
-    echo "    tracer init"
-    echo "    nextflow run main.nf -c nextflow.config"
-else
-    echo "[❌] Nextflow install failed. Please check the above output."
-    exit 1
-fi
+# Step 3: Run the pipeline
+echo "[INFO] Running Nextflow pipeline..."
+nextflow run main.nf -c nextflow.config
