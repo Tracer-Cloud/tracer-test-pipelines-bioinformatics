@@ -1,8 +1,22 @@
+// Use Nextflow DSL2
+nextflow.enable.dsl=2
+
+// Create channel from input files
+Channel
+    .fromPath(params.input)
+    .ifEmpty { error "❌ No input files found at: ${params.input}" }
+    .set { fasta_files }
+
+// Optional: print detected input files for debugging
+fasta_files.view()
+
+// Define workflow
 workflow {
     GET_VERSIONS()
-    FASTQC()
+    FASTQC(fasta_files)
 }
 
+// Process to show tool versions
 process GET_VERSIONS {
     script:
     """
@@ -10,18 +24,10 @@ process GET_VERSIONS {
     """
 }
 
-// Step 1: Define a channel from input path
-Channel
-    .fromPath(params.input)
-    .ifEmpty { error "❌ No input files found at: ${params.input}" }
-    .set { fasta_files }
-
-// Step 2: View matched input files (debugging)
-fasta_files.view()
-
+// Process to run FastQC on each input file
 process FASTQC {
     input:
-        path fasta_file from fasta_files
+        path fasta_file
 
     output:
         path "*.html"
