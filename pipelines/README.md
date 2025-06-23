@@ -68,7 +68,7 @@ We've migrated from Conda to Pixi as our default dependency manager:
 
 ## Instruction: Bash Script
 
-- https://github.com/Tracer-Cloud/tracer-workflow-templates
+- Needs specification
 
 ## Instruction: Airflow
 
