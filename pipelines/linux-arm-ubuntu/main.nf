@@ -36,6 +36,6 @@ process FASTQC {
 
     script:
     """
-    fastqc \$fasta_file --outdir ${params.outdir}
+    fastqc ${fasta_file} --outdir ${params.outdir}
     """
 }
