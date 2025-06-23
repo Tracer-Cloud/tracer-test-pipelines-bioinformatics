@@ -1,7 +1,16 @@
+#!/usr/bin/env nextflow
+
 nextflow.enable.dsl=2
 
-params.input = "test_data/*.fasta"
-params.outdir = "pipelines/linux-arm-ubuntu/results"
+params {
+    input = "test_data/*.fasta"
+    outdir = "pipelines/linux-arm-ubuntu/results"
+}
+
+workflow {
+    GET_VERSIONS()
+    FASTQC()
+}
 
 Channel
     .fromPath(params.input)
@@ -10,13 +19,8 @@ Channel
 
 fasta_files.view()
 
-workflow {
-    GET_VERSIONS()
-    FASTQC(fasta_files)
-}
-
 process GET_VERSIONS {
-    cpus 1
+    conda = './environment.yml'
 
     script:
     """
@@ -25,17 +29,17 @@ process GET_VERSIONS {
 }
 
 process FASTQC {
-    cpus 1
+    conda = './environment.yml'
 
     input:
-    path fasta_file
+        path fasta_file from fasta_files
 
     output:
-    path "*.html"
-    path "*.zip"
+        path "*.html"
+        path "*.zip"
 
     script:
     """
-    fastqc ${fasta_file} --outdir ${params.outdir}
+    fastqc $fasta_file --outdir ${params.outdir}
     """
 }
