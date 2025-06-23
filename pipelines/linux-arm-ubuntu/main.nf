@@ -6,42 +6,18 @@ params {
 }
 
 workflow {
-
     Channel
         .fromPath(params.input)
         .ifEmpty { error "❌ No input files found at: ${params.input}" }
         .set { fasta_files }
 
-    GET_VERSIONS()
-    FASTQC(fasta_files)
-}
+    // Run FastQC process on each FASTA file
+    FASTQC_PROCESS(fasta_files)
 
-// Define GET_VERSIONS as a workflow component
-workflow GET_VERSIONS {
-    main:
+    // Print FastQC version
     GET_VERSIONS_PROCESS()
 }
 
-// Define FASTQC as a workflow component
-workflow FASTQC {
-    take:
-    fasta_files
-
-    main:
-    FASTQC_PROCESS(fasta_files)
-}
-
-// Process to get FastQC version
-process GET_VERSIONS_PROCESS {
-    echo true
-    cpus 1
-
-    """
-    fastqc --version || echo 'fastqc not installed'
-    """
-}
-
-// FASTQC process
 process FASTQC_PROCESS {
     publishDir params.outdir, mode: 'copy'
 
@@ -55,5 +31,15 @@ process FASTQC_PROCESS {
     script:
     """
     fastqc $fasta_file --outdir ${params.outdir}
+    """
+}
+
+process GET_VERSIONS_PROCESS {
+    echo true
+    cpus 1
+
+    script:
+    """
+    fastqc --version || echo 'fastqc not installed'
     """
 }
