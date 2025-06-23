@@ -4,4 +4,5 @@ pipelines/
         ├── pixi.toml
         ├── main.nf
         ├── nextflow.config
+        ├── Dockerfile
         └── run.sh
