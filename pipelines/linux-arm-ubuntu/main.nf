@@ -6,19 +6,19 @@ params {
 }
 
 workflow {
+
     Channel
         .fromPath(params.input)
         .ifEmpty { error "❌ No input files found at: ${params.input}" }
         .set { fasta_files }
 
-    // Run FastQC process on each FASTA file
-    FASTQC_PROCESS(fasta_files)
-
-    // Print FastQC version
-    GET_VERSIONS_PROCESS()
+    // Execute processes directly — NOT as function calls
+    fastqc_process(fasta_files)
+    get_versions_process()
 }
 
-process FASTQC_PROCESS {
+// FASTQC process
+process fastqc_process {
     publishDir params.outdir, mode: 'copy'
 
     input:
@@ -30,12 +30,12 @@ process FASTQC_PROCESS {
 
     script:
     """
-    fastqc $fasta_file --outdir ${params.outdir}
+    fastqc \$fasta_file --outdir ${params.outdir}
     """
 }
 
-process GET_VERSIONS_PROCESS {
-    echo true
+// Version checker process
+process get_versions_process {
     cpus 1
 
     script:
