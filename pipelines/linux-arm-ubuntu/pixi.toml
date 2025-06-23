@@ -1,0 +1,10 @@
+[project]
+name = "bio-arm"
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-aarch64"]
+
+[dependencies]
+nextflow = "*"
+fastqc = "0.12.1"
+star = "2.7.11b"
+openjdk = "17"
