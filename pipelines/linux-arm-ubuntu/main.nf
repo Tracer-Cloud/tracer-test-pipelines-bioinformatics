@@ -1,6 +1,5 @@
 nextflow.enable.dsl = 2
 
-// Create a channel from input files
 Channel
     .fromPath(params.input)
     .set { fasta_files }
