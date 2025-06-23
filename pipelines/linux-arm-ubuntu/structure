@@ -1,0 +1,10 @@
+tracer-test-pipelines-bioinformatics/
+└── pipelines/
+    └── linux-arm-ubuntu/
+        ├── main.nf
+        ├── nextflow.config
+        ├── environment.yml
+        ├── test_data/
+        │   ├── sample1.fasta
+        │   └── sample2.fasta
+        └── results/  # will be auto-created by Nextflow
