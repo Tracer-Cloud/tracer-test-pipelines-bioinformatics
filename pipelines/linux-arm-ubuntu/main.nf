@@ -30,7 +30,7 @@ process fastqc_process {
 
     script:
     """
-    fastqc \$fasta_file --outdir ${params.outdir}
+    fastqc $fasta_file --outdir ${params.outdir}
     """
 }
 
