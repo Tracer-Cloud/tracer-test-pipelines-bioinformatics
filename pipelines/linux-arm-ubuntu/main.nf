@@ -1,21 +1,17 @@
 nextflow.enable.dsl = 2
 
-workflow {
-    GET_VERSIONS()
-    FASTQC()
-    STAR_ALIGN()
-}
+// Create a channel from input files
+Channel
+    .fromPath(params.input)
+    .set { fasta_files }
 
-process GET_VERSIONS {
-    script:
-    """
-    fastqc --version
-    """
+workflow {
+    FASTQC(fasta_files)
 }
 
 process FASTQC {
     input:
-        path fastq_files from file(params.input)
+        path fasta_file
 
     output:
         path "*.html"
@@ -23,19 +19,6 @@ process FASTQC {
 
     script:
     """
-    fastqc $fastq_files
-    """
-}
-
-process STAR_ALIGN {
-    input:
-        path fastq_files from file(params.input)
-
-    output:
-        path "*.bam"
-
-    script:
-    """
-    STAR --genomeDir ${params.genome_dir} --readFilesIn $fastq_files --runThreadN ${task.cpus}
+    fastqc $fasta_file
     """
 }
