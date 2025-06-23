@@ -2,7 +2,7 @@ pipelines/
 └── linux-arm-ubuntu/
     └── nextflow-ubuntu/
         ├── pixi.toml
+        ├── environment.yml
         ├── main.nf
         ├── nextflow.config
-        ├── Dockerfile
         └── run.sh
