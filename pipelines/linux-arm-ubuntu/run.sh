@@ -11,17 +11,17 @@ else
     echo "[INFO] Java is already installed."
 fi
 
-# Step 2: Install Miniforge (ARM-compatible Conda)
+# Step 2: Install Miniconda (ARM-compatible)
 if ! command -v conda &> /dev/null; then
-    echo "[INFO] Installing Miniforge (ARM-compatible Conda)..."
-    wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -O miniforge.sh
-    bash miniforge.sh -b -u -p "$HOME/miniforge"
-    export PATH="$HOME/miniforge/bin:$PATH"
-    echo 'export PATH="$HOME/miniforge/bin:$PATH"' >> ~/.bashrc
+    echo "[INFO] Installing Miniconda (for ARM)..."
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O miniconda.sh
+    bash miniconda.sh -b -p "$HOME/miniconda"
+    export PATH="$HOME/miniconda/bin:$PATH"
+    echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.bashrc
     source ~/.bashrc
 else
-    echo "[INFO] Miniforge already exists at $HOME/miniforge"
-    export PATH="$HOME/miniforge/bin:$PATH"
+    echo "[INFO] Conda is already installed."
+    export PATH="$HOME/miniconda/bin:$PATH"
 fi
 
 # Step 3: Install Nextflow
