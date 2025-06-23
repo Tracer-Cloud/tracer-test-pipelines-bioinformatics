@@ -1,13 +1,8 @@
 [project]
 name = "nextflow-arm"
-channels = ["conda-forge", "bioconda"]
+channels = ["conda-forge"]
 platforms = ["linux-aarch64"]
 
-[tasks]
-default = "nextflow run main.nf -c nextflow.config"
-
 [dependencies]
-openjdk = "17.0.3"
 nextflow = "*"
-fastqc = "*"
-star = "*"
+temurin-jdk = "17"
