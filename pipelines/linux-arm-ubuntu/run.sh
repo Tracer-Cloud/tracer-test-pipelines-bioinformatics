@@ -12,16 +12,20 @@ else
 fi
 
 # Step 2: Install Miniconda (ARM-compatible)
-if ! command -v conda &> /dev/null; then
+CONDA_DIR="$HOME/miniconda"
+if [ ! -d "$CONDA_DIR" ]; then
     echo "[INFO] Installing Miniconda (for ARM)..."
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O miniconda.sh
-    bash miniconda.sh -b -p "$HOME/miniconda"
-    export PATH="$HOME/miniconda/bin:$PATH"
+    bash miniconda.sh -b -p "$CONDA_DIR"
+else
+    echo "[INFO] Miniconda already installed at $CONDA_DIR"
+fi
+
+# Ensure conda is in PATH
+export PATH="$CONDA_DIR/bin:$PATH"
+if ! command -v conda &> /dev/null; then
     echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.bashrc
     source ~/.bashrc
-else
-    echo "[INFO] Conda is already installed."
-    export PATH="$HOME/miniconda/bin:$PATH"
 fi
 
 # Step 3: Install Nextflow
@@ -38,11 +42,11 @@ else
     echo "[INFO] Nextflow is already installed."
 fi
 
-# Final Check
-echo "[✅] Environment setup complete."
-echo "Java version:"
+# Confirm installs
+echo "[✅] Setup complete."
 java -version
-echo "Nextflow version:"
+conda --version
 nextflow -version
+
 echo "You can now run:"
 echo "   nextflow run main.nf -c nextflow.config"
