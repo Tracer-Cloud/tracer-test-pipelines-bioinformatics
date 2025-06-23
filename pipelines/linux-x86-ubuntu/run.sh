@@ -34,7 +34,4 @@ else
     echo "[INFO] Nextflow already installed."
 fi
 
-echo "[✅] Setup complete."
-java -version
-conda --version || echo "⚠️ Conda not found"
-nextflow -version || echo "⚠️ Nextfl
+echo "[✅] Set
