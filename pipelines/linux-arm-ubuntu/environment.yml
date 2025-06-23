@@ -1,0 +1,7 @@
+pipelines/
+├── linux-arm-ubuntu/
+│   └── nextflow-ubuntu/
+│       ├── Dockerfile
+│       ├── main.nf
+│       ├── nextflow.config
+│       └── run.sh
