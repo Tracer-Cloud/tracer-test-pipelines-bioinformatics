@@ -19,20 +19,9 @@ build-backend = "poetry.core.masonry.api"
 package-mode = false
 requires-poetry = ">=2.0"
 
-# Security constraints to fix vulnerable packages
 [tool.poetry.dependencies]
-# Fix setuptools path traversal vulnerability (CVE-2024-27351)
 setuptools = ">=76.0.0"
-
-# Fix urllib3 redirect vulnerabilities (CVE-2024-35691, CVE-2024-35692)
 urllib3 = ">=2.4.0"
-
-# Fix requests vulnerabilities (CVE-2024-35166, CVE-2024-35167)
 requests = ">=2.32.0"
-
-# Fix Jinja2 sandbox breakout vulnerability (CVE-2024-22195)
 jinja2 = ">=3.1.6"
-
-# Fix cryptography OpenSSL vulnerability (CVE-2024-2511)
 cryptography = ">=45.0.0"
-
