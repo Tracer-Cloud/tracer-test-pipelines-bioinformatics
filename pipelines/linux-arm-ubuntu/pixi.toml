@@ -1,10 +1,14 @@
 [project]
-name = "bio-arm"
+name = "tracer-arm"
 channels = ["conda-forge", "bioconda"]
-platforms = ["linux-aarch64"]
+platforms = ["linux-arm64"]
+
+[tasks]
+setup = "pixi install"
 
 [dependencies]
 nextflow = "*"
-fastqc = "0.12.1"
-star = "2.7.11b"
-openjdk = "17"
+openjdk = "17.*"
+wget = "*"
+star = ">=2.7.10"
+fastqc = "*"
