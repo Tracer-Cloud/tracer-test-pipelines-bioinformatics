@@ -16,6 +16,7 @@ fi
 if ! command -v conda &>/dev/null; then
     echo "[INFO] Installing Miniconda for x86_64..."
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    rm -rf "$HOME/miniconda"
     bash miniconda.sh -b -p "$HOME/miniconda"
     export PATH="$HOME/miniconda/bin:$PATH"
     echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.bashrc
@@ -34,4 +35,7 @@ else
     echo "[INFO] Nextflow already installed."
 fi
 
-echo "[✅] Set
+echo "[✅] Setup complete."
+java -version
+conda --version || echo "⚠️ Conda not found"
+nextflow -version || echo "⚠️ Nextflow not found"
