@@ -11,21 +11,17 @@ else
     echo "[INFO] Java is already installed."
 fi
 
-# Step 2: Install Miniforge (Conda for ARM)
+# Step 2: Install Miniforge (ARM-compatible Conda)
 if ! command -v conda &> /dev/null; then
-    if [ ! -d "$HOME/miniforge" ]; then
-        echo "[INFO] Installing Miniforge..."
-        wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -O miniforge.sh
-        bash miniforge.sh -b -p "$HOME/miniforge"
-    else
-        echo "[INFO] Miniforge already exists at $HOME/miniforge"
-    fi
-
+    echo "[INFO] Installing Miniforge (ARM-compatible Conda)..."
+    wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -O miniforge.sh
+    bash miniforge.sh -b -u -p "$HOME/miniforge"
     export PATH="$HOME/miniforge/bin:$PATH"
     echo 'export PATH="$HOME/miniforge/bin:$PATH"' >> ~/.bashrc
     source ~/.bashrc
 else
-    echo "[INFO] Conda is already installed."
+    echo "[INFO] Miniforge already exists at $HOME/miniforge"
+    export PATH="$HOME/miniforge/bin:$PATH"
 fi
 
 # Step 3: Install Nextflow
@@ -33,10 +29,8 @@ if ! command -v nextflow &> /dev/null; then
     echo "[INFO] Installing Nextflow..."
     curl -s https://get.nextflow.io | bash
     chmod +x nextflow
-    mv nextflow "$HOME/.local/bin/"
-
-    # Ensure it's in PATH
     mkdir -p "$HOME/.local/bin"
+    mv nextflow "$HOME/.local/bin/"
     export PATH="$HOME/.local/bin:$PATH"
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
     source ~/.bashrc
@@ -44,13 +38,11 @@ else
     echo "[INFO] Nextflow is already installed."
 fi
 
-# Confirm everything is ready
+# Final Check
 echo "[✅] Environment setup complete."
-echo
+echo "Java version:"
 java -version
-conda --version
+echo "Nextflow version:"
 nextflow -version
-
-echo
-echo "[ℹ️] You can now run:"
-echo "     nextflow run main.nf -c nextflow.config"
+echo "You can now run:"
+echo "   nextflow run main.nf -c nextflow.config"
