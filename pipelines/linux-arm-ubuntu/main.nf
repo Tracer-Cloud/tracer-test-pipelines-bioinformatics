@@ -1,5 +1,3 @@
-#!/usr/bin/env nextflow
-
 nextflow.enable.dsl=2
 
 params {
@@ -8,35 +6,34 @@ params {
 }
 
 workflow {
+
+    Channel
+        .fromPath(params.input)
+        .ifEmpty { error "❌ No input files found at: ${params.input}" }
+        .set { fasta_files }
+
     GET_VERSIONS()
-    FASTQC()
+    FASTQC(fasta_files)
 }
 
-Channel
-    .fromPath(params.input)
-    .ifEmpty { error "❌ No input files found at: ${params.input}" }
-    .set { fasta_files }
-
-fasta_files.view()
-
 process GET_VERSIONS {
-    conda = './environment.yml'
+    echo true
+    cpus 1
 
-    script:
     """
-    fastqc --version
+    fastqc --version || echo 'fastqc not installed'
     """
 }
 
 process FASTQC {
-    conda = './environment.yml'
+    publishDir params.outdir, mode: 'copy'
 
     input:
-        path fasta_file from fasta_files
+    path fasta_file
 
     output:
-        path "*.html"
-        path "*.zip"
+    path "*.html"
+    path "*.zip"
 
     script:
     """
