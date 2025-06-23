@@ -13,13 +13,18 @@ fi
 
 # Step 2: Install Miniforge (ARM-compatible Conda)
 if ! command -v conda &> /dev/null; then
-    echo "[INFO] Installing Miniforge (ARM-compatible Conda)..."
-    wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -O miniforge.sh
-    bash miniforge.sh -b -p "$HOME/miniforge"
-    echo 'export PATH="$HOME/miniforge/bin:$PATH"' >> ~/.bashrc
+    if [ ! -d "$HOME/miniforge" ]; then
+        echo "[INFO] Installing Miniforge (ARM-compatible Conda)..."
+        wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -O miniforge.sh
+        bash miniforge.sh -b -p "$HOME/miniforge"
+    else
+        echo "[INFO] Miniforge directory already exists, skipping install."
+    fi
+
     export PATH="$HOME/miniforge/bin:$PATH"
+    echo 'export PATH="$HOME/miniforge/bin:$PATH"' >> ~/.bashrc
 else
-    echo "[INFO] Conda (Miniforge) is already installed."
+    echo "[INFO] Conda (Miniforge) is already available."
 fi
 
 # Step 3: Install Nextflow
