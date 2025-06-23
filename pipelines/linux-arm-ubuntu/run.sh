@@ -22,22 +22,26 @@ else
     echo "[INFO] Conda (Miniforge) is already installed."
 fi
 
-# Activate conda in current shell
-if [ -f "$HOME/miniforge/bin/conda" ]; then
-    eval "$($HOME/miniforge/bin/conda shell.bash hook)" || true
-fi
-
 # Step 3: Install Nextflow
 if ! command -v nextflow &> /dev/null; then
     echo "[INFO] Installing Nextflow..."
     curl -s https://get.nextflow.io | bash
     chmod +x nextflow
-    sudo mv nextflow /usr/local/bin/
+    mv nextflow "$HOME/.local/bin/"
+
+    # Ensure ~/.local/bin is in PATH
+    mkdir -p "$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH"
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 else
     echo "[INFO] Nextflow is already installed."
 fi
 
-# Done
+# Final check
+echo
 echo "[✅] Environment setup complete."
+echo "Java version: $(java -version 2>&1 | head -n 1)"
+echo "Nextflow version: $(nextflow -version | head -n 1)"
+echo
 echo "You can now run the pipeline with:"
 echo "   nextflow run main.nf -c nextflow.config"
