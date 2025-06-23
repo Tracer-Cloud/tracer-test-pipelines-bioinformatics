@@ -5,4 +5,4 @@ platforms = ["linux-aarch64"]
 
 [dependencies]
 nextflow = "*"
-temurin-jdk = "17"
+temurin-jdk = "==17"
