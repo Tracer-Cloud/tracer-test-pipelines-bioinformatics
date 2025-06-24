@@ -7,7 +7,6 @@ channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64"]
 
 [dependencies]
-# Core bioinformatics tools for version checks
 nextflow = ">=25.4.4,<26"
 fastqc = "0.12.1"
 star = "2.7.11b"
@@ -18,22 +17,53 @@ coreutils = "9.1"
 bc = "*"
 tree = "*"
 openjdk = "17.0.11"
+python = "3.12"
+
+grep = "*"
+tar = "*"
+findutils = "*"
+
+hisat2 = "2.2.1"
+trim-galore = "0.6.10"
+salmon = "1.10.3"
+bbmap = "39.26"
+fq = "0.12.0"
+subread = "2.1.1"
+picard = "*"
+gawk = "*"
+qualimap = "*"
+stringtie = "*"
+bedtools = "*"
+ucsc-bedclip = "*"
+ucsc-bedgraphtobigwig = "*"
+bioconductor-dupradar = "*"
+rseqc = "*"
+multiqc = "*"
+bioconductor-tximeta = "*"
+bioconductor-tximport = "*"
+bioconductor-summarizedexperiment = "*"
+bioconductor-genomeinfodbdata = "*"
+bioconductor-genomicranges = "*"
+bioconductor-iranges = "*"
+bioconductor-s4vectors = "*"
+bioconductor-biocgenerics = "*"
+bioconductor-genomeinfodb = "*"
+gridss = ">=2.11.1,<3"
+
 
 [tasks]
 
 pipeline = "nextflow -log logs/nextflow.log run main.nf --outdir results"
 pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --outdir $1"
 test = "nextflow -log logs/nextflow.log run main.nf --outdir test_results"
-nf-core-rnaseq = "nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume"
+rnaseq = "export JAVA_OPTS='-Djdk.lang.Process.launchMechanism=posix_spawn' && export _JAVA_OPTIONS='-Djdk.lang.Process.launchMechanism=posix_spawn' && mkdir -p rnaseq_results && cd rnaseq_results && nextflow run https://github.com/nf-core/rnaseq -c ../custom.config -profile test --outdir results -resume"
 
-# Clean up generated files
 clean = """
 rm -rf results logs work test_results custom_results
 rm -f .nextflow* 2>/dev/null || true
 echo "✅ Cleaned up all results and logs"
 """
 
-# Environment check - verify all tools are available
 check-env = """
 echo "=== Pixi Environment Check ==="
 echo "Java version:"
@@ -60,7 +90,6 @@ echo ""
 echo "=== Environment Ready ==="
 """
 
-# Development workflow (runs tasks in sequence)
 dev = """
 echo "=== Development Workflow ==="
 pixi run clean
@@ -70,11 +99,9 @@ pixi run test
 echo "=== Development Workflow Complete ==="
 """
 
-# Quick version check (same as pipeline but faster)
 versions = "pixi run pipeline"
 
 [feature.dev.dependencies]
-# Additional development dependencies
 nextflow = ">=24.10.0"
 
 [environments]
