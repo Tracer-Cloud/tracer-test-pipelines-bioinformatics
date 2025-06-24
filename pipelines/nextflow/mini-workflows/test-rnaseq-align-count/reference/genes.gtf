@@ -1,2 +1,0 @@
-chr1	source	gene	1	60	.	+	.	gene_id "gene1";
-chr1	source	exon	1	60	.	+	.	gene_id "gene1"; exon_number "1";

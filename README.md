@@ -2,124 +2,64 @@
 
 ## Quickstart Tracer Sandbox
 
-Follow the instructions on https://sandbox.tracer.cloud/ to get started.
+Get started instantly by visiting [sandbox.tracer.cloud](https://sandbox.tracer.cloud/).
 
-## Pipelines
+## Getting Started
 
-Below is a list of pipelines available for a quickstart setup in the [pipelines](./pipelines/) directory.
+### 1. Install Tracer
 
-### Install Tracer
-
-Before running any pipeline, you need to install Tracer into your operating system. This is a one-time installation.
-
-For Codespaces, we install the below line of code into the terminal:
+Install Tracer on your operating system (one-time installation):
 
 ```bash
 curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
 ```
 
-### Run tracer init
+### 2. Initialize Tracer
 
-To launch a new pipeline with a new name, run the following command in the Codespaces terminal:
-
-Make sure the environment has root privileges you're running tracer in, `sudo su` if needed.
+Launch Tracer by running:
 
 ```bash
-tracer init
+sudo tracer init  # Root privileges required
 ```
 
-## QuickStart
+### 3. Choose a Pipeline
 
-Supported on: GitHub Codespaces, osx-64, linux-64, linux-aarch64
+We provide several ready-to-use pipelines for different environments in the [pipelines](./pipelines/) directory. Navigate to the pipelines directory and follow the README instructions to choose and run a pipeline suitable for your environment.
 
-Install pixi
+## Monitor your Pipeline
 
-```bash
-curl -fsSL https://pixi.sh/install.sh | sh
-```
+Track your pipeline's progress through the Tracer monitoring dashboard, accessible via the 'Open Grafana Dashboard' button.
 
-Run a pipeline
+The dashboard provides real-time insights into:
 
-```bash
-pixi install
-pixi run rnaseq
-```
-
-## Dependencies
-
-Run the dependency install script.
-
-List of all the dependencies:
-
-- Java (OpenJDK 17)
-- Python 3
-- Miniconda
-- Docker
-- Nextflow
-
-To install all dependencies, simply run:
-
-```bash
-bash dependencies_installation.sh
-```
-
-This script will install all required tools, including Spack, and set up your environment for running the pipelines.
-
-### Run pipeline
-
-We have pre-installed some pipelines in Codespaces for you to run.
-
-#### Option 1: Quick Pixi Pipeline (Recommended for Codespaces)
-
-For a fast, self-contained pipeline experience using Pixi package management:
-
-```bash
-cd pipelines/codespaces/bash
-./run_pixi_pipeline.sh
-```
-
-This script will:
-
-- Install Pixi and Nextflow automatically
-- Set up a Linux-compatible version of our macOS Pixi pipeline
-- Run a complete bioinformatics workflow with sample data
-- Display results and logs
-
-#### Option 2: Traditional RNA-seq Pipeline
-
-For a more comprehensive RNA-seq analysis:
-
-```bash
-nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
-```
-
-> ⚠️ This pipeline uses a small dataset for demonstration purposes. Feel free to adapt the dataset or explore other prepared pipelines under the pipelines tab.
-
-### Monitor your Pipeline
-
-Watch your pipeline in action via the Tracer monitoring dashboard, which you access by clicking the 'Open Grafana Dashboard' button.
-
-You'll see real-time execution metrics, stages, and status updates.
+- Execution metrics
+- Pipeline stages
+- Status updates
 
 ## What Is Tracer and Why Use It?
 
-Tracer is a system-level observability platform purpose-built for scientific computing. It combines cutting-edge technological advances with the deep understanding of scientific industries to give insights into their speed and costs. Its one-line install Linux agent and instant dashboards allow for real-time insights into scientific computing environments.
+Tracer is a cutting-edge system-level observability platform specifically designed for scientific computing. It combines advanced technology with deep industry knowledge to provide comprehensive insights into performance and costs. With its simple one-line Linux agent installation and intuitive dashboards, Tracer delivers immediate visibility into scientific computing environments.
 
-Unlike industry agnostic monitoring agents, Tracer structures DevOps data for scientific pipelines, providing clear visibility into pipeline stages and execution runs. In environments like AWS Batch, where processes and containers are loosely connected, users struggle to understand which processes belong to which pipeline run, and frequently lose logs from failed containers, making debugging difficult.
+Unlike general-purpose monitoring tools, Tracer is purpose-built for scientific pipelines, offering clear visibility into pipeline stages and execution runs. This is particularly valuable in environments like AWS Batch, where tracking processes across containers can be challenging and failed container logs are often lost.
 
-Tracer solves this by intelligently organizing and labeling pipelines, execution runs, and steps. Because it runs directly on Linux, it requires no code changes and supports any programming language, unlike point solutions that work only with one framework. This makes integration effortless even across multi-workload IT environments, including AlphaFold, Slurm, Airflow, Nextflow and also local Bash scripts.
+Tracer excels by:
 
-Architected for regulated industries, it ensures enterprise-grade security, with data never leaving your infrastructure, which is not the case with solutions such as DataDog.
+- Intelligently organizing and labeling pipelines, execution runs, and steps
+- Running directly on Linux without requiring code modifications
+- Supporting any programming language
+- Enabling seamless integration across diverse IT environments (AlphaFold, Slurm, Airflow, Nextflow, and local Bash scripts)
+
+Built with enterprise security in mind, Tracer ensures your data never leaves your infrastructure - a key advantage over solutions like DataDog.
 
 ## Key Features
 
-New metrics that help you speed up your pipelines and maximize your budget:
+Optimize your pipelines with powerful metrics:
 
 - Time and cost per dataset processed
 - Execution duration and bottleneck identification for each pipeline step
 - Cost attribution across pipelines, teams, and environments (dev, CI/CD, prod)
 
-Overall, making sense of scientific toolchains with poor/no observability.
+These insights help make sense of complex scientific toolchains that traditionally lack proper observability.
 
 ## Mission
 
