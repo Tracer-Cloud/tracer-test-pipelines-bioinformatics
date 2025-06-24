@@ -7,13 +7,8 @@ on:
       - "pipelines/macos-intel-x86/nextflow-pixi/**"
       - "pipelines/macos-intel-x86/nextflow-conda/**"
       - ".github/workflows/macos-intel-x86.yml"
-  pull_request:
-    paths:
-      - "pipelines/macos-intel-x86/nextflow-pixi/**"
-      - "pipelines/macos-intel-x86/nextflow-conda/**"
-      - ".github/workflows/macos-intel-x86.yml"
   schedule:
-    - cron: "0 12 * * *" # Daily at 12:00 UTC (13:00 BST)
+    - cron: "0 11 * * *" # Daily at 11:00 UTC (12:00 BST)
 
 jobs:
   nextflow-pixi:
