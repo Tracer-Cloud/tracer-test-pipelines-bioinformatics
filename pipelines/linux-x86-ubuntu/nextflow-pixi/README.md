@@ -1,8 +1,39 @@
 # Linux x86-64 Ubuntu Nextflow Pipeline with Pixi
 
-This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu systems using Pixi package management.
+This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu systems using Pixi package management for fast, reliable dependency management.
 
-## Quick Start
+## Quick Start (Recommended: Pixi)
+
+### Prerequisites
+- [Pixi](https://pixi.sh) installed on your system
+- Linux x86-64 system
+
+### Install Pixi
+```bash
+curl -fsSL https://pixi.sh/install.sh | bash
+```
+
+### Run the Pipeline with Pixi
+```bash
+# Install dependencies
+pixi install
+
+# Check environment
+pixi run check-env
+
+# Run the pipeline
+pixi run pipeline
+
+# Run with custom output directory
+pixi run pipeline-custom my_results
+
+# Clean up
+pixi run clean
+```
+
+## Alternative: Manual Setup (Bash/Conda)
+
+If you prefer the traditional approach:
 
 1. **Run the setup script:**
    ```bash
@@ -26,12 +57,13 @@ This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu system
 
 ## Files
 
-- `run.sh` - Main setup script that installs Java, Miniconda, and Nextflow
-- `activate-conda.sh` - Helper script to activate conda in current shell session
+- `pixi.toml` - Pixi configuration with dependencies and tasks (recommended)
 - `main.nf` - Nextflow pipeline definition (simple tool version checks)
 - `nextflow.config` - Nextflow configuration
 - `custom.config` - Custom configuration for nf-core pipelines
 - `test_data/` - Sample test data for the pipeline
+- `run.sh` - Alternative setup script that installs Java, Miniconda, and Nextflow
+- `activate-conda.sh` - Helper script to activate conda in current shell session
 
 ## Troubleshooting
 
@@ -57,7 +89,60 @@ The setup script modifies your `~/.bashrc` file to include conda in your PATH, b
 
 ## Usage
 
-Once conda is activated, you can use it normally:
+### Pixi Tasks (Recommended)
+
+```bash
+# Check all available tasks
+pixi task list
+
+# Setup environment and directories
+pixi run setup
+
+# Check tool versions and environment
+pixi run check-env
+
+# Run the main pipeline
+pixi run pipeline
+
+# Run pipeline with custom output
+pixi run pipeline-custom my_custom_results
+
+# Run development workflow (clean + setup + check + test)
+pixi run dev
+
+# Run nf-core RNA-seq pipeline
+pixi run nf-core-rnaseq
+
+# Clean up all generated files
+pixi run clean
+```
+
+### Pipeline Description
+
+This directory contains a simple Nextflow pipeline that checks versions of common bioinformatics tools:
+
+The pipeline will:
+- Check versions of FastQC, STAR, Samtools, BWA, and GATK
+- Create a `tool_versions.txt` file in the results directory
+- Continue even if some tools are not available (uses `errorStrategy = 'ignore'`)
+- Use 1GB memory per process step
+
+### Manual Nextflow Execution
+
+If you prefer to run nextflow directly (after `pixi install`):
+
+```bash
+# Run the local pipeline
+nextflow run main.nf --outdir results
+
+# Run nf-core rnaseq pipeline
+nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
+```
+
+### Legacy Conda Usage
+
+If using the bash setup instead of pixi:
+
 ```bash
 conda --version
 conda list
@@ -65,31 +150,27 @@ conda create -n myenv python=3.9
 conda activate myenv
 ```
 
-### Running the local pipeline
-
-This directory contains a simple Nextflow pipeline that checks versions of common bioinformatics tools:
-
-```bash
-# Make sure you're in the nextflow-pixi directory
-cd pipelines/linux-x86-ubuntu/nextflow-pixi
-
-# Run the local pipeline
-nextflow run main.nf --outdir results
-```
-
-The pipeline will:
-- Check versions of FastQC, STAR, Samtools, BWA, and GATK
-- Create a `tool_versions.txt` file in the results directory
-- Continue even if some tools are not available (uses `errorStrategy = 'ignore'`)
-
-### Running nf-core pipelines
-
-After setting up the environment, you can also run nf-core pipelines. For example, to run the RNA-seq pipeline:
-
-```bash
-# Run the nf-core rnaseq pipeline with test data
-nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
-```
-
 The `custom.config` file is included in this directory and contains:
 - `process.errorStrategy = 'ignore'` - Allows the pipeline to continue even if some processes fail
+
+## Why Pixi?
+
+Pixi offers several advantages over traditional conda/bash setup:
+
+- **Faster**: Parallel dependency resolution and installation
+- **Reproducible**: Lock files ensure exact dependency versions
+- **Isolated**: Each project has its own environment
+- **Cross-platform**: Works consistently across Linux, macOS, and Windows
+- **Task Management**: Built-in task runner for common workflows
+- **No Activation**: Tools are automatically available when running tasks
+
+## Dependencies
+
+The pixi environment includes:
+- **Nextflow** (>=25.4.4): Workflow management system
+- **FastQC** (0.12.1): Quality control for sequencing data
+- **STAR** (2.7.11b): RNA-seq aligner
+- **Samtools** (1.21): SAM/BAM file manipulation
+- **BWA** (0.7.18): DNA sequence aligner
+- **GATK4** (4.6.1.0): Genome analysis toolkit
+- **OpenJDK** (17.0.11): Java runtime for Nextflow and GATK
