@@ -31,28 +31,33 @@ pixi run pipeline-custom my_results
 pixi run clean
 ```
 
-## Alternative: Manual Setup (Bash/Conda)
+## Alternative: Automated Setup (Bash Script)
 
-If you prefer the traditional approach:
+The `run.sh` script now installs both Pixi and Conda automatically:
 
-1. **Run the setup script:**
+1. **Run the setup script (installs Pixi, Conda, Java, and Nextflow):**
    ```bash
    ./run.sh
    ```
 
-2. **Activate conda in your current shell session:**
+2. **After setup, you can use either approach:**
+
+   **Option A: Use Pixi (recommended):**
+   ```bash
+   pixi install
+   pixi run pipeline
+   ```
+
+   **Option B: Use Conda:**
    ```bash
    source ~/.bashrc
+   conda --version
+   nextflow run main.nf --outdir results
    ```
 
-   Or alternatively, use the helper script:
+   **Option C: Use the conda activation helper:**
    ```bash
    source activate-conda.sh
-   ```
-
-3. **Verify conda is available:**
-   ```bash
-   conda --version
    ```
 
 ## Files
@@ -62,7 +67,7 @@ If you prefer the traditional approach:
 - `nextflow.config` - Nextflow configuration
 - `custom.config` - Custom configuration for nf-core pipelines
 - `test_data/` - Sample test data for the pipeline
-- `run.sh` - Alternative setup script that installs Java, Miniconda, and Nextflow
+- `run.sh` - Automated setup script that installs Pixi, Conda, Java, and Nextflow
 - `activate-conda.sh` - Helper script to activate conda in current shell session
 
 ## Troubleshooting
