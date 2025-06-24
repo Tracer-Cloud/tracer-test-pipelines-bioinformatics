@@ -16,7 +16,16 @@ if [ ! -d "$HOME/miniconda" ]; then
     echo "[INFO] Installing Miniconda (x86_64)..."
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     bash miniconda.sh -b -p "$HOME/miniconda"
-    echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
+
+    # Add conda to PATH in .bashrc if not already present
+    if ! grep -q 'miniconda/bin' "$HOME/.bashrc"; then
+        echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
+    fi
+
+    # Initialize conda for bash shell
+    "$HOME/miniconda/bin/conda" init bash
+
+    echo "[INFO] Miniconda installed. Please run 'source ~/.bashrc' or restart your shell to use conda."
 fi
 
 # Ensure Conda is active in this shell
@@ -39,3 +48,9 @@ echo
 java -version
 conda --version
 nextflow -version
+
+echo ""
+echo "[INFO] To use conda in new terminal sessions, run:"
+echo "source ~/.bashrc"
+echo ""
+echo "Or restart your terminal/shell session."
