@@ -27,14 +27,4 @@ pixi run pipeline
 pixi run pipeline-custom "path/to/input/*.fasta" "path/to/output"
 ```
 
-## 🧬 Pipeline Description
-
-This pipeline processes FASTA files using FastQC and STAR, performing the following steps:
-
-1. **Version Check**: Displays versions of installed tools (FastQC and STAR)
-2. **FASTA Statistics**:
-   - Counts sequences in each file
-   - Calculates total sequence length
-   - Computes average sequence length
-   - Lists sequence IDs
-3. **Sequence Counting**: Generates separate count files for each FASTA input
+> After running the pipeline, you can view the tools and processes in the Tracer dashboard or by running `tracer info` in your terminal.
