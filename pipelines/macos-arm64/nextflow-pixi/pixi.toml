@@ -15,12 +15,14 @@ bc = "*"
 tree = "*"
 openjdk = "17.0.11"
 python = "3.12"
+docker = "25.0.6"
 
 [tasks]
 
 pipeline = "nextflow -log logs/nextflow.log run main.nf"
 pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --input $1 --outdir $2"
-rnaseq = "export JAVA_OPTS='-Djdk.lang.Process.launchMechanism=posix_spawn' && export _JAVA_OPTIONS='-Djdk.lang.Process.launchMechanism=posix_spawn' && mkdir -p rnaseq_results && cd rnaseq_results && nextflow run https://github.com/nf-core/rnaseq -c ../custom.config -profile docker,test --outdir results -resume"
+rnaseq = "export JAVA_OPTS='-Djdk.lang.Process.launchMechanism=posix_spawn' && export _JAVA_OPTIONS='-Djdk.lang.Process.launchMechanism=posix_spawn' && mkdir -p rnaseq_results && cd rnaseq_results && nextflow run https://github.com/nf-core/rnaseq -c ../custom.config -profile test --outdir results -resume"
+
 test = "nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --outdir test_results"
 
 clean = { cmd = [

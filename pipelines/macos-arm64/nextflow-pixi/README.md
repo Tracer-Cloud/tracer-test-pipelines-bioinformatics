@@ -8,8 +8,9 @@ Make sure the tracer daemon is running before executing the pipeline so that the
 
 ### Prerequisites
 
-- [Pixi](https://pixi.sh) installed on your system
 - macOS ARM64 (Apple Silicon)
+- [Pixi](https://pixi.sh) installed on your system
+- Docker
 
 ### Install Pixi
 
@@ -23,6 +24,8 @@ curl -fsSL https://pixi.sh/install.sh | bash
 pixi install
 
 pixi run pipeline
+
+pixi run rnaseq
 
 pixi run pipeline-custom "path/to/input/*.fasta" "path/to/output"
 ```
