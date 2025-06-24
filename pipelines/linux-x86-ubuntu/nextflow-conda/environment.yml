@@ -1,0 +1,38 @@
+name: rnaseq-tools
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  # Core tools
+  - nextflow>=24.10.0
+  - openjdk=17
+  
+  # RNA-seq analysis tools
+  - fastqc=0.12.1
+  - star=2.7.11b
+  - hisat2=2.2.1
+  - salmon=1.10.3
+  - samtools=1.21
+  - bbmap=39.26
+  - trim-galore=0.6.10
+  - subread=2.1.1
+  - picard=3.1.1
+  - multiqc=1.21
+  
+  # Quality control and utilities
+  - fq=0.12.0
+  - gawk
+  - coreutils
+  - findutils
+  - grep
+  - tar
+  - bc
+  
+  # Python and R for downstream analysis
+  - python=3.12
+  - r-base=4.3
+  - bioconductor-tximeta
+  - bioconductor-tximport
+  - bioconductor-summarizedexperiment
