@@ -1,8 +1,8 @@
 # Nextflow Pipeline on Linux x86 using Conda
 
-# Linux x86-64 Ubuntu Nextflow Pipeline with Pixi
+# Linux x86-64 Ubuntu Nextflow Pipeline - Pixi Version
 
-This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu systems using Pixi package management for fast, reliable dependency management.
+This directory contains a **Pixi-based Nextflow pipeline** for modern, fast package management. Pixi provides faster dependency resolution and better reproducibility than traditional conda.
 
 ## Quick Start (Recommended: Pixi)
 

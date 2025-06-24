@@ -45,15 +45,11 @@ fi
 export PATH="$HOME/miniconda/bin:$PATH"
 eval "$($HOME/miniconda/bin/conda shell.bash hook)"
 
-# --- STEP 4: Create conda environment with bioinformatics tools ---
-if ! conda env list | grep -q "rnaseq-tools"; then
-    echo "[INFO] Creating conda environment with bioinformatics tools..."
-    conda env create -f environment.yml
-    echo "[INFO] Conda environment 'rnaseq-tools' created successfully."
-    echo "[INFO] To activate: conda activate rnaseq-tools"
-else
-    echo "[INFO] Conda environment 'rnaseq-tools' already exists."
-fi
+# --- STEP 4: Create minimal conda environment (optional) ---
+echo "[INFO] Skipping large conda environment due to disk space constraints."
+echo "[INFO] You can manually create a minimal environment later with:"
+echo "       conda env create -f environment-minimal.yml"
+echo "[INFO] Or use Docker for full tool support."
 
 # --- STEP 5: Install Nextflow ---
 if ! command -v nextflow &> /dev/null; then
@@ -73,13 +69,13 @@ conda --version
 nextflow -version
 
 echo ""
-echo "[INFO] Setup complete! You now have Docker, Conda, and Nextflow installed."
+echo "[INFO] Setup complete! Lightweight demo environment ready."
 echo ""
-echo "[INFO] To run nf-core pipelines with conda:"
-echo "1. Activate the conda environment: conda activate rnaseq-tools"
-echo "2. Run your pipeline: nextflow run nf-core/rnaseq -c custom.config -profile test --outdir results"
+echo "[INFO] To run the SMALL pipeline (quick demo):"
+echo "1. Run the simple version check pipeline: nextflow run main.nf --outdir results"
+echo "2. This checks tool versions and completes in seconds"
 echo ""
-echo "[INFO] To run nf-core pipelines with Docker:"
+echo "[INFO] To run the BIG pipeline (full bioinformatics):"
 echo "1. Go to the docker directory: cd ../nextflow-docker-not-supported"
 echo "2. Build the image: docker build -t rnaseq-tools:latest ."
 echo "3. Run with docker: nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results"
