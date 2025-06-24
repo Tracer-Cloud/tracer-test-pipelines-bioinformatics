@@ -7,11 +7,6 @@ on:
       - "pipelines/macos-arm64/nextflow-pixi/**"
       - "pipelines/macos-arm64/nextflow-conda/**"
       - ".github/workflows/macos-arm64.yml"
-  pull_request:
-    paths:
-      - "pipelines/macos-arm64/nextflow-pixi/**"
-      - "pipelines/macos-arm64/nextflow-conda/**"
-      - ".github/workflows/macos-arm64.yml"
   schedule:
     - cron: "0 11 * * *" # Daily at 11:00 UTC (12:00 BST)
 
