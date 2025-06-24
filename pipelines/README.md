@@ -1,79 +1,50 @@
 # Tracer Bioinformatics Test Pipelines
 
-This repository contains validated test pipelines for various bioinformatics platforms and environments, with **Pixi as the default dependency management solution**.
+This repository contains validated test pipelines for various bioinformatics platforms and environments, organized by architecture and package management solutions.
 
-## 🚀 Quick Start (Recommended)
+## Supported Platforms
 
-### Pixi-based Pipelines (Default)
+Choose your platform below to find validated examples with different package managers:
+
+- [macOS ARM64 (Apple Silicon M1/M2)](macos-arm64/)
+- [macOS Intel (x86_64)](macos-intel-x86/)
+- [Linux ARM (Ubuntu/CentOS)](linux-arm-ubuntu/)
+- [Linux x86 (Ubuntu/CentOS)](linux-x86-ubuntu/)
+
+Navigate to your platform's directory to find working examples with supported package managers.
+
+## Package Manager Installation
+
+We support the following package managers. Choose one based on your needs:
+
+### Pixi (Recommended)
+
+Install Pixi using the official installer:
+
 ```bash
-# For Apple Silicon Macs
-cd macos-arm64/nextflow-pixi && pixi run pipeline
-
-# For Intel Macs
-cd macos-intel-x86/nextflow-pixi && pixi run pipeline
+curl -fsSL https://pixi.sh/install.sh | bash
 ```
 
-## Workloads Validation Status
+For detailed installation options and troubleshooting, visit [Pixi Installation Guide](https://pixi.sh/latest/installation/).
 
-| Workload                 | Status     | Dependency Manager | Example Configuration                |
-| ------------------------ | ---------- | ------------------ | ------------------------------------ |
-| **Nextflow (Pixi ARM64)** | ✅ **Default** | Pixi | [Link](./macos-arm64/nextflow-pixi) |
-| **Nextflow (Pixi Intel)** | ✅ **Default** | Pixi | [Link](./macos-intel-x86/nextflow-pixi) |
-| AWS Batch                | ✅ Validated  | Direct | [Link](./aws-batch/README.md)        |
-| Bash (RNA-seq, ChIP-seq) | ✅ Validated  | System | [Link](./bash/README.md)             |
-| Nextflow (Config)        | ✅ Validated  | Various | [Link](./nextflow)                   |
-| Airflow                  | ✅ Validated  | Conda | [Link](./airflow/README.md)          |
-| CWL                      | ✅ Validated  | System | [Link](./shared/cwl)                        |
-| WDL                      | ✅ Validated  | System | [Link](./wdl)                        |
-| Slurm                    | ⏳ Not Tested | System | [Link](./slurm/README.md)            |
-| R Bioconductor           | ⏳ Not Tested | R | [Link](#)                            |
-| AlphaFold                | ⏳ Not Tested | Conda/Docker | [Link](#)                            |
-| OpenFold                 | ⏳ Not Tested | Conda/Docker | [Link](#)                            |
+### Conda
 
-## ⚡ Why Pixi? (Migration from Conda)
+Choose one of the following installers:
 
-We've migrated from Conda to Pixi as our default dependency manager:
+- **Miniconda**: Minimal installer (~400MB) - Recommended for most users
+- **Miniforge**: Community-maintained, conda-forge focused
 
-### **Performance Benefits:**
-- **5-10x faster** environment creation (30-60s vs 2-5 minutes)
-- **Better dependency resolution** with fewer conflicts
-- **Faster CI/CD** with reliable caching
+Installation guides:
 
-### **Developer Experience:**
-- **Task-based workflow**: `pixi run pipeline`, `pixi run test`
-- **Automatic environment activation**: No manual conda activate
-- **Built-in lock files**: Guaranteed reproducibility
+- [macOS Installation Guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
+- [Linux Installation Guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
-### **Migration Path:**
-- ❌ **Old**: `pipelines/macos-*/nextflow-conda` (removed)
-- ✅ **New**: `pipelines/macos-*/nextflow-pixi` (default)
+### Spack
 
-# Core Functionality Requirements
+For Spack installation and setup, visit [Spack Tutorial](https://spack-tutorial.readthedocs.io/en/latest/tutorial_basics.html).
 
-- Identification of individual pipeline runs and process stages
-- Core metrics tracking:
-  - Execution duration
-  - CPU, Memory, and Disk usage
-  - Cost estimation
+## Getting Started
 
-## Link To Repository With Examples:
-
-- https://github.com/Tracer-Cloud/tracer-workflow-templates
-
-# Instructions
-
-## Instruction: AWS Batch With Nextflow
-
-- Needs specification
-
-## Instruction: Bash Script
-
-- Needs specification
-
-## Instruction: Airflow
-
-- Needs specification
-
-## Instruction: Slurm
-
-- Needs specification.
+1. Click on your platform's link above
+2. Choose an example with your preferred package manager
+3. Follow the README instructions in that directory to run the example

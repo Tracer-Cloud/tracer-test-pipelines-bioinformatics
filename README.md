@@ -16,10 +16,10 @@ curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
 
 ### 2. Initialize Tracer
 
-Launch Tracer by running:
+Launch Tracer by running: (Root privileges required)
 
 ```bash
-sudo tracer init  # Root privileges required
+sudo tracer init
 ```
 
 ### 3. Choose a Pipeline
