@@ -13,11 +13,14 @@ star = "2.7.11b"
 coreutils = "9.1"
 bc = "*"
 tree = "*"
+openjdk = "17.0.11"
+python = "3.12"
 
 [tasks]
 
 pipeline = "nextflow -log logs/nextflow.log run main.nf"
 pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --input $1 --outdir $2"
+rnaseq = "export JAVA_OPTS='-Djdk.lang.Process.launchMechanism=posix_spawn' && export _JAVA_OPTIONS='-Djdk.lang.Process.launchMechanism=posix_spawn' && mkdir -p rnaseq_results && cd rnaseq_results && nextflow run https://github.com/nf-core/rnaseq -c ../custom.config -profile docker,test --outdir results -resume"
 test = "nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --outdir test_results"
 
 clean = { cmd = [
@@ -37,6 +40,10 @@ check-env = { cmd = [
     (STAR --version 2>/dev/null || echo 'STAR 2.7.11b (available)') && \
     echo 'Nextflow version:' && \
     nextflow -v && \
+    echo 'Java version:' && \
+    java -version && \
+    echo 'Docker version:' && \
+    (docker --version 2>/dev/null || echo 'Docker not available') && \
     echo '=== Environment Ready ==='
     """
 ]}

@@ -1,3 +1,5 @@
+# Nextflow Pipeline on Linux x86 using Conda
+
 # Linux x86-64 Ubuntu Nextflow Pipeline with Pixi
 
 This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu systems using Pixi package management for fast, reliable dependency management.
@@ -5,15 +7,18 @@ This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu system
 ## Quick Start (Recommended: Pixi)
 
 ### Prerequisites
+
 - [Pixi](https://pixi.sh) installed on your system
 - Linux x86-64 system
 
 ### Install Pixi
+
 ```bash
 curl -fsSL https://pixi.sh/install.sh | bash
 ```
 
 ### Run the Pipeline with Pixi
+
 ```bash
 # Install dependencies
 pixi install
@@ -36,16 +41,19 @@ pixi run clean
 If you prefer the traditional approach:
 
 1. **Run the setup script:**
+
    ```bash
    ./run.sh
    ```
 
 2. **Activate conda in your current shell session:**
+
    ```bash
    source ~/.bashrc
    ```
 
    Or alternatively, use the helper script:
+
    ```bash
    source activate-conda.sh
    ```
@@ -72,11 +80,13 @@ If you prefer the traditional approach:
 This is expected behavior. The `run.sh` script installs conda and configures it, but you need to activate it in your shell session:
 
 **Option 1:** Source your bashrc file
+
 ```bash
 source ~/.bashrc
 ```
 
 **Option 2:** Use the activation helper script
+
 ```bash
 source activate-conda.sh
 ```
@@ -122,6 +132,7 @@ pixi run clean
 This directory contains a simple Nextflow pipeline that checks versions of common bioinformatics tools:
 
 The pipeline will:
+
 - Check versions of FastQC, STAR, Samtools, BWA, and GATK
 - Create a `tool_versions.txt` file in the results directory
 - Continue even if some tools are not available (uses `errorStrategy = 'ignore'`)
@@ -151,6 +162,7 @@ conda activate myenv
 ```
 
 The `custom.config` file is included in this directory and contains:
+
 - `process.errorStrategy = 'ignore'` - Allows the pipeline to continue even if some processes fail
 
 ## Why Pixi?
@@ -167,6 +179,7 @@ Pixi offers several advantages over traditional conda/bash setup:
 ## Dependencies
 
 The pixi environment includes:
+
 - **Nextflow** (>=25.4.4): Workflow management system
 - **FastQC** (0.12.1): Quality control for sequencing data
 - **STAR** (2.7.11b): RNA-seq aligner
