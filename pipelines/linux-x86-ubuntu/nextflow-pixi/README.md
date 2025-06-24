@@ -28,8 +28,9 @@ This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu system
 
 - `run.sh` - Main setup script that installs Java, Miniconda, and Nextflow
 - `activate-conda.sh` - Helper script to activate conda in current shell session
-- `main.nf` - Nextflow pipeline definition
+- `main.nf` - Nextflow pipeline definition (simple tool version checks)
 - `nextflow.config` - Nextflow configuration
+- `custom.config` - Custom configuration for nf-core pipelines
 - `test_data/` - Sample test data for the pipeline
 
 ## Troubleshooting
@@ -64,14 +65,28 @@ conda create -n myenv python=3.9
 conda activate myenv
 ```
 
-### Running nf-core pipelines
+### Running the local pipeline
 
-After setting up the environment, you can run nf-core pipelines. For example, to run the RNA-seq pipeline:
+This directory contains a simple Nextflow pipeline that checks versions of common bioinformatics tools:
 
 ```bash
 # Make sure you're in the nextflow-pixi directory
 cd pipelines/linux-x86-ubuntu/nextflow-pixi
 
+# Run the local pipeline
+nextflow run main.nf --outdir results
+```
+
+The pipeline will:
+- Check versions of FastQC, STAR, Samtools, BWA, and GATK
+- Create a `tool_versions.txt` file in the results directory
+- Continue even if some tools are not available (uses `errorStrategy = 'ignore'`)
+
+### Running nf-core pipelines
+
+After setting up the environment, you can also run nf-core pipelines. For example, to run the RNA-seq pipeline:
+
+```bash
 # Run the nf-core rnaseq pipeline with test data
 nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
 ```
