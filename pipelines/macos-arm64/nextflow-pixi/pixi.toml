@@ -7,60 +7,41 @@ channels = ["conda-forge", "bioconda"]
 platforms = ["osx-arm64"]
 
 [dependencies]
-# Core bioinformatics tools
+nextflow = ">=25.4.4,<26"
 fastqc = "0.12.1"
 star = "2.7.11b"
-
-# System utilities
 coreutils = "9.1"
 bc = "*"
-
-# Development and debugging tools (optional)
 tree = "*"
-nextflow = ">=25.4.4,<26"
 
 [tasks]
-# Setup task - prepare environment and test data
-setup = "echo 'Environment ready! Use: pixi run pipeline'"
 
-# Main pipeline execution
-pipeline = "bash run.sh"
+pipeline = "nextflow -log logs/nextflow.log run main.nf"
+pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --input $1 --outdir $2"
+test = "nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --outdir test_results"
 
-# Run with custom parameters
-pipeline-custom = "bash run.sh --input custom_data/*.fasta --outdir custom_results"
+clean = { cmd = [
+    "/bin/sh",
+    "-c",
+    "rm -rf results logs work test_results custom_results .nextflow* && echo '✅ Cleaned up all results and logs'"
+]}
 
-# Development tasks
-test = "pixi run pipeline --input test_data/*.fasta --outdir test_results"
-clean = """
-rm -rf results logs work test_results custom_results
-rm -f .nextflow* 2>/dev/null || true
-echo "✅ Cleaned up all results and logs"
-"""
-
-# Utility tasks
-check-env = """
-echo "=== Pixi Environment Check ==="
-echo "FastQC version:"
-fastqc --version
-echo "STAR version:"
-STAR --version 2>/dev/null || echo "STAR 2.7.11b (available)"
-echo "Nextflow version:"
-nextflow -v
-echo "=== Environment Ready ==="
-"""
-
-# Development workflow (runs tasks in sequence)
-dev = """
-echo "=== Development Workflow ==="
-pixi run clean
-pixi run setup
-pixi run check-env
-pixi run test
-echo "=== Development Workflow Complete ==="
-"""
+check-env = { cmd = [
+    "/bin/sh",
+    "-c",
+    """
+    echo '=== Pixi Environment Check ===' && \
+    echo 'FastQC version:' && \
+    fastqc --version && \
+    echo 'STAR version:' && \
+    (STAR --version 2>/dev/null || echo 'STAR 2.7.11b (available)') && \
+    echo 'Nextflow version:' && \
+    nextflow -v && \
+    echo '=== Environment Ready ==='
+    """
+]}
 
 [feature.dev.dependencies]
-# Additional development dependencies
 nextflow = ">=24.10.0"
 
 [environments]
