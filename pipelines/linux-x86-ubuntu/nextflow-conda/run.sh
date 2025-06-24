@@ -32,7 +32,17 @@ fi
 export PATH="$HOME/miniconda/bin:$PATH"
 eval "$($HOME/miniconda/bin/conda shell.bash hook)"
 
-# --- STEP 3: Install Nextflow ---
+# --- STEP 3: Create conda environment with bioinformatics tools ---
+if ! conda env list | grep -q "rnaseq-tools"; then
+    echo "[INFO] Creating conda environment with bioinformatics tools..."
+    conda env create -f environment.yml
+    echo "[INFO] Conda environment 'rnaseq-tools' created successfully."
+    echo "[INFO] To activate: conda activate rnaseq-tools"
+else
+    echo "[INFO] Conda environment 'rnaseq-tools' already exists."
+fi
+
+# --- STEP 4: Install Nextflow ---
 if ! command -v nextflow &> /dev/null; then
     echo "[INFO] Installing Nextflow..."
     curl -s https://get.nextflow.io | bash
@@ -49,6 +59,10 @@ java -version
 conda --version
 nextflow -version
 
+echo ""
+echo "[INFO] Setup complete! To run nf-core pipelines:"
+echo "1. Activate the conda environment: conda activate rnaseq-tools"
+echo "2. Run your pipeline: nextflow run nf-core/rnaseq -c custom.config -profile test --outdir results"
 echo ""
 echo "[INFO] To use conda in new terminal sessions, run:"
 echo "source ~/.bashrc"
