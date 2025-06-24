@@ -63,3 +63,18 @@ conda list
 conda create -n myenv python=3.9
 conda activate myenv
 ```
+
+### Running nf-core pipelines
+
+After setting up the environment, you can run nf-core pipelines. For example, to run the RNA-seq pipeline:
+
+```bash
+# Make sure you're in the nextflow-pixi directory
+cd pipelines/linux-x86-ubuntu/nextflow-pixi
+
+# Run the nf-core rnaseq pipeline with test data
+nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume
+```
+
+The `custom.config` file is included in this directory and contains:
+- `process.errorStrategy = 'ignore'` - Allows the pipeline to continue even if some processes fail
