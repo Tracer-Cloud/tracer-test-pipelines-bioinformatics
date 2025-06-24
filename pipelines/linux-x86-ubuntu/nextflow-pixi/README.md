@@ -1,6 +1,6 @@
-# Linux x86-64 Ubuntu Nextflow Pipeline with Conda/Pixi
+# Linux x86-64 Ubuntu Nextflow Pipeline with Pixi
 
-This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu systems supporting both Conda and Pixi package management for fast, reliable dependency management.
+This directory contains a Nextflow pipeline setup for Linux x86-64 Ubuntu systems using Pixi package management for fast, reliable dependency management.
 
 ## Quick Start (Recommended: Pixi)
 
@@ -31,33 +31,28 @@ pixi run pipeline-custom my_results
 pixi run clean
 ```
 
-## Alternative: Automated Setup (Bash Script)
+## Alternative: Manual Setup (Bash/Conda)
 
-The `run.sh` script now installs both Pixi and Conda automatically:
+If you prefer the traditional approach:
 
-1. **Run the setup script (installs Pixi, Conda, Java, and Nextflow):**
+1. **Run the setup script:**
    ```bash
    ./run.sh
    ```
 
-2. **After setup, you can use either approach:**
-
-   **Option A: Use Pixi (recommended):**
-   ```bash
-   pixi install
-   pixi run pipeline
-   ```
-
-   **Option B: Use Conda:**
+2. **Activate conda in your current shell session:**
    ```bash
    source ~/.bashrc
-   conda --version
-   nextflow run main.nf --outdir results
    ```
 
-   **Option C: Use the conda activation helper:**
+   Or alternatively, use the helper script:
    ```bash
    source activate-conda.sh
+   ```
+
+3. **Verify conda is available:**
+   ```bash
+   conda --version
    ```
 
 ## Files
@@ -67,7 +62,7 @@ The `run.sh` script now installs both Pixi and Conda automatically:
 - `nextflow.config` - Nextflow configuration
 - `custom.config` - Custom configuration for nf-core pipelines
 - `test_data/` - Sample test data for the pipeline
-- `run.sh` - Automated setup script that installs Pixi, Conda, Java, and Nextflow
+- `run.sh` - Alternative setup script that installs Java, Miniconda, and Nextflow
 - `activate-conda.sh` - Helper script to activate conda in current shell session
 
 ## Troubleshooting

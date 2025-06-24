@@ -1,6 +1,6 @@
 [project]
-name = "nextflow-minimal-conda-linux-x86"
-description = "Minimal Nextflow pipeline using Conda/Pixi for dependency management (Linux x86-64)"
+name = "nextflow-minimal-pixi-linux-x86"
+description = "Minimal Nextflow pipeline using Pixi for dependency management (Linux x86-64)"
 version = "1.0.0"
 authors = ["Tracer Bioinformatics Team"]
 channels = ["conda-forge", "bioconda"]
