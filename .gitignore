@@ -63,6 +63,7 @@ pipelines/nextflow/rnaseq/work/
 **/work/
 **/logs/
 **/*.log
+**/rnaseq_results/
 timeline.html
 report.html
 trace.txt
