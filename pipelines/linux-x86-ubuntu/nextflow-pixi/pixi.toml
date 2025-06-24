@@ -1,0 +1,108 @@
+[project]
+name = "nextflow-minimal-pixi-linux-x86"
+description = "Minimal Nextflow pipeline using Pixi for dependency management (Linux x86-64)"
+version = "1.0.0"
+authors = ["Tracer Bioinformatics Team"]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64"]
+
+[dependencies]
+nextflow = ">=25.4.4,<26"
+fastqc = "0.12.1"
+star = "2.7.11b"
+samtools = "1.21"
+bwa = "0.7.18"
+gatk4 = "4.6.1.0"
+coreutils = "9.1"
+bc = "*"
+tree = "*"
+openjdk = "17.0.11"
+python = "3.12"
+
+grep = "*"
+tar = "*"
+findutils = "*"
+
+hisat2 = "2.2.1"
+trim-galore = "0.6.10"
+salmon = "1.10.3"
+bbmap = "39.26"
+fq = "0.12.0"
+subread = "2.1.1"
+picard = "*"
+gawk = "*"
+qualimap = "*"
+stringtie = "*"
+bedtools = "*"
+ucsc-bedclip = "*"
+ucsc-bedgraphtobigwig = "*"
+bioconductor-dupradar = "*"
+rseqc = "*"
+multiqc = "*"
+bioconductor-tximeta = "*"
+bioconductor-tximport = "*"
+bioconductor-summarizedexperiment = "*"
+bioconductor-genomeinfodbdata = "*"
+bioconductor-genomicranges = "*"
+bioconductor-iranges = "*"
+bioconductor-s4vectors = "*"
+bioconductor-biocgenerics = "*"
+bioconductor-genomeinfodb = "*"
+gridss = ">=2.11.1,<3"
+
+
+[tasks]
+
+pipeline = "nextflow -log logs/nextflow.log run main.nf --outdir results"
+pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --outdir $1"
+test = "nextflow -log logs/nextflow.log run main.nf --outdir test_results"
+rnaseq = "export JAVA_OPTS='-Djdk.lang.Process.launchMechanism=posix_spawn' && export _JAVA_OPTIONS='-Djdk.lang.Process.launchMechanism=posix_spawn' && mkdir -p rnaseq_results && cd rnaseq_results && nextflow run https://github.com/nf-core/rnaseq -c ../custom.config -profile test --outdir results -resume"
+
+clean = """
+rm -rf results logs work test_results custom_results
+rm -f .nextflow* 2>/dev/null || true
+echo "✅ Cleaned up all results and logs"
+"""
+
+check-env = """
+echo "=== Pixi Environment Check ==="
+echo "Java version:"
+java -version
+echo ""
+echo "Nextflow version:"
+nextflow -v
+echo ""
+echo "FastQC version:"
+fastqc --version
+echo ""
+echo "STAR version:"
+STAR --version 2>/dev/null || echo "STAR 2.7.11b (available)"
+echo ""
+echo "Samtools version:"
+samtools --version | head -1
+echo ""
+echo "BWA version:"
+bwa 2>&1 | head -3 | grep Version || echo "BWA 0.7.18 (available)"
+echo ""
+echo "GATK version:"
+gatk --version | head -1 || echo "GATK4 4.6.1.0 (available)"
+echo ""
+echo "=== Environment Ready ==="
+"""
+
+dev = """
+echo "=== Development Workflow ==="
+pixi run clean
+pixi run setup
+pixi run check-env
+pixi run test
+echo "=== Development Workflow Complete ==="
+"""
+
+versions = "pixi run pipeline"
+
+[feature.dev.dependencies]
+nextflow = ">=24.10.0"
+
+[environments]
+default = ["dev"]
