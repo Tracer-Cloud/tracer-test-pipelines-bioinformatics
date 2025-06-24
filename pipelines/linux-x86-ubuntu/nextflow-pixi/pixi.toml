@@ -14,33 +14,16 @@ star = "2.7.11b"
 samtools = "1.21"
 bwa = "0.7.18"
 gatk4 = "4.6.1.0"
-
-# System utilities
 coreutils = "9.1"
 bc = "*"
 tree = "*"
-
-# Java runtime (required for Nextflow and GATK)
 openjdk = "17.0.11"
 
 [tasks]
-# Setup task - prepare environment and test data
-setup = """
-echo '=== Pixi Environment Setup ==='
-mkdir -p logs results
-echo 'Environment ready! Use: pixi run pipeline'
-"""
 
-# Main pipeline execution using Nextflow directly
 pipeline = "nextflow -log logs/nextflow.log run main.nf --outdir results"
-
-# Pipeline with custom output directory
 pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --outdir $1"
-
-# Test pipeline with specific parameters
 test = "nextflow -log logs/nextflow.log run main.nf --outdir test_results"
-
-# nf-core pipeline execution
 nf-core-rnaseq = "nextflow run nf-core/rnaseq -c custom.config -profile docker,test --outdir results -resume"
 
 # Clean up generated files
