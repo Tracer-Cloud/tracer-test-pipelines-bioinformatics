@@ -11,6 +11,7 @@ dependencies:
 
   # Essential RNA-seq tools only
   - fastqc=0.12.1
+  - star=2.7.11b
   - samtools=1.21
 
   # System utilities

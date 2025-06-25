@@ -8,12 +8,14 @@ dependencies:
   # Core tools only - minimal installation
   - nextflow>=24.10.0
   - openjdk=17
-  
-  # Essential RNA-seq tools only
+
+  # Essential RNA-seq tools for version check workflow
   - fastqc=0.12.1
+  - star=2.7.11b
   - samtools=1.21
-  
+
   # System utilities
-  - gawk
   - coreutils
   - bc
+  - wget
+  - curl
