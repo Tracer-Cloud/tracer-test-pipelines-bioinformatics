@@ -3,7 +3,6 @@ set -e
 
 echo "[INFO] Minimal setup for Amazon Linux ARM..."
 
-# --- STEP 1: Install Docker ---
 if ! command -v docker &> /dev/null; then
     echo "[INFO] Installing Docker..."
     sudo yum update -y
@@ -15,7 +14,6 @@ else
     echo "[INFO] Docker already installed."
 fi
 
-# --- STEP 2: Install Java ---
 if ! command -v java &> /dev/null; then
     echo "[INFO] Installing OpenJDK 17..."
     sudo yum install -y java-17-openjdk
@@ -23,13 +21,11 @@ else
     echo "[INFO] Java already installed."
 fi
 
-# --- STEP 3: Install Miniconda (ARM64) ---
 if [ ! -d "$HOME/miniconda" ]; then
     echo "[INFO] Installing Miniconda (ARM64)..."
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O miniconda.sh
     bash miniconda.sh -b -p "$HOME/miniconda"
 
-    # Add conda to PATH in .bashrc if not already present
     if ! grep -q 'miniconda/bin' "$HOME/.bashrc"; then
         echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
     fi
@@ -46,7 +42,6 @@ echo "[INFO] You can manually create a minimal environment later with:"
 echo "       conda env create -f environment-minimal.yml"
 echo "[INFO] Or use Docker for full tool support."
 
-# --- STEP 4: Install Nextflow ---
 if ! command -v nextflow &> /dev/null; then
     echo "[INFO] Installing Nextflow..."
     curl -s https://get.nextflow.io | bash

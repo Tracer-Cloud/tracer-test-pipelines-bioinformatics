@@ -1,0 +1,3 @@
+Sequences: 3
+Total length: 48
+Average length: 16.00
