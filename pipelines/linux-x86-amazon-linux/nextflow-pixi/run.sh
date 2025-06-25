@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -10,7 +10,7 @@ NC='\033[0m'
 
 echo -e "${BLUE}[INFO]${NC} Setting up Nextflow pipeline for Linux x86 Amazon Linux..."
 
-# Check available memory
+# Check available memory and set Java options
 AVAILABLE_MEMORY=$(free -m | awk 'NR==2{printf "%.0f", $7}')
 echo -e "${BLUE}[INFO]${NC} Available memory: ${AVAILABLE_MEMORY}MB"
 
@@ -28,26 +28,12 @@ if ! command -v pixi &> /dev/null; then
     export PATH="$HOME/.pixi/bin:$PATH"
 fi
 
-# Source shell profile if available
-if [ -n "$ZSH_VERSION" ]; then
-    SHELL_PROFILE="$HOME/.zshrc"
-elif [ -n "$BASH_VERSION" ]; then
-    SHELL_PROFILE="$HOME/.bashrc"
-else
-    SHELL_PROFILE="$HOME/.profile"
-fi
-
-if [ -f "$SHELL_PROFILE" ]; then
-    echo -e "${BLUE}[INFO]${NC} Sourcing $SHELL_PROFILE..."
-    source "$SHELL_PROFILE"
-fi
+# Create necessary directories
+mkdir -p logs results test_results
 
 # Install dependencies
 echo -e "${BLUE}[INFO]${NC} Installing Pixi dependencies..."
 pixi install
-
-# Create necessary directories
-mkdir -p logs results test_results
 
 # Run environment check
 echo -e "${BLUE}[INFO]${NC} Running environment check..."
@@ -57,13 +43,14 @@ else
     echo -e "${YELLOW}[WARNING]${NC} Environment check had issues, but continuing..."
 fi
 
-# Run pipeline with memory limits
+# Run pipeline with memory limits and configuration files
 echo -e "${BLUE}[INFO]${NC} Running Nextflow pipeline..."
 echo -e "${BLUE}[INFO]${NC} Using NXF_OPTS: $NXF_OPTS"
+echo -e "${BLUE}[INFO]${NC} Loading config files: nextflow.config, custom.config"
 
-if pixi run pipeline; then
+if pixi run test; then
     echo -e "${GREEN}[SUCCESS]${NC} Pipeline completed successfully!"
-    echo -e "${BLUE}[INFO]${NC} Results available in: results/"
+    echo -e "${BLUE}[INFO]${NC} Results available in: test_results/"
     echo -e "${BLUE}[INFO]${NC} Logs available in: logs/nextflow.log"
 else
     echo -e "${RED}[ERROR]${NC} Pipeline failed. Check logs/nextflow.log for details"
