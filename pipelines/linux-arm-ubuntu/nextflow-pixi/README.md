@@ -1,13 +1,13 @@
-# Nextflow Pipeline on Linux x86 Amazon Linux - Pixi Version
+# Nextflow Pipeline on Linux ARM Ubuntu - Pixi Version
 
-This directory contains a **Pixi-based Nextflow pipeline** for x86 Amazon Linux. The setup and usage are similar to the x86 Ubuntu reference, but adapted for Amazon Linux.
+This directory contains a **Pixi-based Nextflow pipeline** for ARM Ubuntu. The setup and usage are similar to the shared Nextflow pipeline, but adapted for ARM Ubuntu.
 
 ## Quick Start (Recommended: Pixi)
 
 ### Prerequisites
 
 - [Pixi](https://pixi.sh) installed on your system
-- x86 Amazon Linux system
+- ARM Ubuntu system
 
 ### Install Pixi
 

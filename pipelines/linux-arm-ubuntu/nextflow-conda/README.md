@@ -1,12 +1,12 @@
-# Nextflow Pipeline on Linux x86 Amazon Linux - Conda Version
+# Nextflow Pipeline on Linux ARM Ubuntu - Conda Version
 
-This directory contains a **Conda-based Nextflow pipeline** for x86 Amazon Linux. The setup and usage are similar to the x86 Ubuntu reference, but adapted for Amazon Linux.
+This directory contains a **Conda-based Nextflow pipeline** for ARM Ubuntu. The setup and usage are similar to the x86 Ubuntu reference, but adapted for ARM Ubuntu.
 
 ## Quick Start - Conda Pipeline
 
 ### Prerequisites
 
-- x86 Amazon Linux system
+- ARM Ubuntu system
 - sudo access for package installation
 
 ### One-Command Setup
@@ -34,7 +34,7 @@ This directory contains a **Conda-based Nextflow pipeline** for x86 Amazon Linux
 - `nextflow.config` - Nextflow configuration
 - `custom.config` - Custom configuration for nf-core pipelines
 - `test_data/` - Sample test data for the pipeline
-- `run.sh` - Setup script for x86 Amazon Linux
+- `run.sh` - Setup script for ARM Ubuntu
 
 ## Usage
 

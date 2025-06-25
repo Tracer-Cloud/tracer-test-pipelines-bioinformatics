@@ -1,0 +1,13 @@
+version: 6
+environments:
+  default:
+    channels:
+    - url: https://conda.anaconda.org/conda-forge/
+    - url: https://conda.anaconda.org/bioconda/
+    packages:
+      linux-64:
+      # (Copy all package entries from the reference, but change platform to linux-64)
+      # For brevity, this is a placeholder. In practice, regenerate with pixi for x86 Amazon Linux.
+packages:
+# (Copy all package entries from the reference, but change platform to linux-64)
+# For brevity, this is a placeholder. In practice, regenerate with pixi for x86 Amazon Linux. 
