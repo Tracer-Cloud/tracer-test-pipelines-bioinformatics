@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "[INFO] Minimal setup for Ubuntu ARM..."
+echo "[INFO] Setting up Nextflow pipeline with Conda for Ubuntu ARM..."
 
 # --- STEP 1: Install Docker ---
 if ! command -v docker &> /dev/null; then
@@ -38,38 +38,46 @@ if [ ! -d "$HOME/miniconda" ]; then
     "$HOME/miniconda/bin/conda" init bash
 
     echo "[INFO] Miniconda installed. Please run 'source ~/.bashrc' or restart your shell to use conda."
+else
+    echo "[INFO] Miniconda already installed."
 fi
 
+# Ensure Conda is active in this shell
 export PATH="$HOME/miniconda/bin:$PATH"
 eval "$($HOME/miniconda/bin/conda shell.bash hook)"
 
-echo "[INFO] You can manually create a minimal environment later with:"
-echo "       conda env create -f environment-minimal.yml"
-echo "[INFO] Or use Docker for full tool support."
+# --- STEP 4: Create conda environment with all dependencies ---
+echo "[INFO] Creating conda environment 'nextflow-pipeline' with all dependencies..."
+conda env create -f environment-minimal.yml
 
-# --- STEP 4: Install Nextflow ---
-if ! command -v nextflow &> /dev/null; then
-    echo "[INFO] Installing Nextflow..."
-    curl -s https://get.nextflow.io | bash
-    chmod +x nextflow
-    sudo mv nextflow /usr/local/bin/
-else
-    echo "[INFO] Nextflow already installed."
-fi
+# --- STEP 5: Install Nextflow in the conda environment ---
+echo "[INFO] Installing Nextflow in the conda environment..."
+conda activate rnaseq-minimal
+conda install -c bioconda nextflow -y
 
-echo "[INFO] Environment ready:"
+echo "[INFO] Environment ready!"
 echo
-java -version
-conda --version
-nextflow -version
-
-echo ""
-echo "[INFO] Setup complete! Lightweight demo environment ready."
-echo ""
-echo "[INFO] To run the pipeline:"
-echo "nextflow run main.nf --outdir results"
-echo ""
+echo "[INFO] ========================================="
+echo "[INFO] SETUP COMPLETE!"
+echo "[INFO] ========================================="
+echo
+echo "[INFO] To use the pipeline:"
+echo
+echo "1. Activate the conda environment:"
+echo "   conda activate nextflow-pipeline"
+echo
+echo "2. Verify the environment:"
+echo "   conda list"
+echo
+echo "3. Run the pipeline:"
+echo "   nextflow run main.nf --outdir results"
+echo
+echo "4. Run nf-core RNA-seq pipeline:"
+echo "   nextflow run nf-core/rnaseq -r 3.14.0 -c custom.config -profile test --outdir results -resume"
+echo
 echo "[INFO] To use conda in new terminal sessions, run:"
 echo "source ~/.bashrc"
-echo ""
-echo "Or restart your terminal/shell session." 
+echo
+echo "Or restart your terminal/shell session."
+echo
+echo "[INFO] =========================================" 
