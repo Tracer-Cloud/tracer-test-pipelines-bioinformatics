@@ -21,14 +21,6 @@ else
     export NXF_OPTS="-Xmx512m"
 fi
 
-# Install Java if not present
-if ! command -v java &> /dev/null; then
-    echo -e "${BLUE}[INFO]${NC} Installing OpenJDK 17..."
-    sudo yum install -y java-17-openjdk
-else
-    echo -e "${BLUE}[INFO]${NC} Java already installed."
-fi
-
 # Install Miniconda if not present
 if [ ! -d "$HOME/miniconda" ]; then
     echo -e "${BLUE}[INFO]${NC} Installing Miniconda..."
@@ -55,14 +47,14 @@ if ! conda info --base &> /dev/null; then
     source ~/.bashrc 2>/dev/null || true
 fi
 
-# Setup conda environment
-echo -e "${BLUE}[INFO]${NC} Setting up conda environment..."
-if ! conda env list | grep -q "rnaseq-minimal"; then
-    echo -e "${BLUE}[INFO]${NC} Creating conda environment 'rnaseq-minimal'..."
-    conda env create -f environment-minimal.yml
-else
-    echo -e "${BLUE}[INFO]${NC} Updating existing conda environment 'rnaseq-minimal'..."
+# Check if conda environment exists and setup
+if conda env list | grep -q "^rnaseq-minimal[[:space:]]"; then
+    echo -e "${BLUE}[INFO]${NC} Conda environment 'rnaseq-minimal' already exists. Updating from environment-minimal.yml..."
     conda env update -f environment-minimal.yml
+else
+    echo -e "${BLUE}[INFO]${NC} Creating conda environment from environment-minimal.yml..."
+    conda env create -f environment-minimal.yml
+    echo -e "${GREEN}[SUCCESS]${NC} Environment created successfully!"
 fi
 
 # Create necessary directories
@@ -79,14 +71,20 @@ GCTAGCTAGCTA
 EOF
 fi
 
-# Run pipeline using conda run to execute in the environment
-echo -e "${BLUE}[INFO]${NC} Running Nextflow pipeline..."
+# Run pipeline using conda run
+echo -e "${BLUE}[INFO]${NC} Running Nextflow pipeline (version check)..."
 echo -e "${BLUE}[INFO]${NC} Using NXF_OPTS: $NXF_OPTS"
 
 if conda run -n rnaseq-minimal nextflow -log logs/nextflow.log run main.nf --outdir test_results; then
     echo -e "${GREEN}[SUCCESS]${NC} Pipeline completed successfully!"
     echo -e "${BLUE}[INFO]${NC} Results available in: test_results/"
     echo -e "${BLUE}[INFO]${NC} Logs available in: logs/nextflow.log"
+    
+    # Show the version check results
+    if [ -f "test_results/tool_versions.txt" ]; then
+        echo -e "${BLUE}[INFO]${NC} Version check results:"
+        cat test_results/tool_versions.txt
+    fi
 else
     echo -e "${RED}[ERROR]${NC} Pipeline failed. Check logs/nextflow.log for details"
     exit 1

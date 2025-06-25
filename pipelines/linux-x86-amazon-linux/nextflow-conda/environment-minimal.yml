@@ -7,10 +7,13 @@ channels:
 dependencies:
   - nextflow>=24.10.0
   - openjdk=17
-
   - fastqc=0.12.1
   - star=2.7.11b
+  - hisat2=2.2.1
+  - salmon=1.10.3
   - samtools=1.21
-
-  - coreutils
-  - bc
+  - bbmap=39.26
+  - trim-galore=0.6.10
+  - subread=2.1.1
+  - picard=3.1.1
+  - multiqc=1.21
