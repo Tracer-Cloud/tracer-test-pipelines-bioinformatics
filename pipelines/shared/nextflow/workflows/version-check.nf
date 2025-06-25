@@ -1,32 +1,14 @@
 nextflow.enable.dsl = 2
 
 params.outdir = "results"
-params.input = "test_data/*.fasta"
-
-include {
-    fastqc_version,
-    star_version,
-    samtools_version,
-    bwa_version,
-    gatk_version,
-    FASTA_STATS,
-    COUNT_SEQUENCES,
-} from '../../shared/nextflow/workflows/fasta-analysis.nf'
 
 workflow {
-    // Create input channel for FASTA files
-    input_ch = Channel.fromPath(params.input, checkIfExists: true)
-    
     // Run simple version checks for various bioinformatics tools
     fastqc_version()
     star_version()
     samtools_version()
     bwa_version()
     gatk_version()
-
-    // Process FASTA files
-    FASTA_STATS(input_ch)
-    COUNT_SEQUENCES(input_ch)
 
     // Collect all version outputs
     fastqc_version.out
@@ -112,4 +94,4 @@ process save_results {
     echo "=== Tool Version Summary ===" >> tool_versions.txt
     echo "Pipeline completed at: \$(date)" >> tool_versions.txt
     """
-}
+} 
