@@ -7,13 +7,11 @@ workflow version_check {
     fastqc_version()
     star_version()
     samtools_version()
-    bwa_version()
 
     // Collect all version outputs
     fastqc_version.out
         .concat(star_version.out)
         .concat(samtools_version.out)
-        .concat(bwa_version.out)
         .collectFile(name: 'tool_versions.txt', newLine: true)
         .set { all_versions }
 
@@ -54,17 +52,6 @@ process samtools_version {
     """
 }
 
-process bwa_version {
-    output:
-    stdout
-
-    script:
-    """
-    echo "BWA version:"
-    bwa 2>&1 | head -3 || echo "BWA not available"
-    """
-}
-
 process save_results {
     publishDir params.outdir, mode: 'copy'
 
@@ -78,7 +65,7 @@ process save_results {
     """
     cp $versions_file tool_versions.txt.tmp
     echo "=== Tool Version Summary ===" >> tool_versions.txt.tmp
-    echo "Pipeline completed at: \$(date)" >> tool_versions.txt.tmp
+    echo "Pipeline completed at: $(date)" >> tool_versions.txt.tmp
     mv tool_versions.txt.tmp tool_versions.txt
     """
 } 
