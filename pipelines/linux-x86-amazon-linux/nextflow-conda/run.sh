@@ -24,4 +24,4 @@ fi
 
 conda activate rnaseq-minimal
 
-nextflow -log logs/nextflow.log -c nextflow.config -c custom.config run main.nf --outdir results 
+nextflow -log logs/nextflow.log -c nextflow.config -c custom.config run main.nf --outdir results
