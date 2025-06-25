@@ -4,86 +4,181 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "pipelines/codespaces/bash/**"
-      - ".github/workflows/codespaces-pixi.yml"
+      - "pipelines/codespaces/**"
+      - ".github/workflows/codespaces.yml"
   schedule:
     - cron: "0 13 * * *" # Daily at 13:00 UTC
 
 jobs:
   codespaces-pixi-test:
+    name: Pixi Pipeline Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Pixi
+        run: |
+          curl -fsSL https://pixi.sh/install.sh | bash
+          echo "$HOME/.pixi/bin" >> $GITHUB_PATH
+
+      - name: Cache Pixi environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            pipelines/codespaces/nextflow-pixi/.pixi
+          key: pixi-codespaces-${{ runner.os }}-${{ hashFiles('pipelines/codespaces/nextflow-pixi/pixi.lock') }}
+          restore-keys: |
+            pixi-codespaces-${{ runner.os }}-
+
       - name: Run Codespaces Pixi pipeline
-        working-directory: pipelines/codespaces/bash
+        working-directory: pipelines/codespaces/nextflow-pixi
         run: |
           echo "=== Running Codespaces Pixi Pipeline ==="
-          ./run.sh
+          export PATH="$HOME/.pixi/bin:$PATH"
+          pixi install
+          pixi run check-env
+          pixi run pipeline
 
-      - name: Verify pipeline results
-        working-directory: pipelines/codespaces/bash
+      - name: Verify pixi pipeline results
+        working-directory: pipelines/codespaces/nextflow-pixi
         run: |
-          echo "=== Verifying Pipeline Results ==="
+          echo "=== Verifying Pixi Pipeline Results ==="
 
-          # Check if pipeline directory was created
-          if [ -d "nextflow-pixi-linux" ]; then
-            echo "✅ Pipeline directory created successfully"
-            cd nextflow-pixi-linux
+          # Check if results were generated
+          if [ -d "results" ]; then
+            echo "✅ Results directory found"
+            ls -la results/
             
-            # Check if results were generated
-            if [ -d "test_results" ]; then
-              echo "✅ Test results directory found"
-              
-              # List all result files
-              echo "Generated files:"
-              find test_results -type f -name "*.txt" | head -10
-              
-              # Show sample content
-              echo "Sample result content:"
-              find test_results -name "*_stats.txt" -exec echo "=== {} ===" \; -exec head -5 {} \; | head -20
-              
+            # Check for version check results
+            if [ -f "results/tool_versions.txt" ]; then
+              echo "✅ Tool versions file found"
+              cat results/tool_versions.txt
             else
-              echo "❌ Test results directory not found"
+              echo "❌ Tool versions file not found"
               exit 1
             fi
-            
-            # Check if logs were generated
-            if [ -d "logs" ]; then
-              echo "✅ Logs directory found"
-              ls -la logs/
-            else
-              echo "❌ Logs directory not found"
-              exit 1
-            fi
-            
           else
-            echo "❌ Pipeline directory not created"
+            echo "❌ Results directory not found"
             exit 1
           fi
 
-      - name: Upload pipeline results
+          # Check if logs were generated
+          if [ -d "logs" ]; then
+            echo "✅ Logs directory found"
+            ls -la logs/
+          else
+            echo "❌ Logs directory not found"
+            exit 1
+          fi
+
+      - name: Upload pixi pipeline results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: codespaces-pixi-pipeline-results
           path: |
-            pipelines/codespaces/bash/nextflow-pixi-linux/test_results/
-            pipelines/codespaces/bash/nextflow-pixi-linux/logs/
+            pipelines/codespaces/nextflow-pixi/results/
+            pipelines/codespaces/nextflow-pixi/logs/
           retention-days: 7
 
-      - name: Clean up
-        if: always()
-        working-directory: pipelines/codespaces/bash
+  codespaces-conda-test:
+    name: Conda Pipeline Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.12
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+
+      - name: Install Nextflow
         run: |
-          echo "=== Cleaning up ==="
-          if [ -d "nextflow-pixi-linux" ]; then
-            cd nextflow-pixi-linux
-            # Use pixi to clean up if available
-            if command -v pixi >/dev/null 2>&1; then
-              pixi run clean || true
+          curl -s https://get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
+
+      - name: Cache conda environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/miniconda3/envs/rnaseq-minimal
+          key: conda-codespaces-${{ runner.os }}-${{ hashFiles('pipelines/codespaces/nextflow-conda/environment.yml') }}
+          restore-keys: |
+            conda-codespaces-${{ runner.os }}-
+
+      - name: Run Codespaces Conda pipeline
+        working-directory: pipelines/codespaces/nextflow-conda
+        run: |
+          echo "=== Running Codespaces Conda Pipeline ==="
+          bash run.sh
+
+      - name: Verify conda pipeline results
+        working-directory: pipelines/codespaces/nextflow-conda
+        run: |
+          echo "=== Verifying Conda Pipeline Results ==="
+
+          # Check if results were generated
+          if [ -d "results" ]; then
+            echo "✅ Results directory found"
+            ls -la results/
+            
+            # Check for version check results
+            if [ -f "results/tool_versions.txt" ]; then
+              echo "✅ Tool versions file found"
+              cat results/tool_versions.txt
+            else
+              echo "❌ Tool versions file not found"
+              exit 1
             fi
-            # Manual cleanup
-            rm -rf test_results logs work .nextflow* 2>/dev/null || true
+          else
+            echo "❌ Results directory not found"
+            exit 1
           fi
-          echo "✅ Cleanup completed"
+
+          # Check if logs were generated
+          if [ -d "logs" ]; then
+            echo "✅ Logs directory found"
+            ls -la logs/
+          else
+            echo "❌ Logs directory not found"
+            exit 1
+          fi
+
+      - name: Upload conda pipeline results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: codespaces-conda-pipeline-results
+          path: |
+            pipelines/codespaces/nextflow-conda/results/
+            pipelines/codespaces/nextflow-conda/logs/
+          retention-days: 7
+
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [codespaces-pixi-test, codespaces-conda-test]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clean up pixi environment
+        working-directory: pipelines/codespaces/nextflow-pixi
+        run: |
+          echo "=== Cleaning up Pixi environment ==="
+          if command -v pixi >/dev/null 2>&1; then
+            export PATH="$HOME/.pixi/bin:$PATH"
+            pixi run clean || true
+          fi
+          rm -rf results logs work .nextflow* 2>/dev/null || true
+          echo "✅ Pixi cleanup completed"
+
+      - name: Clean up conda environment
+        working-directory: pipelines/codespaces/nextflow-conda
+        run: |
+          echo "=== Cleaning up Conda environment ==="
+          rm -rf results logs work .nextflow* 2>/dev/null || true
+          echo "✅ Conda cleanup completed"
