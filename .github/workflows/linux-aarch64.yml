@@ -104,7 +104,7 @@ jobs:
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           echo "=== Running Nextflow Pipeline with Pixi ==="
-          pixi run pipeline || nextflow run main.nf -c nextflow.config --outdir results
+          ./run.sh
 
       - name: Verify tracer packages
         run: |
@@ -253,9 +253,7 @@ jobs:
         working-directory: pipelines/linux-arm-ubuntu
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nf-fastqc-env
-          nextflow run main.nf -c nextflow.config --outdir results
-
+          ./run.sh
       - name: Verify tracer packages
         run: |
           echo "Searching for tracer binary..."
