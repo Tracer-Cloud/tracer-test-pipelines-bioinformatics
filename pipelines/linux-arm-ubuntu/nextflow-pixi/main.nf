@@ -4,11 +4,8 @@ params.outdir = "results"
 params.input = "test_data/*.fasta"
 
 include {
-    fastqc_version,
-    star_version,
-    samtools_version,
-    bwa_version,
-    gatk_version,
+    STAR_VERSION,
+    SALMON_VERSION,
     FASTA_STATS,
     COUNT_SEQUENCES,
 } from '../../shared/nextflow/workflows/fasta-analysis.nf'
@@ -24,6 +21,10 @@ workflow {
     bwa_version()
     gatk_version()
 
+    // Run shared version checks
+    STAR_VERSION()
+    SALMON_VERSION()
+
     // Process FASTA files
     FASTA_STATS(input_ch)
     COUNT_SEQUENCES(input_ch)
@@ -34,6 +35,8 @@ workflow {
         .concat(samtools_version.out)
         .concat(bwa_version.out)
         .concat(gatk_version.out)
+        .concat(STAR_VERSION.out)
+        .concat(SALMON_VERSION.out)
         .collectFile(name: 'tool_versions.txt', newLine: true)
         .set { all_versions }
 
