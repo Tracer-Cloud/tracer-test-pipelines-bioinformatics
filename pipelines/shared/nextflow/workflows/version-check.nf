@@ -76,9 +76,9 @@ process save_results {
 
     script:
     """
-    mkdir -p ${params.outdir}
-    cp ${versions_file} tool_versions.txt
-    echo "=== Tool Version Summary ===" >> tool_versions.txt
-    echo "Pipeline completed at: \$(date)" >> tool_versions.txt
+    cp $versions_file tool_versions.txt.tmp
+    echo "=== Tool Version Summary ===" >> tool_versions.txt.tmp
+    echo "Pipeline completed at: $(date)" >> tool_versions.txt.tmp
+    mv tool_versions.txt.tmp tool_versions.txt
     """
 } 

@@ -1,4 +1,4 @@
-name: rnaseq-minimal
+name: version-check-minimal
 channels:
   - conda-forge
   - bioconda
@@ -17,3 +17,7 @@ dependencies:
   - gawk
   - coreutils
   - bc
+
+  # Additional tools
+  - star
+  - bwa
