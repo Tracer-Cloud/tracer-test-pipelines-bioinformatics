@@ -1,11 +1,32 @@
 name: linux-arm-ubuntu-minimal
 channels:
   - conda-forge
-  - bioconda
   - defaults
+  - bioconda
 
 dependencies:
-  - fastqc
-  - samtools
-  - star
-  - seqtk
+  - python=3.11
+  - openjdk=11
+  - nextflow
+  - gcc_linux-aarch64
+  - gxx_linux-aarch64
+  - make
+  - cmake
+  - pkg-config
+  - zlib
+  - bzip2
+  - xz
+  - curl
+  - openssl
+  - git
+  - wget
+  - pip
+
+  - pip:
+      - pysam
+      - biopython
+      - cutadapt
+      - multiqc
+      - numpy
+      - pandas
+      - matplotlib
