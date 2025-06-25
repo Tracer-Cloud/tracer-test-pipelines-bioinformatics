@@ -5,7 +5,6 @@ This directory contains a **Pixi-based minimal Nextflow pipeline** for ARM Ubunt
 ### Run the Pipeline with Pixi
 
 ```bash
-# Install dependencies
 ./run.sh
 ```
 
