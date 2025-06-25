@@ -1,37 +1,73 @@
-# Nextflow Pipeline on Linux x86 using Conda
+# Shared Nextflow Pipelines
 
-# Linux x86-64 Ubuntu Nextflow Pipeline - Pixi Version
+This directory contains shared Nextflow workflows and configurations that can be used across different platforms and environments.
 
-This directory contains a **Pixi-based Nextflow pipeline** for modern, fast package management. Pixi provides faster dependency resolution and better reproducibility than traditional conda.
+## Structure
 
-## Quick Start (Recommended: Pixi)
-
-### Prerequisites
-
-- [Pixi](https://pixi.sh) installed on your system
-- Linux x86-64 system
-
-### Install Pixi
-
-```bash
-curl -fsSL https://pixi.sh/install.sh | bash
+```
+shared/nextflow/
+├── main.nf                 # Main pipeline entry point
+├── configs/                # Configuration files
+│   ├── basic.config        # Basic configuration for simple workflows
+│   ├── conda.config        # Conda-specific configuration
+│   └── pixi.config         # Pixi-specific configuration
+├── workflows/              # Shared workflow modules
+│   ├── version-check.nf    # Tool version checking workflow
+│   └── fasta-analysis.nf   # FASTA file analysis workflow
+└── test_data/              # Test data files
 ```
 
-### Run the Pipeline with Pixi
+## Usage
+
+### Basic Version Check (Default)
 
 ```bash
-# Install dependencies
-pixi install
-
-# Check environment
-pixi run check-env
-
-# Run the pipeline
-pixi run pipeline
-
-# Run with custom output directory
-pixi run rnaseq
-
-# Clean up
-pixi run clean
+nextflow run ../../shared/nextflow/main.nf -c ../../shared/nextflow/configs/basic.config
 ```
+
+### FASTA Analysis with Conda
+
+```bash
+nextflow run ../../shared/nextflow/main.nf -c ../../shared/nextflow/configs/conda.config --workflow fasta_analysis
+```
+
+### FASTA Analysis with Pixi
+
+```bash
+nextflow run ../../shared/nextflow/main.nf -c ../../shared/nextflow/configs/pixi.config --workflow fasta_analysis
+```
+
+## Workflows
+
+### Version Check Workflow
+
+- Checks versions of common bioinformatics tools (FastQC, STAR, Samtools, BWA, GATK)
+- Outputs results to `results/tool_versions.txt`
+
+### FASTA Analysis Workflow
+
+- Analyzes FASTA files for sequence statistics
+- Counts sequences in FASTA files
+- Checks versions of STAR and Salmon
+- Outputs results to `results/fasta_stats/` and `results/counts/`
+
+## Configurations
+
+### Basic Config
+
+- Simple configuration for tool version checking
+- Minimal resource requirements
+- Ignores errors to continue execution
+
+### Conda Config
+
+- Configured for conda environments
+- Includes conda environment specification
+- Higher resource requirements for FASTA analysis
+
+### Pixi Config
+
+- Configured for Pixi dependency management
+- No conda environment needed
+- Comprehensive logging and reporting
+- Multiple execution profiles (standard, debug, fast)

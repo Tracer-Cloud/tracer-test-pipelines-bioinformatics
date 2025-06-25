@@ -12,7 +12,7 @@ on:
 jobs:
   linux-arm64-pixi:
     name: Pixi Pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +31,7 @@ jobs:
             pixi-linux-arm64-${{ runner.os }}-
 
       - name: Install Pixi dependencies
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-pixi
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           pixi install || true
@@ -100,11 +100,11 @@ jobs:
           fi
 
       - name: Run pipeline with Pixi
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-pixi
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           echo "=== Running Nextflow Pipeline with Pixi ==="
-          pixi run pipeline || nextflow run main.nf -c nextflow.config --outdir results
+          ./run.sh
 
       - name: Verify tracer packages
         run: |
@@ -149,12 +149,12 @@ jobs:
         with:
           name: pixi-linux-arm64-pipeline-results
           path: |
-            pipelines/linux-arm-ubuntu/results/
+            pipelines/linux-arm-ubuntu/nextflow-pixi/results/
           retention-days: 7
 
   linux-arm64-conda:
     name: Conda Pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
@@ -172,19 +172,10 @@ jobs:
           sudo mv nextflow /usr/local/bin/
 
       - name: Install Conda environment
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
         run: |
-          mamba env create -f environment.yml || conda env create -f environment.yml || true
+          mamba env create -f environment-minimal.yml || conda env create -f environment-minimal.yml || true
           source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nf-fastqc-env
-          conda info
-
-      - name: Verify installations
-        working-directory: pipelines/linux-arm-ubuntu
-        run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nf-fastqc-env
-          nextflow -v
 
       - name: Install tracer
         continue-on-error: true
@@ -250,48 +241,24 @@ jobs:
           fi
 
       - name: Run pipeline with Conda
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nf-fastqc-env
-          nextflow run main.nf -c nextflow.config --outdir results
+          ./run.sh
+
+      - name: Check for tracer binary
+        id: tracer_check
+        run: |
+          if command -v tracer >/dev/null 2>&1; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Verify tracer packages
+        if: steps.tracer_check.outputs.found == 'true'
         run: |
-          echo "Searching for tracer binary..."
-          POSSIBLE_PATHS=(
-            "$HOME/bin/tracer"
-            "$HOME/.local/bin/tracer"
-            "$HOME/.tracerbio/bin/tracer"
-            "/usr/local/bin/tracer"
-            "/opt/tracer/bin/tracer"
-          )
-          TRACER_PATH=""
-          for path in "${POSSIBLE_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ Found tracer at: $path"
-              TRACER_PATH="$path"
-              break
-            else
-              echo "❌ Not found at: $path"
-            fi
-          done
-          if [ -z "$TRACER_PATH" ]; then
-            echo "Searching entire system for tracer binary..."
-            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_TRACER" ]; then
-              echo "✅ Found tracer at: $FOUND_TRACER"
-              TRACER_PATH="$FOUND_TRACER"
-            fi
-          fi
-          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-            echo "Running tracer info with: $TRACER_PATH"
-            sudo env "PATH=$PATH" "$TRACER_PATH" info
-          else
-            echo "❌ Tracer binary not found anywhere on the system"
-            echo "This might indicate the tracer installation failed"
-            echo "Continuing without tracer verification..."
-          fi
+          tracer info
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -299,5 +266,5 @@ jobs:
         with:
           name: conda-linux-arm64-pipeline-results
           path: |
-            pipelines/linux-arm-ubuntu/results/
+            pipelines/linux-arm-ubuntu/nextflow-conda/results/
           retention-days: 7
