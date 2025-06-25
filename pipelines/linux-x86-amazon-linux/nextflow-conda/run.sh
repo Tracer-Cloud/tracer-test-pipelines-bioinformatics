@@ -1,74 +1,93 @@
 #!/bin/bash
 set -e
 
-echo "[INFO] Minimal setup for Amazon Linux x86_64..."
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-# --- STEP 1: Install Docker ---
-if ! command -v docker &> /dev/null; then
-    echo "[INFO] Installing Docker..."
-    sudo yum update -y
-    sudo amazon-linux-extras install docker -y
-    sudo service docker start
-    sudo usermod -aG docker $USER
-    echo "[INFO] Docker installed. You may need to log out and back in for group changes to take effect."
+echo -e "${BLUE}[INFO]${NC} Setting up Nextflow pipeline for Linux x86 Amazon Linux (Conda)..."
+
+# Check available memory and set Java options
+AVAILABLE_MEMORY=$(free -m | awk 'NR==2{printf "%.0f", $7}')
+echo -e "${BLUE}[INFO]${NC} Available memory: ${AVAILABLE_MEMORY}MB"
+
+if [ "$AVAILABLE_MEMORY" -lt 512 ]; then
+    echo -e "${YELLOW}[WARNING]${NC} Low memory system detected. Using minimal memory settings."
+    export NXF_OPTS="-Xmx256m"
 else
-    echo "[INFO] Docker already installed."
+    export NXF_OPTS="-Xmx512m"
 fi
 
-# --- STEP 2: Install Java ---
+# Install Java if not present
 if ! command -v java &> /dev/null; then
-    echo "[INFO] Installing OpenJDK 17..."
+    echo -e "${BLUE}[INFO]${NC} Installing OpenJDK 17..."
     sudo yum install -y java-17-openjdk
 else
-    echo "[INFO] Java already installed."
+    echo -e "${BLUE}[INFO]${NC} Java already installed."
 fi
 
-# --- STEP 3: Install Miniconda (x86_64) ---
+# Install Miniconda if not present
 if [ ! -d "$HOME/miniconda" ]; then
-    echo "[INFO] Installing Miniconda (x86_64)..."
+    echo -e "${BLUE}[INFO]${NC} Installing Miniconda..."
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     bash miniconda.sh -b -p "$HOME/miniconda"
-
-    # Add conda to PATH in .bashrc if not already present
-    if ! grep -q 'miniconda/bin' "$HOME/.bashrc"; then
-        echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
-    fi
-
+    rm miniconda.sh
+    
+    # Add conda to PATH
+    export PATH="$HOME/miniconda/bin:$PATH"
+    
+    # Initialize conda
     "$HOME/miniconda/bin/conda" init bash
-
-    echo "[INFO] Miniconda installed. Please run 'source ~/.bashrc' or restart your shell to use conda."
-fi
-
-export PATH="$HOME/miniconda/bin:$PATH"
-eval "$($HOME/miniconda/bin/conda shell.bash hook)"
-
-echo "[INFO] You can manually create a minimal environment later with:"
-echo "       conda env create -f environment-minimal.yml"
-echo "[INFO] Or use Docker for full tool support."
-
-# --- STEP 4: Install Nextflow ---
-if ! command -v nextflow &> /dev/null; then
-    echo "[INFO] Installing Nextflow..."
-    curl -s https://get.nextflow.io | bash
-    chmod +x nextflow
-    sudo mv nextflow /usr/local/bin/
+    
+    echo -e "${GREEN}[SUCCESS]${NC} Miniconda installed successfully."
 else
-    echo "[INFO] Nextflow already installed."
+    echo -e "${BLUE}[INFO]${NC} Miniconda already installed."
+    export PATH="$HOME/miniconda/bin:$PATH"
 fi
 
-echo "[INFO] Environment ready:"
-echo
-java -version
-conda --version
-nextflow -version
+# Ensure conda is properly initialized
+if ! conda info --base &> /dev/null; then
+    echo -e "${BLUE}[INFO]${NC} Initializing conda..."
+    conda init bash
+    source ~/.bashrc 2>/dev/null || true
+fi
 
-echo ""
-echo "[INFO] Setup complete! Lightweight demo environment ready."
-echo ""
-echo "[INFO] To run the pipeline:"
-echo "nextflow run main.nf --outdir results"
-echo ""
-echo "[INFO] To use conda in new terminal sessions, run:"
-echo "source ~/.bashrc"
-echo ""
-echo "Or restart your terminal/shell session." 
+# Setup conda environment
+echo -e "${BLUE}[INFO]${NC} Setting up conda environment..."
+if ! conda env list | grep -q "rnaseq-minimal"; then
+    echo -e "${BLUE}[INFO]${NC} Creating conda environment 'rnaseq-minimal'..."
+    conda env create -f environment-minimal.yml
+else
+    echo -e "${BLUE}[INFO]${NC} Updating existing conda environment 'rnaseq-minimal'..."
+    conda env update -f environment-minimal.yml
+fi
+
+# Create necessary directories
+mkdir -p test_data logs results test_results
+
+# Create test data if needed
+if [ ! -f "test_data/sample1.fasta" ]; then
+    echo -e "${BLUE}[INFO]${NC} Creating sample test data..."
+    cat > test_data/sample1.fasta << 'EOF'
+>seq1
+ATCGATCGATCG
+>seq2
+GCTAGCTAGCTA
+EOF
+fi
+
+# Run pipeline using conda run to execute in the environment
+echo -e "${BLUE}[INFO]${NC} Running Nextflow pipeline..."
+echo -e "${BLUE}[INFO]${NC} Using NXF_OPTS: $NXF_OPTS"
+
+if conda run -n rnaseq-minimal nextflow -log logs/nextflow.log run main.nf --outdir test_results; then
+    echo -e "${GREEN}[SUCCESS]${NC} Pipeline completed successfully!"
+    echo -e "${BLUE}[INFO]${NC} Results available in: test_results/"
+    echo -e "${BLUE}[INFO]${NC} Logs available in: logs/nextflow.log"
+else
+    echo -e "${RED}[ERROR]${NC} Pipeline failed. Check logs/nextflow.log for details"
+    exit 1
+fi 
