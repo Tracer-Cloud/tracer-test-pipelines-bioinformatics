@@ -10,7 +10,7 @@
 [![Linux x86_64](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/linux-x86_64.yml?branch=main&label=linux-x86_64&logo=linux)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/linux-x86_64.yml)  
 [![macOS ARM64](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/macos-arm64.yml?branch=main&label=macos-arm64&logo=apple)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/macos-arm64.yml)  
 [![macOS Intel x86](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/macos-intel-x86.yml?branch=main&label=macos-intel-x86&logo=apple)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/macos-intel-x86.yml)  
-[![Codespaces Pixi](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/codespaces-pixi.yml?branch=main&label=codespaces&logo=github)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/codespaces-pixi.yml)
+[![Codespaces Pixi](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/codespaces-pixi.yml?branch=main&label=codespaces&logo=github)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/codespaces.yml)
 
 
 ## Quickstart Tracer Sandbox
