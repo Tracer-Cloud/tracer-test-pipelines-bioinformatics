@@ -19,7 +19,7 @@ if conda env list | grep -q "^linux-arm-ubuntu-minimal[[:space:]]"; then
     echo "[INFO] Conda environment 'linux-x86-ubuntu-minimal' already exists. Using it as is."
 else
     echo "[INFO] Creating conda environment 'linux-x86-ubuntu-minimal'..."
-    conda env update -f environment-minimal.yml
+    conda env update -f environment.yml
 fi
 
 conda activate linux-x86-ubuntu-minimal
