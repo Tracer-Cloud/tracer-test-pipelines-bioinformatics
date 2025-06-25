@@ -58,8 +58,8 @@ rnaseq = "export JAVA_OPTS='-Djdk.lang.Process.launchMechanism=posix_spawn' && e
 clean = """
 rm -rf results logs work test_results custom_results
 rm -f .nextflow* 2>/dev/null || true
-echo "705 Cleaned up all results and logs"
 """
+
 check-env = """
 echo "=== Pixi Environment Check ==="
 echo "Java version:"
