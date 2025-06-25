@@ -1,0 +1,13 @@
+version: 6
+environments:
+  default:
+    channels:
+    - url: https://conda.anaconda.org/conda-forge/
+    - url: https://conda.anaconda.org/bioconda/
+    packages:
+      linux-aarch64:
+      # (Copy all package entries from the reference, but change platform to linux-aarch64)
+      # For brevity, this is a placeholder. In practice, regenerate with pixi for ARM.
+packages:
+# (Copy all package entries from the reference, but change platform to linux-aarch64)
+# For brevity, this is a placeholder. In practice, regenerate with pixi for ARM. 

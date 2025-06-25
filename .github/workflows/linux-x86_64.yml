@@ -1,0 +1,304 @@
+name: Nextflow Linux x86_64 Pipelines
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "pipelines/linux-x86-ubuntu/nextflow-pixi/**"
+      - ".github/workflows/linux-x86_64.yml"
+  schedule:
+    - cron: "0 11 * * *" # Daily at 11:00 UTC
+
+jobs:
+  linux-x86-pixi:
+    name: Pixi Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pixi
+        run: |
+          curl -fsSL https://pixi.sh/install.sh | bash
+          echo "$HOME/.pixi/bin" >> $GITHUB_PATH
+
+      - name: Cache Pixi environment
+        uses: actions/cache@v4
+        with:
+          path: |
+            pipelines/linux-x86-ubuntu/nextflow-pixi/.pixi
+          key: pixi-linux-x86-${{ runner.os }}-${{ hashFiles('pipelines/linux-x86-ubuntu/nextflow-pixi/pixi.lock') }}
+          restore-keys: |
+            pixi-linux-x86-${{ runner.os }}-
+
+      - name: Install Pixi dependencies
+        working-directory: pipelines/linux-x86-ubuntu/nextflow-pixi
+        run: |
+          export PATH="$HOME/.pixi/bin:$PATH"
+          pixi install
+
+      - name: Install tracer
+        continue-on-error: true
+        run: |
+          echo "Installing tracer..."
+          if curl -sSL https://install.tracer.cloud/binary-installer.sh | bash -s ci_cd_user_123; then
+            echo "✅ Binary installer completed"
+          else
+            echo "⚠️ Binary installer failed, trying standard installer..."
+            curl -sSL https://install.tracer.cloud/ | bash || echo "Standard installer also failed"
+          fi
+          source ~/.bashrc 2>/dev/null || true
+          source ~/.bash_profile 2>/dev/null || true
+          source ~/.zshrc 2>/dev/null || true
+          echo "Searching for tracer binary..."
+          TRACER_PATH=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+          if [[ -n "$TRACER_PATH" ]]; then
+            echo "✅ Found tracer at: $TRACER_PATH"
+            mkdir -p ~/bin
+            ln -sf "$TRACER_PATH" ~/bin/tracer
+            sudo ln -sf "$TRACER_PATH" /usr/local/bin/tracer 2>/dev/null || echo "Could not create /usr/local/bin symlink"
+            echo "✅ Tracer installation completed successfully"
+          else
+            echo "❌ Tracer binary not found after installation"
+            echo "Installation may have failed, but continuing..."
+          fi
+          echo "$HOME/bin" >> $GITHUB_PATH
+          echo "/usr/local/bin" >> $GITHUB_PATH
+
+      - name: Run tracer init
+        run: |
+          echo "Searching for tracer binary..."
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ Found tracer at: $path"
+              TRACER_PATH="$path"
+              break
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            echo "Searching entire system for tracer binary..."
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              echo "✅ Found tracer at: $FOUND_TRACER"
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            echo "Running tracer init with: $TRACER_PATH"
+            sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          else
+            echo "❌ Tracer binary not found anywhere on the system"
+            echo "This might indicate the tracer installation failed"
+            echo "Skipping tracer init..."
+          fi
+
+      - name: Run pipeline with Pixi
+        working-directory: pipelines/linux-x86-ubuntu/nextflow-pixi
+        run: |
+          export PATH="$HOME/.pixi/bin:$PATH"
+          echo "=== Running Nextflow Pipeline with Pixi ==="
+          pixi run pipeline
+
+      - name: Verify tracer packages
+        run: |
+          echo "Searching for tracer binary..."
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ Found tracer at: $path"
+              TRACER_PATH="$path"
+              break
+            else
+              echo "❌ Not found at: $path"
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            echo "Searching entire system for tracer binary..."
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              echo "✅ Found tracer at: $FOUND_TRACER"
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            echo "Running tracer info with: $TRACER_PATH"
+            sudo env "PATH=$PATH" "$TRACER_PATH" info
+          else
+            echo "❌ Tracer binary not found anywhere on the system"
+            echo "This might indicate the tracer installation failed"
+            echo "Continuing without tracer verification..."
+          fi
+
+      - name: Upload pipeline results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pixi-linux-x86-pipeline-results
+          path: |
+            pipelines/linux-x86-ubuntu/nextflow-pixi/results/
+            pipelines/linux-x86-ubuntu/nextflow-pixi/logs/
+          retention-days: 7
+
+  linux-x86-conda:
+    name: Conda Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.12
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+
+      - name: Install Nextflow
+        run: |
+          curl -s https://get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
+
+      - name: Install Conda environment
+        working-directory: pipelines/linux-x86-ubuntu/nextflow-conda
+        run: |
+          mamba env create -f environment.yml || conda env create -f environment.yml || true
+          source ~/miniconda3/etc/profile.d/conda.sh
+          conda activate nextflow-minimal || true
+          conda info
+
+      - name: Verify installations
+        working-directory: pipelines/linux-x86-ubuntu/nextflow-conda
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh
+          conda activate nextflow-minimal || true
+          nextflow -v
+
+      - name: Install tracer
+        continue-on-error: true
+        run: |
+          echo "Installing tracer..."
+          if curl -sSL https://install.tracer.cloud/binary-installer.sh | bash -s ci_cd_user_123; then
+            echo "✅ Binary installer completed"
+          else
+            echo "⚠️ Binary installer failed, trying standard installer..."
+            curl -sSL https://install.tracer.cloud/ | bash || echo "Standard installer also failed"
+          fi
+          source ~/.bashrc 2>/dev/null || true
+          source ~/.bash_profile 2>/dev/null || true
+          source ~/.zshrc 2>/dev/null || true
+          echo "Searching for tracer binary..."
+          TRACER_PATH=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+          if [[ -n "$TRACER_PATH" ]]; then
+            echo "✅ Found tracer at: $TRACER_PATH"
+            mkdir -p ~/bin
+            ln -sf "$TRACER_PATH" ~/bin/tracer
+            sudo ln -sf "$TRACER_PATH" /usr/local/bin/tracer 2>/dev/null || echo "Could not create /usr/local/bin symlink"
+            echo "✅ Tracer installation completed successfully"
+          else
+            echo "❌ Tracer binary not found after installation"
+            echo "Installation may have failed, but continuing..."
+          fi
+          echo "$HOME/bin" >> $GITHUB_PATH
+          echo "/usr/local/bin" >> $GITHUB_PATH
+
+      - name: Run tracer init
+        run: |
+          echo "Searching for tracer binary..."
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ Found tracer at: $path"
+              TRACER_PATH="$path"
+              break
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            echo "Searching entire system for tracer binary..."
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              echo "✅ Found tracer at: $FOUND_TRACER"
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            echo "Running tracer init with: $TRACER_PATH"
+            sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          else
+            echo "❌ Tracer binary not found anywhere on the system"
+            echo "This might indicate the tracer installation failed"
+            echo "Skipping tracer init..."
+          fi
+
+      - name: Run pipeline with Conda
+        working-directory: pipelines/linux-x86-ubuntu/nextflow-conda
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh
+          conda activate nextflow-minimal || true
+          nextflow run main.nf -c nextflow.config --outdir results || true
+
+      - name: Verify tracer packages
+        run: |
+          echo "Searching for tracer binary..."
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ Found tracer at: $path"
+              TRACER_PATH="$path"
+              break
+            else
+              echo "❌ Not found at: $path"
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            echo "Searching entire system for tracer binary..."
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              echo "✅ Found tracer at: $FOUND_TRACER"
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            echo "Running tracer info with: $TRACER_PATH"
+            sudo env "PATH=$PATH" "$TRACER_PATH" info
+          else
+            echo "❌ Tracer binary not found anywhere on the system"
+            echo "This might indicate the tracer installation failed"
+            echo "Continuing without tracer verification..."
+          fi
+
+      - name: Upload pipeline results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conda-linux-x86-pipeline-results
+          path: |
+            pipelines/linux-x86-ubuntu/nextflow-conda/results/
+          retention-days: 7

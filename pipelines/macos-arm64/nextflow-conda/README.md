@@ -29,9 +29,16 @@ conda activate nextflow-minimal
 
 ### Run the Pipeline
 
+Smaller pipeline
+
 ```bash
-# Run the pipeline from this directory
 nextflow run main.nf
+```
+
+Rnaseq pipeline
+
+```bash
+mkdir -p rnaseq_results && cd rnaseq_results && nextflow run https://github.com/nf-core/rnaseq -c ../custom.config -profile test --outdir results -resume
 ```
 
 > After running the pipeline, you can view the tools and processes in the Tracer dashboard or by running `tracer info` in your terminal.

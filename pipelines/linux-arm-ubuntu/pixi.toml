@@ -1,8 +1,0 @@
-[project]
-name = "nextflow-arm"
-channels = ["conda-forge"]
-platforms = ["linux-aarch64"]
-
-[dependencies]
-nextflow = "*"
-temurin-jdk = "==17"

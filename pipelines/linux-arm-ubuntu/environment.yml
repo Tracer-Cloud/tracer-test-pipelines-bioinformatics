@@ -1,7 +1,0 @@
-# environment.yml
-name: nf-fastqc-env
-channels:
-  - bioconda
-  - conda-forge
-dependencies:
-  - fastqc=0.11.9
