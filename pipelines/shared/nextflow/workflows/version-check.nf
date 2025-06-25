@@ -64,8 +64,5 @@ process save_results {
     script:
     """
     cp $versions_file tool_versions.txt.tmp
-    echo "=== Tool Version Summary ===" >> tool_versions.txt.tmp
-    echo "Pipeline completed at: $(date)" >> tool_versions.txt.tmp
-    mv tool_versions.txt.tmp tool_versions.txt
     """
 } 
