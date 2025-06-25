@@ -2,6 +2,13 @@
 
 This directory contains a **Pixi-based minimal Nextflow pipeline** for ARM Ubuntu. The pipeline checks versions of key bioinformatics tools (FastQC, STAR, Samtools, BWA).
 
+### Run the Pipeline with Pixi
+
+```bash
+# Install dependencies
+./run.sh
+```
+
 ## Quick Start (Recommended: Pixi)
 
 ### Prerequisites
@@ -13,11 +20,4 @@ This directory contains a **Pixi-based minimal Nextflow pipeline** for ARM Ubunt
 
 ```bash
 curl -fsSL https://pixi.sh/install.sh | bash
-```
-
-### Run the Pipeline with Pixi
-
-```bash
-# Install dependencies
-./run.sh
 ```
