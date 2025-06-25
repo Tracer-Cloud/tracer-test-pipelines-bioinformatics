@@ -23,7 +23,8 @@ bwa = "*"
 
 
 [tasks]
-pipeline = "nextflow -log logs/nextflow.log run main.nf --outdir results"
+pipeline = "nextflow -C nextflow.config -C custom.config -log logs/nextflow.log run main.nf --outdir results"
+test = "nextflow -C nextflow.config -C custom.config -log logs/nextflow.log run main.nf --outdir test_results"
 check-env = """
 echo "=== Pixi Environment Check ==="
 echo "Java version:"
