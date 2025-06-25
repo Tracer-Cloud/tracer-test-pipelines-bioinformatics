@@ -1,8 +1,8 @@
 nextflow.enable.dsl = 2
 
-params.outdir = "results"
+params.outdir = params.outdir ?: "results"
 
-workflow {
+workflow version_check {
     // Run simple version checks for various bioinformatics tools
     fastqc_version()
     star_version()
@@ -78,7 +78,7 @@ process save_results {
     """
     cp $versions_file tool_versions.txt.tmp
     echo "=== Tool Version Summary ===" >> tool_versions.txt.tmp
-    echo "Pipeline completed at: $(date)" >> tool_versions.txt.tmp
+    echo "Pipeline completed at: \$(date)" >> tool_versions.txt.tmp
     mv tool_versions.txt.tmp tool_versions.txt
     """
 } 
