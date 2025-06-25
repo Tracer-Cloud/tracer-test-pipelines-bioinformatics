@@ -3,14 +3,12 @@ nextflow.enable.dsl = 2
 params.outdir = "results"
 
 workflow {
-    // Run simple version checks for various bioinformatics tools
     fastqc_version()
     star_version()
     samtools_version()
     bwa_version()
     gatk_version()
 
-    // Collect all version outputs
     fastqc_version.out
         .concat(star_version.out)
         .concat(samtools_version.out)
@@ -19,7 +17,6 @@ workflow {
         .collectFile(name: 'tool_versions.txt', newLine: true)
         .set { all_versions }
 
-    // Save results
     save_results(all_versions)
 }
 
