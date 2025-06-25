@@ -8,14 +8,12 @@ workflow {
     star_version()
     samtools_version()
     bwa_version()
-    gatk_version()
 
     // Collect all version outputs
     fastqc_version.out
         .concat(star_version.out)
         .concat(samtools_version.out)
         .concat(bwa_version.out)
-        .concat(gatk_version.out)
         .collectFile(name: 'tool_versions.txt', newLine: true)
         .set { all_versions }
 
@@ -64,17 +62,6 @@ process bwa_version {
     """
     echo "BWA version:"
     bwa 2>&1 | head -3 || echo "BWA not available"
-    """
-}
-
-process gatk_version {
-    output:
-    stdout
-
-    script:
-    """
-    echo "GATK version:"
-    gatk --version || echo "GATK not available"
     """
 }
 
