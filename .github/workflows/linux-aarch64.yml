@@ -31,7 +31,7 @@ jobs:
             pixi-linux-arm64-${{ runner.os }}-
 
       - name: Install Pixi dependencies
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-pixi
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           pixi install || true
@@ -100,7 +100,7 @@ jobs:
           fi
 
       - name: Run pipeline with Pixi
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-pixi
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           echo "=== Running Nextflow Pipeline with Pixi ==="
@@ -149,7 +149,7 @@ jobs:
         with:
           name: pixi-linux-arm64-pipeline-results
           path: |
-            pipelines/linux-arm-ubuntu/results/
+            pipelines/linux-arm-ubuntu/nextflow-pixi/results/
           retention-days: 7
 
   linux-arm64-conda:
@@ -172,19 +172,10 @@ jobs:
           sudo mv nextflow /usr/local/bin/
 
       - name: Install Conda environment
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
         run: |
-          mamba env create -f environment.yml || conda env create -f environment.yml || true
+          mamba env create -f environment-minimal.yml || conda env create -f environment-minimal.yml || true
           source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nf-fastqc-env
-          conda info
-
-      - name: Verify installations
-        working-directory: pipelines/linux-arm-ubuntu
-        run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nf-fastqc-env
-          nextflow -v
 
       - name: Install tracer
         continue-on-error: true
@@ -250,7 +241,7 @@ jobs:
           fi
 
       - name: Run pipeline with Conda
-        working-directory: pipelines/linux-arm-ubuntu
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh
           ./run.sh
@@ -297,5 +288,5 @@ jobs:
         with:
           name: conda-linux-arm64-pipeline-results
           path: |
-            pipelines/linux-arm-ubuntu/results/
+            pipelines/linux-arm-ubuntu/nextflow-conda/results/
           retention-days: 7
