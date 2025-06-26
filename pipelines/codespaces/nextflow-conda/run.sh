@@ -50,7 +50,7 @@ conda activate rnaseq-minimal
 echo "[INFO] Verifying tools are available..."
 fastqc --version || echo "Warning: FastQC not found"
 STAR --version || echo "Warning: STAR not found"
-samtools --version || echo "Warning: Samtools not found"
+samtools sort --version || echo "Warning: Samtools not found"
 nextflow --version || echo "Warning: Nextflow not found"
 
 # Run the pipeline

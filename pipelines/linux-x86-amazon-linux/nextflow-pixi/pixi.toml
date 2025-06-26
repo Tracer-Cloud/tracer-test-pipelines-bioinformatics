@@ -31,7 +31,25 @@ echo "Created necessary directories"
 echo "Configuration files:"
 ls -la *.config 2>/dev/null || echo "No config files found"
 """
-check-env = "bash -c 'echo \"=== Pixi Environment Check ===\"; echo \"Java version:\"; java -version; echo \"\"; echo \"Nextflow version:\"; nextflow -v; echo \"\"; echo \"FastQC version:\"; fastqc --version; echo \"\"; echo \"STAR version:\"; STAR --version 2>/dev/null || echo \"STAR not available\"; echo \"\"; echo \"Samtools version:\"; samtools --version | head -1; echo \"\"; echo \"BWA version:\"; bwa 2>&1 | head -3 | grep Version || echo \"BWA not available\"; echo \"\"; echo \"=== Environment Ready ===\"'"
+check-env = { cmd = [
+    "/bin/sh",
+    "-c",
+    """
+    echo '=== Pixi Environment Check ===' && \
+    echo 'FastQC version:' && \
+    fastqc --version && \
+    echo 'STAR version:' && \
+    (STAR --version 2>/dev/null || echo 'STAR not available') && \
+    echo '' && \
+    echo 'Samtools version:' && \
+    samtools sort --version | head -1 && \
+    echo '' && \
+    echo 'BWA version:' && \
+    bwa 2>&1 | head -3 | grep Version || echo 'BWA not available' && \
+    echo '' && \
+    echo '=== Environment Ready ==='
+    """
+]}
 clean = """
 rm -rf results logs work test_results custom_results
 rm -f .nextflow* 2>/dev/null || true

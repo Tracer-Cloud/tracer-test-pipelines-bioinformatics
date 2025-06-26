@@ -39,7 +39,7 @@ echo "STAR version:"
 STAR --version 2>/dev/null || echo "STAR not available"
 echo ""
 echo "Samtools version:"
-samtools --version | head -1
+samtools sort --version | head -1
 echo ""
 echo "BWA version:"
 bwa 2>&1 | head -3 | grep Version || echo "BWA not available"
