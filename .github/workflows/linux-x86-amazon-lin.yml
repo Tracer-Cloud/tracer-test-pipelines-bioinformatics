@@ -42,7 +42,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "Installing tracer..."
-          curl -sSL https://install.tracer.cloud/ | bash || echo "Tracer installation failed"
+          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
           source ~/.bashrc 2>/dev/null || true
           source ~/.bash_profile 2>/dev/null || true
           source ~/.zshrc 2>/dev/null || true
