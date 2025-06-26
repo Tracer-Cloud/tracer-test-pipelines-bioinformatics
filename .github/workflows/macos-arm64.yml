@@ -17,26 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Pixi manually
-        run: |
-          curl -fsSL https://pixi.sh/install.sh | bash
-          echo "$HOME/.pixi/bin" >> $GITHUB_PATH
-
-      - name: Cache Pixi environment
-        uses: actions/cache@v4
-        with:
-          path: |
-            pipelines/macos-arm64/nextflow-pixi/.pixi
-          key: pixi-${{ runner.os }}-${{ hashFiles('pipelines/macos-arm64/nextflow-pixi/pixi.lock') }}
-          restore-keys: |
-            pixi-${{ runner.os }}-
-
-      - name: Install Pixi dependencies
-        working-directory: pipelines/macos-arm64/nextflow-pixi
-        run: |
-          export PATH="$HOME/.pixi/bin:$PATH"
-          pixi install
-
       - name: Install tracer
         continue-on-error: true
         run: |
@@ -105,7 +85,7 @@ jobs:
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           echo "=== Running Nextflow Pipeline with Pixi ==="
-          pixi run pipeline
+          ./run.sh
 
       - name: Verify tracer packages
         run: |
@@ -159,35 +139,6 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Miniforge3
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: 3.12
-          miniforge-variant: Miniforge3
-          miniforge-version: latest
-
-      - name: Install Nextflow
-        run: |
-          curl -s https://get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
-      - name: Install Conda environment
-        working-directory: pipelines/macos-arm64/nextflow-conda
-        run: |
-          mamba env create -f environment.yml || conda env create -f environment.yml || true
-          source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nextflow-minimal
-          conda info
-
-      - name: Verify installations
-        working-directory: pipelines/macos-arm64/nextflow-conda
-        run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nextflow-minimal
-          nextflow -v
-
       - name: Install tracer
         continue-on-error: true
         run: |

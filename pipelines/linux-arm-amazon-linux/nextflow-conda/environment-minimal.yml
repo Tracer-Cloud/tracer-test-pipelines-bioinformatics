@@ -5,16 +5,28 @@ channels:
   - defaults
 
 dependencies:
-  # Core tools only - minimal installation
-  - nextflow>=24.10.0
-  - openjdk=17
+  - python=3.11
+  - openjdk=11
+  - nextflow
+  - gcc_linux-aarch64
+  - gxx_linux-aarch64
+  - make
+  - cmake
+  - pkg-config
+  - zlib
+  - bzip2
+  - xz
+  - curl
+  - openssl
+  - git
+  - wget
+  - pip
 
-  # Essential RNA-seq tools only
-  - fastqc=0.12.1
-  - star=2.7.11b
-  - samtools=1.21
-
-  # System utilities
-  - gawk
-  - coreutils
-  - bc
+  - pip:
+      - pysam
+      - biopython
+      - cutadapt
+      - multiqc
+      - numpy
+      - pandas
+      - matplotlib
