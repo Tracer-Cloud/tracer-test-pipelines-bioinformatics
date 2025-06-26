@@ -83,6 +83,9 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
+        env:
+          # Configure the processes to check for (comma-separated list)
+          REQUIRED_PROCESSES: "STAR,salmon,fasta_stats,counts"
         run: |
           echo "Searching for tracer binary..."
           POSSIBLE_PATHS=(
@@ -111,8 +114,78 @@ jobs:
             fi
           fi
           if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-            echo "Running tracer info with: $TRACER_PATH"
-            sudo env "PATH=$PATH" "$TRACER_PATH" info
+            echo "=== Running tracer info --json ==="
+            TRACER_OUTPUT=$(sudo env "PATH=$PATH" "$TRACER_PATH" info --json)
+            echo "Tracer output:"
+            echo "$TRACER_OUTPUT"
+
+            echo ""
+            echo "=== Verifying required processes ==="
+
+            # Parse the preview_processes field from the JSON output
+            PREVIEW_PROCESSES=$(echo "$TRACER_OUTPUT" | jq -r '.run.preview_processes // empty')
+
+            if [ -z "$PREVIEW_PROCESSES" ]; then
+              echo "❌ ERROR: Could not find 'preview_processes' in tracer output"
+              echo "This might indicate the pipeline is not running or tracer output format has changed"
+              exit 1
+            fi
+
+            echo "Found preview_processes: $PREVIEW_PROCESSES"
+
+            # Convert preview_processes to array (split by comma and trim whitespace)
+            IFS=',' read -ra PREVIEW_ARRAY <<< "$PREVIEW_PROCESSES"
+            PREVIEW_SET=()
+            for proc in "${PREVIEW_ARRAY[@]}"; do
+              # Trim whitespace and add to set
+              trimmed=$(echo "$proc" | xargs)
+              if [ -n "$trimmed" ]; then
+                PREVIEW_SET+=("$trimmed")
+              fi
+            done
+
+            echo "Parsed preview processes: ${PREVIEW_SET[*]}"
+
+            # Convert comma-separated REQUIRED_PROCESSES to array
+            IFS=',' read -ra REQUIRED_ARRAY <<< "$REQUIRED_PROCESSES"
+
+            # Check each required process (exact match, order-independent)
+            MISSING_PROCESSES=()
+            for required_process in "${REQUIRED_ARRAY[@]}"; do
+              # Trim whitespace
+              required_process=$(echo "$required_process" | xargs)
+
+              # Check if this required process exists in the preview set
+              found=false
+              for preview_process in "${PREVIEW_SET[@]}"; do
+                if [ "$required_process" = "$preview_process" ]; then
+                  found=true
+                  break
+                fi
+              done
+
+              if [ "$found" = true ]; then
+                echo "✅ Found required process: $required_process"
+              else
+                echo "❌ Missing required process: $required_process"
+                MISSING_PROCESSES+=("$required_process")
+              fi
+            done
+
+            # Report results
+            if [ ${#MISSING_PROCESSES[@]} -eq 0 ]; then
+              echo ""
+              echo "🎉 SUCCESS: All required processes found in preview_processes"
+              echo "Required: $REQUIRED_PROCESSES"
+              echo "Found: $PREVIEW_PROCESSES"
+            else
+              echo ""
+              echo "❌ FAILURE: Missing required processes"
+              echo "Required: $REQUIRED_PROCESSES"
+              echo "Found: $PREVIEW_PROCESSES"
+              echo "Missing: $(IFS=','; echo "${MISSING_PROCESSES[*]}")"
+              exit 1
+            fi
           else
             echo "❌ Tracer binary not found anywhere on the system"
             echo "This might indicate the tracer installation failed"
@@ -219,8 +292,82 @@ jobs:
 
       - name: Verify tracer packages
         if: steps.tracer_check.outputs.found == 'true'
+        env:
+          # Configure the processes to check for (comma-separated list)
+          REQUIRED_PROCESSES: "STAR,FQ"
         run: |
-          tracer info
+          echo "=== Running tracer info --json ==="
+          TRACER_OUTPUT=$(tracer info --json)
+          echo "Tracer output:"
+          echo "$TRACER_OUTPUT"
+
+          echo ""
+          echo "=== Verifying required processes ==="
+
+          # Parse the preview_processes field from the JSON output
+          PREVIEW_PROCESSES=$(echo "$TRACER_OUTPUT" | jq -r '.run.preview_processes // empty')
+
+          if [ -z "$PREVIEW_PROCESSES" ]; then
+            echo "❌ ERROR: Could not find 'preview_processes' in tracer output"
+            echo "This might indicate the pipeline is not running or tracer output format has changed"
+            exit 1
+          fi
+
+          echo "Found preview_processes: $PREVIEW_PROCESSES"
+
+          # Convert preview_processes to array (split by comma and trim whitespace)
+          IFS=',' read -ra PREVIEW_ARRAY <<< "$PREVIEW_PROCESSES"
+          PREVIEW_SET=()
+          for proc in "${PREVIEW_ARRAY[@]}"; do
+            # Trim whitespace and add to set
+            trimmed=$(echo "$proc" | xargs)
+            if [ -n "$trimmed" ]; then
+              PREVIEW_SET+=("$trimmed")
+            fi
+          done
+
+          echo "Parsed preview processes: ${PREVIEW_SET[*]}"
+
+          # Convert comma-separated REQUIRED_PROCESSES to array
+          IFS=',' read -ra REQUIRED_ARRAY <<< "$REQUIRED_PROCESSES"
+
+          # Check each required process (exact match, order-independent)
+          MISSING_PROCESSES=()
+          for required_process in "${REQUIRED_ARRAY[@]}"; do
+            # Trim whitespace
+            required_process=$(echo "$required_process" | xargs)
+
+            # Check if this required process exists in the preview set
+            found=false
+            for preview_process in "${PREVIEW_SET[@]}"; do
+              if [ "$required_process" = "$preview_process" ]; then
+                found=true
+                break
+              fi
+            done
+
+            if [ "$found" = true ]; then
+              echo "✅ Found required process: $required_process"
+            else
+              echo "❌ Missing required process: $required_process"
+              MISSING_PROCESSES+=("$required_process")
+            fi
+          done
+
+          # Report results
+          if [ ${#MISSING_PROCESSES[@]} -eq 0 ]; then
+            echo ""
+            echo "🎉 SUCCESS: All required processes found in preview_processes"
+            echo "Required: $REQUIRED_PROCESSES"
+            echo "Found: $PREVIEW_PROCESSES"
+          else
+            echo ""
+            echo "❌ FAILURE: Missing required processes"
+            echo "Required: $REQUIRED_PROCESSES"
+            echo "Found: $PREVIEW_PROCESSES"
+            echo "Missing: $(IFS=','; echo "${MISSING_PROCESSES[*]}")"
+            exit 1
+          fi
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
