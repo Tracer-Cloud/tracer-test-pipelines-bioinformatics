@@ -21,12 +21,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "Installing tracer..."
-          if curl -sSL https://install.tracer.cloud/binary-installer.sh | bash -s ci_cd_user_123; then
-            echo "✅ Binary installer completed"
-          else
-            echo "⚠️ Binary installer failed, trying standard installer..."
-            curl -sSL https://install.tracer.cloud/ | bash || echo "Standard installer also failed"
-          fi
+          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
           source ~/.bashrc 2>/dev/null || true
           source ~/.bash_profile 2>/dev/null || true
           source ~/.zshrc 2>/dev/null || true
@@ -139,16 +134,20 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.12
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+
       - name: Install tracer
         continue-on-error: true
         run: |
           echo "Installing tracer..."
-          if curl -sSL https://install.tracer.cloud/binary-installer.sh | bash -s ci_cd_user_123; then
-            echo "✅ Binary installer completed"
-          else
-            echo "⚠️ Binary installer failed, trying standard installer..."
-            curl -sSL https://install.tracer.cloud/ | bash || echo "Standard installer also failed"
-          fi
+          curl -sSL https://install.tracer.cloud/ | bash || echo "Tracer installation failed"
           source ~/.bashrc 2>/dev/null || true
           source ~/.bash_profile 2>/dev/null || true
           source ~/.zshrc 2>/dev/null || true
@@ -206,46 +205,22 @@ jobs:
         working-directory: pipelines/macos-arm64/nextflow-conda
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nextflow-minimal
           echo "=== Running Nextflow Pipeline with Conda ==="
-          nextflow run main.nf
+          ./run.sh
+
+      - name: Check for tracer binary
+        id: tracer_check
+        run: |
+          if command -v tracer >/dev/null 2>&1; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Verify tracer packages
+        if: steps.tracer_check.outputs.found == 'true'
         run: |
-          echo "Searching for tracer binary..."
-          POSSIBLE_PATHS=(
-            "$HOME/bin/tracer"
-            "$HOME/.local/bin/tracer"
-            "$HOME/.tracerbio/bin/tracer"
-            "/usr/local/bin/tracer"
-            "/opt/tracer/bin/tracer"
-          )
-          TRACER_PATH=""
-          for path in "${POSSIBLE_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ Found tracer at: $path"
-              TRACER_PATH="$path"
-              break
-            else
-              echo "❌ Not found at: $path"
-            fi
-          done
-          if [ -z "$TRACER_PATH" ]; then
-            echo "Searching entire system for tracer binary..."
-            FOUND_TRACER=$(find /Users/runner -name "tracer" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_TRACER" ]; then
-              echo "✅ Found tracer at: $FOUND_TRACER"
-              TRACER_PATH="$FOUND_TRACER"
-            fi
-          fi
-          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-            echo "Running tracer info with: $TRACER_PATH"
-            sudo env "PATH=$PATH" "$TRACER_PATH" info
-          else
-            echo "❌ Tracer binary not found anywhere on the system"
-            echo "This might indicate the tracer installation failed"
-            echo "Continuing without tracer verification..."
-          fi
+          tracer info
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4

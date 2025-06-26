@@ -15,7 +15,6 @@ bc = "*"
 tree = "*"
 openjdk = "17.0.11"
 python = "3.12"
-docker = "25.0.6"
 
 [tasks]
 

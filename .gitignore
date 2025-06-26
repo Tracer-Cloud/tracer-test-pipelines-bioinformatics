@@ -40,6 +40,7 @@ Temporary Items
 
 /work/
 **output/
+**test_results/
 **.nextflow/
 **.nextflow.log*
 **.spack-env/
@@ -50,6 +51,7 @@ Temporary Items
 pipelines/nextflow/rnaseq/RAP1_UNINDUCED_REP1.fq_lint.txt
 pipelines/nextflow/rnaseq/results/
 pipelines/nextflow/rnaseq/work/
+
 
 # Generated reports and outputs
 *.html

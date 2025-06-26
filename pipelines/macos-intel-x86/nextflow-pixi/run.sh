@@ -1,62 +1,61 @@
-#!/bin/bash
-
-# Nextflow pipeline runner for Pixi environment
-# This script assumes it's being run within a Pixi environment
-
+#!/usr/bin/env bash
 set -euo pipefail
 
-echo "=== Nextflow Pipeline with Pixi Environment ==="
-echo "Starting pipeline execution..."
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-# Create logs directory if it doesn't exist
-mkdir -p logs
+echo -e "${BLUE}[INFO]${NC} Setting up Nextflow pipeline with Pixi for macOS..."
 
-# Set appropriate permissions for logs directory
-chmod 755 logs
-
-# Set environment variable for log file location
-export NXF_LOG_FILE="logs/nextflow.log"
-
-# Verify we're in a Pixi environment
-if command -v pixi &> /dev/null; then
-    echo "✅ Pixi is available"
-else
-    echo "⚠️  Pixi not found - make sure to run this within a Pixi environment"
-    echo "   Use: pixi run pipeline"
+# Install Homebrew if not present
+if ! command -v brew &> /dev/null; then
+    echo -e "${BLUE}[INFO]${NC} Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# Check if required tools are available
-echo "Checking tool availability..."
-if command -v fastqc &> /dev/null; then
-    echo "✅ FastQC available: $(fastqc --version 2>&1 | head -1)"
+# Install conda via Homebrew
+if ! command -v conda &> /dev/null; then
+    echo -e "${BLUE}[INFO]${NC} Installing Miniforge via Homebrew..."
+    brew install miniforge
+    conda init "$(basename "$SHELL")"
+    source ~/.zshrc 2>/dev/null || source ~/.bashrc 2>/dev/null
+fi
+
+# Install pixi via Homebrew
+if ! command -v pixi &> /dev/null; then
+    echo -e "${BLUE}[INFO]${NC} Installing Pixi via Homebrew..."
+    brew install pixi
+fi
+
+# Setup pixi environment
+echo -e "${BLUE}[INFO]${NC} Setting up Pixi environment..."
+if [ -f "pixi.toml" ]; then
+    pixi install
 else
-    echo "❌ FastQC not found"
+    echo -e "${RED}[ERROR]${NC} pixi.toml not found"
     exit 1
 fi
 
-if command -v STAR &> /dev/null; then
-    echo "✅ STAR available: $(STAR --version 2>&1 | head -1)"
-else
-    echo "❌ STAR not found"
-    exit 1
+# Create test data if needed
+mkdir -p test_data logs results test_results
+if [ ! -f "test_data/sample1.fasta" ]; then
+    echo -e "${BLUE}[INFO]${NC} Creating sample test data..."
+    cat > test_data/sample1.fasta << 'EOF'
+>seq1
+ATCGATCGATCG
+>seq2
+GCTAGCTAGCTA
+EOF
 fi
 
-if command -v nextflow &> /dev/null; then
-    echo "✅ Nextflow available: $(nextflow -v 2>&1 | head -1)"
+# Run pipeline
+echo -e "${BLUE}[INFO]${NC} Running Nextflow pipeline..."
+if pixi run test; then
+    echo -e "${GREEN}[SUCCESS]${NC} Pipeline completed! Results in: test_results/"
 else
-    echo "❌ Nextflow not found"
-    echo "   Install with: pixi add nextflow"
+    echo -e "${RED}[ERROR]${NC} Pipeline failed. Check logs/nextflow.log"
     exit 1
 fi
-
-echo ""
-echo "=== Running Nextflow Pipeline ==="
-
-# Run Nextflow with explicit log file location
-# Pass all command line arguments to nextflow
-nextflow -log logs/nextflow.log run main.nf "$@"
-
-echo ""
-echo "=== Pipeline Completed ==="
-echo "Check results in: results/"
-echo "Check logs in: logs/"

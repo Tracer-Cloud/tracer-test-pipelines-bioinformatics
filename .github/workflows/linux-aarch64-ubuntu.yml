@@ -40,12 +40,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "Installing tracer..."
-          if curl -sSL https://install.tracer.cloud/binary-installer.sh | bash -s ci_cd_user_123; then
-            echo "✅ Binary installer completed"
-          else
-            echo "⚠️ Binary installer failed, trying standard installer..."
-            curl -sSL https://install.tracer.cloud/ | bash || echo "Standard installer also failed"
-          fi
+          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
           source ~/.bashrc 2>/dev/null || true
           source ~/.bash_profile 2>/dev/null || true
           source ~/.zshrc 2>/dev/null || true
@@ -181,12 +176,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "Installing tracer..."
-          if curl -sSL https://install.tracer.cloud/binary-installer.sh | bash -s ci_cd_user_123; then
-            echo "✅ Binary installer completed"
-          else
-            echo "⚠️ Binary installer failed, trying standard installer..."
-            curl -sSL https://install.tracer.cloud/ | bash || echo "Standard installer also failed"
-          fi
+          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
           source ~/.bashrc 2>/dev/null || true
           source ~/.bash_profile 2>/dev/null || true
           source ~/.zshrc 2>/dev/null || true
