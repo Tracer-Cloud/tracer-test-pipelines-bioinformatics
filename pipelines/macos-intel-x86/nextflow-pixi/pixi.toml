@@ -23,12 +23,6 @@ nextflow = ">=25.4.4,<26"
 # Setup task - prepare environment and test data
 setup = "echo 'Environment ready! Use: pixi run pipeline'"
 
-# Main pipeline execution
-pipeline = "bash run.sh"
-
-# Run with custom parameters
-pipeline-custom = "bash run.sh --input custom_data/*.fasta --outdir custom_results"
-
 # Development tasks
 test = "pixi run pipeline --input test_data/*.fasta --outdir test_results"
 clean = """

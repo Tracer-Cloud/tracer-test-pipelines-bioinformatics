@@ -13,13 +13,7 @@ echo -e "${BLUE}[INFO]${NC} Setting up Nextflow pipeline with Pixi for macOS..."
 if ! command -v brew &> /dev/null; then
     echo -e "${BLUE}[INFO]${NC} Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Add Homebrew to PATH
-    if [[ $(uname -m) == "arm64" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
+    eval "$(/usr/local/bin/brew shellenv)"
 fi
 
 # Install conda via Homebrew
@@ -56,10 +50,6 @@ ATCGATCGATCG
 GCTAGCTAGCTA
 EOF
 fi
-
-# Run environment check
-echo -e "${BLUE}[INFO]${NC} Running environment check..."
-pixi run check-env
 
 # Run pipeline
 echo -e "${BLUE}[INFO]${NC} Running Nextflow pipeline..."
