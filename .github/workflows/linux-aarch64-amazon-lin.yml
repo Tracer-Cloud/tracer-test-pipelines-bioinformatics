@@ -6,12 +6,6 @@ on:
     paths:
       - "pipelines/linux-arm-amazon-linux/**"
       - ".github/workflows/linux-aarch64-amazon-lin.yml"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "pipelines/linux-arm-amazon-linux/**"
-      - ".github/workflows/linux-aarch64-amazon-lin.yml"
   schedule:
     - cron: "0 11 * * *" # Daily at 11:00 UTC
 
@@ -25,7 +19,7 @@ jobs:
       - name: Install system dependencies
         run: |
           yum update -y
-          yum install -y curl wget git bash which sudo tar gzip
+          yum install -y wget git bash which sudo tar gzip --allowerasing
 
       - uses: actions/checkout@v4
 
@@ -42,6 +36,12 @@ jobs:
           key: pixi-linux-arm64-amazon-${{ runner.os }}-${{ hashFiles('pipelines/linux-arm-amazon-linux/pixi.toml') }}
           restore-keys: |
             pixi-linux-arm64-amazon-${{ runner.os }}-
+
+      - name: Install Pixi dependencies
+        working-directory: pipelines/linux-arm-amazon-linux/nextflow-pixi
+        run: |
+          export PATH="$HOME/.pixi/bin:$PATH"
+          pixi install || true
 
       - name: Install tracer
         continue-on-error: true
@@ -168,7 +168,7 @@ jobs:
       - name: Install system dependencies
         run: |
           yum update -y
-          yum install -y curl wget git bash which sudo bzip2 tar gzip
+          yum install -y wget git bash which sudo bzip2 tar gzip --allowerasing
 
       - uses: actions/checkout@v4
 

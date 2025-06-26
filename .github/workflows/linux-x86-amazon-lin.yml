@@ -6,12 +6,6 @@ on:
     paths:
       - "pipelines/linux-x86-amazon-linux/**"
       - ".github/workflows/linux-x86-amazon-lin.yml"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "pipelines/linux-x86-amazon-linux/**"
-      - ".github/workflows/linux-x86-amazon-lin.yml"
   schedule:
     - cron: "0 11 * * *" # Daily at 11:00 UTC
 
@@ -25,7 +19,7 @@ jobs:
       - name: Install system dependencies
         run: |
           yum update -y
-          yum install -y curl wget git bash which sudo tar gzip
+          yum install -y curl wget git bash which sudo tar gzip --allowerasing
 
       - uses: actions/checkout@v4
 
