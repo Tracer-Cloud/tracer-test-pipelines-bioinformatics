@@ -6,6 +6,12 @@ on:
     paths:
       - "pipelines/linux-x86-amazon-linux/**"
       - ".github/workflows/linux-x86-amazon-lin.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "pipelines/linux-x86-amazon-linux/**"
+      - ".github/workflows/linux-x86-amazon-lin.yml"
   schedule:
     - cron: "0 11 * * *" # Daily at 11:00 UTC
 
@@ -16,12 +22,12 @@ jobs:
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
-      - uses: actions/checkout@v4
-
       - name: Install system dependencies
         run: |
           yum update -y
-          yum install -y curl wget git bash which sudo
+          yum install -y curl wget git bash which sudo tar gzip
+
+      - uses: actions/checkout@v4
 
       - name: Cache Pixi environment
         uses: actions/cache@v4
@@ -160,12 +166,12 @@ jobs:
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
-      - uses: actions/checkout@v4
-
       - name: Install system dependencies
         run: |
           yum update -y
-          yum install -y curl wget git bash which sudo bzip2
+          yum install -y curl wget git bash which sudo bzip2 tar gzip
+
+      - uses: actions/checkout@v4
 
       - name: Install Miniconda
         run: |
@@ -173,6 +179,11 @@ jobs:
           bash miniconda.sh -b -p "$HOME/miniconda"
           echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
           source "$HOME/.bashrc"
+
+      - name: Install Nextflow
+        run: |
+          curl -s https://get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
 
       - name: Install Conda environment
         working-directory: pipelines/linux-x86-amazon-linux/nextflow-conda
