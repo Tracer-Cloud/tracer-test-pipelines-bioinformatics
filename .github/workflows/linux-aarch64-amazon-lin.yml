@@ -179,11 +179,6 @@ jobs:
           echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
           source "$HOME/.bashrc"
 
-      - name: Install Nextflow
-        run: |
-          curl -s https://get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
       - name: Install Conda environment
         working-directory: pipelines/linux-arm-amazon-linux/nextflow-conda
         run: |
