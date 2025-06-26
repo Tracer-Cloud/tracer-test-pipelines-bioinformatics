@@ -64,9 +64,12 @@ GCTAGCTAGCTA
 EOF
 fi
 
-# Run pipeline using conda run to execute in the environment
-echo -e "${BLUE}[INFO]${NC} Running Nextflow pipeline..."
-if conda run -n nextflow-minimal nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --outdir test_results; then
+# Activate conda environment and run pipeline
+echo -e "${BLUE}[INFO]${NC} Activating conda environment and running Nextflow pipeline..."
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate nextflow-minimal
+
+if nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --outdir test_results; then
     echo -e "${GREEN}[SUCCESS]${NC} Pipeline completed! Results in: test_results/"
     echo -e "${BLUE}[INFO]${NC} Logs available in: logs/nextflow.log"
 else
