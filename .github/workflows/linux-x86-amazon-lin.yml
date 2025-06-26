@@ -60,10 +60,6 @@ jobs:
           fi
           echo "$HOME/bin" >> $GITHUB_PATH
           echo "/usr/local/bin" >> $GITHUB_PATH
-
-      - name: Tracer info
-        run: |
-          tracer info
       - name: Run tracer init
         run: |
           echo "Searching for tracer binary..."
