@@ -1,4 +1,0 @@
-3
-File: sample1.fasta
-Sequences: 3
-Environment: Pixi-managed
