@@ -114,6 +114,8 @@ jobs:
             fi
           fi
           if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            echo "=== Waiting 10 seconds for tracer to gather process information ==="
+            sleep 10
             echo "=== Running tracer info --json ==="
             TRACER_OUTPUT=$(sudo env "PATH=$PATH" "$TRACER_PATH" info --json)
             echo "Tracer output:"
@@ -296,6 +298,8 @@ jobs:
           # Configure the processes to check for (comma-separated list)
           REQUIRED_PROCESSES: "STAR,FQ"
         run: |
+          echo "=== Waiting 10 seconds for tracer to gather process information ==="
+          sleep 10
           echo "=== Running tracer info --json ==="
           TRACER_OUTPUT=$(tracer info --json)
           echo "Tracer output:"
