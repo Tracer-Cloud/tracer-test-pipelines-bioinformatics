@@ -17,24 +17,47 @@ Get started instantly by visiting [sandbox.tracer.cloud](https://sandbox.tracer.
 Install Tracer on your operating system (one-time installation):
 
 ```bash
-curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
+curl -sSL https://install.tracer.cloud/ | TRACER_USER_ID="user_2y6EAfxS4kv5mMtFKNrxRm2ZFf5" bash -s && source ~/.bashrc && source ~/.zshrc
 ```
 
-### 2. Initialize Tracer
+### 2. Navigate to the correct git file
+
+Select your preferred tool for managing software environments and dependencies
+
+
+Pixi: 
+```bash
+cd /workspaces/tracer-test-pipelines-bioinformatics/pipelines/codespaces/nextflow-pixi
+```
+
+Conda:
+```bash
+cd /workspaces/tracer-test-pipelines-bioinformatics/pipelines/codespaces/nextflow-conda
+```
+
+### 3. Initialize Tracer
 
 Launch Tracer by running: (Root privileges required)
 
 ```bash
-sudo tracer init
+tracer init
 ```
 
-### 3. Choose a Pipeline
+### 4. Run pipeline
+We have pre-installed some pipelines in the Codespaces for you to run.
 
-We provide several ready-to-use pipelines for different environments in the [pipelines](./pipelines/) directory. Navigate to the pipelines directory and follow the README instructions to choose and run a pipeline suitable for your environment.
+We would recommend to start with a simple rnaseq pipeline in Nextflow:
+```bash
+./run.sh
+```
+Other pipelines, written in Bash, Nextflow, WDL, and CWL can be found under the pipelines files
+
+Play around with the other pipelines, have fun!
+
 
 ## Monitor your Pipeline
 
-Track your pipeline's progress through the Tracer monitoring dashboard, accessible via the 'Open Grafana Dashboard' button.
+Track your pipeline's progress through the Tracer monitoring dashboard, accessible via the 'Open Grafana Dashboard' button in the Onboarding.
 
 The dashboard provides real-time insights into:
 
