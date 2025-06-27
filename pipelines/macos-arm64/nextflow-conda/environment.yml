@@ -11,3 +11,10 @@ dependencies:
   - STAR=2.7.11b
   - salmon=1.10.3
   - bash
+  - seqtk
+  - samtools
+  - bedtools
+  - blast
+  - muscle
+  - mafft
+  - python

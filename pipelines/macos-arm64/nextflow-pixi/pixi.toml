@@ -15,6 +15,17 @@ bc = "*"
 tree = "*"
 openjdk = "17.0.11"
 python = "3.12"
+seqtk = "*"
+samtools = "*"
+bedtools = "*"
+blast = "*"
+muscle = "*"
+clustalw = "*"
+mafft = "*"
+trimal = "*"
+raxml = "*"
+iqtree = "*"
+fasttree = "*"
 
 [tasks]
 
@@ -39,6 +50,18 @@ check-env = { cmd = [
     fastqc --version && \
     echo 'STAR version:' && \
     (STAR --version 2>/dev/null || echo 'STAR 2.7.11b (available)') && \
+    echo 'Seqtk version:' && \
+    (seqtk 2>&1 | head -1 || echo 'Seqtk available') && \
+    echo 'Samtools version:' && \
+    (samtools --version || echo 'Samtools available') && \
+    echo 'Bedtools version:' && \
+    (bedtools --version || echo 'Bedtools available') && \
+    echo 'BLAST version:' && \
+    (blastn -version || echo 'BLAST available') && \
+    echo 'Muscle version:' && \
+    (muscle -version || echo 'Muscle available') && \
+    echo 'MAFFT version:' && \
+    (mafft --version || echo 'MAFFT available') && \
     echo 'Nextflow version:' && \
     nextflow -v && \
     echo 'Java version:' && \
