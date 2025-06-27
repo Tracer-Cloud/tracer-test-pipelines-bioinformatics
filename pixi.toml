@@ -1,5 +1,5 @@
 [project]
-name = "tracer-test-pipelines-bioinformatics"
+name = "nextflow-test-pipelines"
 description = "Bioinformatics pipelines with Nextflow, Tracer, and Pixi"
 version = "0.1.0"
 authors = ["Tracer Cloud"]
