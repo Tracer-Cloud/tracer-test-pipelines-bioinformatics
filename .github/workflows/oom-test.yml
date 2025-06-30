@@ -35,14 +35,13 @@ jobs:
         run: |
           sudo $TRACER_BIN init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
-      - name: Install BioPython
+      - name: Install Python dependencies
         run: |
-          pip install biopython
+          pip install biopython numpy
 
-      - name: Run OOM-inducing script
+      - name: Run OOM-inducing Python
         run: |
-          cd pipelines/shared/out-of-memory-usecase
-          make test_out_of_memory_test
+          python3 pipelines/scripts/oom_test.py
 
       - name: Run Tracer Info
         run: |
