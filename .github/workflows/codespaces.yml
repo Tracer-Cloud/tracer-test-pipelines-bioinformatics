@@ -75,7 +75,7 @@ jobs:
 
       - name: Run tracer init
         run: |
-          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev false
 
       - name: Run pipeline with Conda
         working-directory: pipelines/codespaces/nextflow-conda
