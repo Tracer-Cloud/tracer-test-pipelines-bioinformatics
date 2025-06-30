@@ -115,7 +115,7 @@ runs:
         
         if [ -z "$PREVIEW_PROCESSES" ]; then
           echo "❌ ERROR: Could not find 'preview_processes' in tracer output"
-          echo "This might indicate the pipeline is not running or tracer output format has changed"
+          echo "This might indicate the pipeline cannot find any processes at all"
           exit 1
         fi
         
