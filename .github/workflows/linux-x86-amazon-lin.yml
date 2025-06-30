@@ -104,41 +104,11 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
-        run: |
-          echo "Searching for tracer binary..."
-          POSSIBLE_PATHS=(
-            "$HOME/bin/tracer"
-            "$HOME/.local/bin/tracer"
-            "$HOME/.tracerbio/bin/tracer"
-            "/usr/local/bin/tracer"
-            "/opt/tracer/bin/tracer"
-          )
-          TRACER_PATH=""
-          for path in "${POSSIBLE_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ Found tracer at: $path"
-              TRACER_PATH="$path"
-              break
-            else
-              echo "❌ Not found at: $path"
-            fi
-          done
-          if [ -z "$TRACER_PATH" ]; then
-            echo "Searching entire system for tracer binary..."
-            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_TRACER" ]; then
-              echo "✅ Found tracer at: $FOUND_TRACER"
-              TRACER_PATH="$FOUND_TRACER"
-            fi
-          fi
-          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-            echo "Running tracer info with: $TRACER_PATH"
-            sudo env "PATH=$PATH" "$TRACER_PATH" info
-          else
-            echo "❌ Tracer binary not found anywhere on the system"
-            echo "This might indicate the tracer installation failed"
-            echo "Continuing without tracer verification..."
-          fi
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,fastqc,salmon,samtools"
+          sleep_duration: "10"
+          use_sudo: "true"
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -250,9 +220,12 @@ jobs:
           fi
 
       - name: Verify tracer packages
-        if: steps.tracer_check.outputs.found == 'true'
-        run: |
-          tracer info
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,fastqc,salmon,samtools"
+          sleep_duration: "10"
+          use_sudo: "true"
+
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
