@@ -57,7 +57,9 @@ jobs:
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           echo "=== Running Nextflow Pipeline with Pixi ==="
-
+      - name: Verify tracer 2
+        run: |
+          sudo /root/.tracerbio/bin/tracer info
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
@@ -66,9 +68,7 @@ jobs:
           use_sudo: "true"
           binary: "${{ env.TRACER_BIO }}"
 
-      - name: Verify tracer 2
-        run: |
-          sudo /root/.tracerbio/bin/tracer info
+
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
