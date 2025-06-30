@@ -16,7 +16,6 @@ jobs:
   oom-test:
     runs-on: ubuntu-latest
     env:
-      PATH: /usr/local/bin:$PATH
       TRACER_PATH: $HOME/.tracerbio/bin/tracer
     steps:
       - name: Checkout code

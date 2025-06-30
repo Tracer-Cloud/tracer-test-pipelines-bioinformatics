@@ -66,6 +66,13 @@ jobs:
           echo "$HOME/bin" >> $GITHUB_PATH
           echo "/usr/local/bin" >> $GITHUB_PATH
 
+      - name: Show tracer binary path(s)
+        run: |
+          echo "Searching for tracer binary after install..."
+          find $HOME -name "tracer" -type f 2>/dev/null
+          which tracer || true
+          command -v tracer || true
+
       - name: Run tracer init
         run: |
           echo "Searching for tracer binary..."
@@ -201,6 +208,13 @@ jobs:
           fi
           echo "$HOME/bin" >> $GITHUB_PATH
           echo "/usr/local/bin" >> $GITHUB_PATH
+
+      - name: Show tracer binary path(s)
+        run: |
+          echo "Searching for tracer binary after install..."
+          find $HOME -name "tracer" -type f 2>/dev/null
+          which tracer || true
+          command -v tracer || true
 
       - name: Run tracer init
         run: |
