@@ -40,11 +40,9 @@ jobs:
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash && source ~/.bashrc
 
-      - name: Add tracer to PATH
-        run: echo "/root/.tracerbio/bin" >> $GITHUB_PATH
-
       - name: Run tracer init
         run: |
+          export PATH="/root/.tracerbio/bin:$PATH"
           tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Pixi
@@ -56,6 +54,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
+          export PATH="/root/.tracerbio/bin:$PATH"
           tracer info
 
       - name: Upload pipeline results
@@ -106,11 +105,9 @@ jobs:
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash && source ~/.bashrc
 
-      - name: Add tracer to PATH
-        run: echo "/root/.tracerbio/bin" >> $GITHUB_PATH
-
       - name: Run tracer init
         run: |
+          export PATH="/root/.tracerbio/bin:$PATH"
           tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Conda
@@ -122,6 +119,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
+          export PATH="/root/.tracerbio/bin:$PATH"
           tracer info
 
       - name: Upload pipeline results
