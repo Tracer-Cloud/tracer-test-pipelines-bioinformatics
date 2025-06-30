@@ -43,7 +43,7 @@ jobs:
 
       - name: Run tracer init
         run: |
-          /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Pixi
         working-directory: pipelines/linux-x86-ubuntu/nextflow-pixi
@@ -54,7 +54,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
-          /root/.tracerbio/bin/tracer info
+          sudo /root/.tracerbio/bin/tracer info
 
       # - name: Upload pipeline results
       #   uses: actions/upload-artifact@v4
