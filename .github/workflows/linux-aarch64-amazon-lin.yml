@@ -66,10 +66,10 @@ jobs:
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,FastQC,salmon,samtools"
+          required_processes: "STAR,FastQC,salmon,samtools sort"
           sleep_duration: "10"
           use_sudo: "true"
-          binary: "${{ env.TRACER_BIO }}"
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -129,10 +129,10 @@ jobs:
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,FastQC,salmon,samtools"
+          required_processes: "STAR,FastQC,salmon,samtools sort"
           sleep_duration: "10"
           use_sudo: "true"
-          binary: "${{ env.TRACER_BIO }}"
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
