@@ -12,7 +12,7 @@
 
 - Easy Installation: Simplified, automated installation scripts for quick setup
 
-- Fast Community Support: Open an issue for assistance, responses typically within 24 hours
+- Fast Community Support: Open an issue for assistance, we will try to get back to you within 24 hours
 
 - GitHub Codespaces Compatible: Effortlessly run examples directly in Codespaces 
 
