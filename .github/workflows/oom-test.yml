@@ -49,10 +49,35 @@ jobs:
 
       - name: Run tracer init
         run: |
-          if command -v tracer >/dev/null 2>&1; then
-            sudo env "PATH=$PATH" tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          echo "Searching for tracer binary..."
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ Found tracer at: $path"
+              TRACER_PATH="$path"
+              break
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            echo "Searching entire system for tracer binary..."
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              echo "✅ Found tracer at: $FOUND_TRACER"
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            echo "Running tracer init with: $TRACER_PATH"
+            sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
           else
-            echo "❌ Tracer binary not found in PATH"
+            echo "❌ Tracer binary not found anywhere on the system"
             echo "Skipping tracer init..."
           fi
 
@@ -67,9 +92,34 @@ jobs:
 
       - name: Run Tracer Info
         run: |
-          if command -v tracer >/dev/null 2>&1; then
-            sudo env "PATH=$PATH" tracer info
+          echo "Searching for tracer binary..."
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ Found tracer at: $path"
+              TRACER_PATH="$path"
+              break
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            echo "Searching entire system for tracer binary..."
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              echo "✅ Found tracer at: $FOUND_TRACER"
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            echo "Running tracer info with: $TRACER_PATH"
+            sudo env "PATH=$PATH" "$TRACER_PATH" info
           else
-            echo "❌ Tracer binary not found in PATH"
+            echo "❌ Tracer binary not found anywhere on the system"
             echo "Continuing without tracer verification..."
           fi
