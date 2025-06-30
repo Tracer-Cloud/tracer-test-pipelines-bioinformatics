@@ -17,6 +17,10 @@ inputs:
     description: 'Path to the tracer binary (if not provided, will search for it)'
     required: false
     default: ''
+  matches_name:
+    description: 'S3 bucket name to upload matches.txt to (optional - no upload if empty)'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -57,6 +61,19 @@ runs:
         echo "=== Waiting ${{ inputs.sleep_duration }} seconds for tracer to gather process information ==="
         sleep ${{ inputs.sleep_duration }}
 
+    - name: Configure AWS Credentials
+      if: inputs.matches_name != ''
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Upload to S3
+      if: inputs.matches_name != ''
+      run: |
+        aws s3 cp /tmp/tracer/matches.txt s3://${{ inputs.matches_name }}/${{ github.head_ref || github.ref_name }}/
+
     - name: Verify tracer processes
       shell: bash
       run: |
@@ -67,7 +84,7 @@ runs:
 
         # Run tracer info with or without sudo based on input
         if [ "${{ inputs.use_sudo }}" = "true" ]; then
-          TRACER_OUTPUT=$(sudo "$TRACER_CMD" info --json)
+          TRACER_OUTPUT=$(sudo $TRACER_CMD info --json)
         else
           TRACER_OUTPUT=$("$TRACER_CMD" info --json)
         fi
@@ -142,11 +159,3 @@ runs:
           echo "Missing: $(IFS=','; echo "${MISSING_PROCESSES[*]}")"
           exit 1
         fi
-
-    - name: Tracer not found
-      if: steps.find_tracer.outputs.found == 'false'
-      shell: bash
-      run: |
-        echo "❌ Tracer binary not found anywhere on the system"
-        echo "This might indicate the tracer installation failed"
-        echo "Continuing without tracer verification..."
