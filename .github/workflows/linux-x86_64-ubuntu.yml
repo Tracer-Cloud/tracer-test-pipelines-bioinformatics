@@ -107,10 +107,8 @@ jobs:
 
       - name: Install tracer
         run: |
-          curl -sSL https://install.tracer.cloud/ | sudo bash && source ~/.bashrc
-
-      - name: Add tracer to PATH
-        run: echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+          curl -sSL https://install.tracer.cloud/ | sudo bash
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
 
       - name: Run tracer init
         run: |

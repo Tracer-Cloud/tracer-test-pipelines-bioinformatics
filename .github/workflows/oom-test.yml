@@ -6,7 +6,6 @@ on:
   push:
     paths:
       - "pipelines/*"
-
   pull_request:
 
   schedule:
@@ -27,29 +26,13 @@ jobs:
           sudo apt-get install -y python3 python3-pip
 
       - name: Install Tracer
-        continue-on-error: true
         run: |
-          echo "Installing tracer..."
-          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
-          source ~/.bashrc 2>/dev/null || true
-          source ~/.bash_profile 2>/dev/null || true
-          source ~/.zshrc 2>/dev/null || true
-          echo "✅ Assuming tracer is at: $HOME/.tracerbio/bin/tracer"
-          mkdir -p ~/bin
-          ln -sf "$HOME/.tracerbio/bin/tracer" ~/bin/tracer
-          sudo ln -sf "$HOME/.tracerbio/bin/tracer" /usr/local/bin/tracer 2>/dev/null || echo "Could not create /usr/local/bin symlink"
-          echo "✅ Tracer installation completed (path: $HOME/.tracerbio/bin/tracer)"
-          echo "$HOME/bin" >> $GITHUB_PATH
-          echo "/usr/local/bin" >> $GITHUB_PATH
+          curl -sSL https://install.tracer.cloud/ | sudo bash
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
 
       - name: Run tracer init
         run: |
-          if [ -f "$TRACER_PATH" ]; then
-            sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
-          else
-            echo "❌ Tracer binary not found at $TRACER_PATH"
-            echo "Skipping tracer init..."
-          fi
+          sudo /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Install BioPython
         run: |
@@ -62,9 +45,4 @@ jobs:
 
       - name: Run Tracer Info
         run: |
-          if [ -f "$TRACER_PATH" ]; then
-            sudo env "PATH=$PATH" "$TRACER_PATH" info
-          else
-            echo "❌ Tracer binary not found at $TRACER_PATH"
-            echo "Continuing without tracer verification..."
-          fi
+          sudo /root/.tracerbio/bin/tracer info
