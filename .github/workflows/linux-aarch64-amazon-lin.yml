@@ -17,11 +17,7 @@ jobs:
       TRACER_BIO: /root/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
-      options: --pid=host --privileged --network=host
-      volumes:
-        - /tmp/tracer:/tmp/tracer
-        - /proc:/proc
-        - /sys:/sys
+      options: --pid=host --privileged --network=host -v /tmp/tracer:/tmp/tracer -v /proc:/proc -v /sys:/sys
     steps:
       - name: Install system dependencies
         run: |
@@ -95,11 +91,7 @@ jobs:
       TRACER_BIO: /root/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
-      options: --pid=host --privileged --network=host
-      volumes:
-        - /tmp/tracer:/tmp/tracer
-        - /proc:/proc
-        - /sys:/sys
+      options: --pid=host --privileged --network=host -v /tmp/tracer:/tmp/tracer -v /proc:/proc -v /sys:/sys
     steps:
       - name: Install system dependencies
         run: |
