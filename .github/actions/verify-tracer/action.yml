@@ -1,0 +1,154 @@
+name: 'Verify Tracer Packages'
+description: 'Verifies that required processes are present in tracer info output'
+inputs:
+  required_processes:
+    description: 'Comma-separated list of required processes to check for'
+    required: true
+    default: 'STAR,FQ'
+  sleep_duration:
+    description: 'Number of seconds to wait before checking tracer info'
+    required: false
+    default: '10'
+  use_sudo:
+    description: 'Whether to use sudo when running tracer commands'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Wait for tracer to gather process information
+      shell: bash
+      run: |
+        echo "=== Waiting ${{ inputs.sleep_duration }} seconds for tracer to gather process information ==="
+        sleep ${{ inputs.sleep_duration }}
+
+    - name: Find tracer binary
+      id: find_tracer
+      shell: bash
+      run: |
+        echo "Searching for tracer binary..."
+        POSSIBLE_PATHS=(
+          "$HOME/bin/tracer"
+          "$HOME/.local/bin/tracer"
+          "$HOME/.tracerbio/bin/tracer"
+          "/usr/local/bin/tracer"
+          "/opt/tracer/bin/tracer"
+        )
+        TRACER_PATH=""
+        for path in "${POSSIBLE_PATHS[@]}"; do
+          if [ -f "$path" ]; then
+            echo "✅ Found tracer at: $path"
+            TRACER_PATH="$path"
+            break
+          else
+            echo "❌ Not found at: $path"
+          fi
+        done
+        if [ -z "$TRACER_PATH" ]; then
+          echo "Searching entire system for tracer binary..."
+          FOUND_TRACER=$(find /Users/runner -name "tracer" -type f 2>/dev/null | head -1)
+          if [ -n "$FOUND_TRACER" ]; then
+            echo "✅ Found tracer at: $FOUND_TRACER"
+            TRACER_PATH="$FOUND_TRACER"
+          fi
+        fi
+        echo "tracer_path=$TRACER_PATH" >> $GITHUB_OUTPUT
+        if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+          echo "found=true" >> $GITHUB_OUTPUT
+        else
+          echo "found=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Verify tracer processes
+      if: steps.find_tracer.outputs.found == 'true'
+      shell: bash
+      run: |
+        TRACER_PATH="${{ steps.find_tracer.outputs.tracer_path }}"
+        echo "=== Running tracer info --json ==="
+        
+        # Run tracer info with or without sudo based on input
+        if [ "${{ inputs.use_sudo }}" = "true" ]; then
+          TRACER_OUTPUT=$(sudo env "PATH=$PATH" "$TRACER_PATH" info --json)
+        else
+          TRACER_OUTPUT=$("$TRACER_PATH" info --json)
+        fi
+        
+        echo "Tracer output:"
+        echo "$TRACER_OUTPUT"
+        
+        echo ""
+        echo "=== Verifying required processes ==="
+        
+        # Parse the preview_processes field from the JSON output
+        PREVIEW_PROCESSES=$(echo "$TRACER_OUTPUT" | jq -r '.run.preview_processes // empty')
+        
+        if [ -z "$PREVIEW_PROCESSES" ]; then
+          echo "❌ ERROR: Could not find 'preview_processes' in tracer output"
+          echo "This might indicate the pipeline is not running or tracer output format has changed"
+          exit 1
+        fi
+        
+        echo "Found preview_processes: $PREVIEW_PROCESSES"
+        
+        # Convert preview_processes to array (split by comma and trim whitespace)
+        IFS=',' read -ra PREVIEW_ARRAY <<< "$PREVIEW_PROCESSES"
+        PREVIEW_SET=()
+        for proc in "${PREVIEW_ARRAY[@]}"; do
+          # Trim whitespace and add to set
+          trimmed=$(echo "$proc" | xargs)
+          if [ -n "$trimmed" ]; then
+            PREVIEW_SET+=("$trimmed")
+          fi
+        done
+        
+        echo "Parsed preview processes: ${PREVIEW_SET[*]}"
+        
+        # Convert comma-separated REQUIRED_PROCESSES to array
+        IFS=',' read -ra REQUIRED_ARRAY <<< "${{ inputs.required_processes }}"
+        
+        # Check each required process (exact match, order-independent)
+        MISSING_PROCESSES=()
+        for required_process in "${REQUIRED_ARRAY[@]}"; do
+          # Trim whitespace
+          required_process=$(echo "$required_process" | xargs)
+          
+          # Check if this required process exists in the preview set
+          found=false
+          for preview_process in "${PREVIEW_SET[@]}"; do
+            if [ "$required_process" = "$preview_process" ]; then
+              found=true
+              break
+            fi
+          done
+          
+          if [ "$found" = true ]; then
+            echo "✅ Found required process: $required_process"
+          else
+            echo "❌ Missing required process: $required_process"
+            MISSING_PROCESSES+=("$required_process")
+          fi
+        done
+        
+        # Report results
+        if [ ${#MISSING_PROCESSES[@]} -eq 0 ]; then
+          echo ""
+          echo "🎉 SUCCESS: All required processes found in preview_processes"
+          echo "Required: ${{ inputs.required_processes }}"
+          echo "Found: $PREVIEW_PROCESSES"
+        else
+          echo ""
+          echo "❌ FAILURE: Missing required processes"
+          echo "Required: ${{ inputs.required_processes }}"
+          echo "Found: $PREVIEW_PROCESSES"
+          echo "Missing: $(IFS=','; echo "${MISSING_PROCESSES[*]}")"
+          exit 1
+        fi
+
+    - name: Tracer not found
+      if: steps.find_tracer.outputs.found == 'false'
+      shell: bash
+      run: |
+        echo "❌ Tracer binary not found anywhere on the system"
+        echo "This might indicate the tracer installation failed"
+        echo "Continuing without tracer verification..."
