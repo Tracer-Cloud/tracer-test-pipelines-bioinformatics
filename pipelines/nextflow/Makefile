@@ -1,6 +1,7 @@
 SHELL := bash
-ENV_DIR := $(abspath $(CURDIR)/..)
-CONFIG_DIR := $(abspath $(ENV_DIR)/config)
+
+BASEDIR := $(abspath $(CURDIR)/)
+CONFIG_DIR := $(BASEDIR)/config/
 
 .PHONY: check_prerequisites
 check_prerequisites:
@@ -9,17 +10,33 @@ check_prerequisites:
 		exit 1; \
 	fi
 
-.PHONY: test_rnaseq
-test_rnaseq: check_prerequisites
-	@nextflow run https://github.com/nf-core/rnaseq \
-		-profile test \
-		--outdir results
+.PHONY: test_sarek
+test_sarek:
+	@nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/sarek \
+		-params-file $(CONFIG_DIR)/sarek-params.json \
+		--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
+		-profile docker,arm,test
 
-.PHONY: test_rnaseq_full
-test_rnaseq_full: check_prerequisites
+.PHONY: test_rnaseq
+test_rnaseq:
 	@nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
 		-params-file $(CONFIG_DIR)/rnaseq-params.json \
+		--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
+		-profile test
+
+.PHONY: test_rnaseq_full
+test_rnaseq_full:
+	@nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/rnaseq \
+		-params-file $(CONFIG_DIR)/rnaseq-params.json \
+		--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
 		-profile test_full
+
+.PHONY: test_proteinfold
+test_proteinfold:
+	@nextflow -c $(CONFIG_DIR)/local.config run https://github.com/nf-core/proteinfold \
+		-params-file $(CONFIG_DIR)/proteinfold-params.json \
+		--multiqc_config $(CONFIG_DIR)/custom_multiqc_config.yml \
+		-profile docker,arm,test
 
 .PHONY: clean
 clean:
