@@ -57,6 +57,8 @@ jobs:
   codespaces-conda-test:
     name: Conda Pipeline Test
     runs-on: ubuntu-latest
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
 
