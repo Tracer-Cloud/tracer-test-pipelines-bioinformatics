@@ -17,6 +17,23 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install jq
+      shell: bash
+      run: |
+        if ! command -v jq &> /dev/null; then
+          echo "Installing jq..."
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install jq
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update && sudo apt-get install -y jq
+          else
+            echo "Unsupported OS: $RUNNER_OS"
+            exit 1
+          fi
+        else
+          echo "jq is already installed"
+        fi
+
     - name: Wait for tracer to gather process information
       shell: bash
       run: |

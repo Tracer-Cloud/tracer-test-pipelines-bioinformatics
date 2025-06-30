@@ -104,7 +104,7 @@ jobs:
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,fastqc,salmon,samtools"
+          required_processes: "STAR,FastQC,salmon,samtools"
           sleep_duration: "10"
           use_sudo: "true"
 
@@ -218,7 +218,7 @@ jobs:
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,fastqc,salmon,samtools"
+          required_processes: "STAR,FastQC,salmon,samtools"
           sleep_duration: "10"
           use_sudo: "true"
 
