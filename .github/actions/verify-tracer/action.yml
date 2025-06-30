@@ -25,7 +25,20 @@ runs:
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install jq
           elif [[ "$RUNNER_OS" == "Linux" ]]; then
-            sudo apt-get update && sudo apt-get install -y jq
+            # Detect which package manager is available
+            if command -v apt-get &> /dev/null; then
+              echo "Using apt-get (Debian/Ubuntu)..."
+              sudo apt-get update && sudo apt-get install -y jq
+            elif command -v yum &> /dev/null; then
+              echo "Using yum (Amazon Linux/RHEL/CentOS)..."
+              sudo yum install -y jq
+            elif command -v dnf &> /dev/null; then
+              echo "Using dnf (Fedora/newer RHEL)..."
+              sudo dnf install -y jq
+            else
+              echo "No supported package manager found (apt-get, yum, or dnf)"
+              exit 1
+            fi
           else
             echo "Unsupported OS: $RUNNER_OS"
             exit 1
