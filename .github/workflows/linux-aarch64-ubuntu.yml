@@ -13,6 +13,8 @@ jobs:
   linux-arm64-pixi:
     name: Pixi Pipeline
     runs-on: ubuntu-24.04-arm
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
 
@@ -68,6 +70,8 @@ jobs:
   linux-arm64-conda:
     name: Conda Pipeline
     runs-on: ubuntu-24.04-arm
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
 
