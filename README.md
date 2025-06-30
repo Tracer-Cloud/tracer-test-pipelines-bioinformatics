@@ -1,10 +1,22 @@
-# Tracer Linux Agent: Observability for Scientific HPC Workloads
+[![Linux aarch64 Ubuntu](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/linux-aarch64-ubuntu.yml?branch=main&label=linux-aarch64-ubuntu&logo=linux)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/linux-aarch64-ubuntu.yml) [![Linux x86_64 Ubuntu](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/linux-x86_64-ubuntu.yml?branch=main&label=linux-x86_64-ubuntu&logo=linux)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/linux-x86_64-ubuntu.yml) [![Linux aarch64 Amazon Linux](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/linux-aarch64-amazon-lin.yml?branch=main&label=linux-aarch64-amazon&logo=linux)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/linux-aarch64-amazon-lin.yml) [![Linux x86_64 Amazon Linux](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/linux-x86-amazon-lin.yml?branch=main&label=linux-x86_64-amazon&logo=linux)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/linux-x86-amazon-lin.yml) [![macOS ARM64](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/macos-arm64.yml?branch=main&label=macos-arm64&logo=apple)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/macos-arm64.yml) [![macOS Intel x86](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/macos-intel-x86.yml?branch=main&label=macos-intel-x86&logo=apple)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/macos-intel-x86.yml) [![Codespaces](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/codespaces.yml?branch=main&label=codespaces&logo=github)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/codespaces.yml)
 
-[![Docker Image](https://img.shields.io/docker/pulls/tracercloud/tracer?logo=docker&logoColor=white)](https://hub.docker.com/r/tracercloud/tracer) [![CI Status](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/docker-build-push.yml?branch=main&label=docker-build&logo=docker)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/docker-build-push.yml) [![Latest Binary Release](https://img.shields.io/github/v/release/Tracer-Cloud/tracer-client?logo=github&logoColor=white)](https://github.com/Tracer-Cloud/tracer-client/releases)
 
-## Test Pipelines CI Status
+[![Docker Image](https://img.shields.io/docker/pulls/tracercloud/tracer?logo=docker&logoColor=white)](https://hub.docker.com/r/tracercloud/tracer) [![CI Status](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/nextflow-test-pipelines/docker-build-push.yml?branch=main&label=docker-build&logo=docker)](https://github.com/Tracer-Cloud/nextflow-test-pipelines/actions/workflows/docker-build-push.yml) [![Latest Binary Release](https://img.shields.io/github/v/release/Tracer-Cloud/tracer-client?logo=github&logoColor=white)](https://github.com/Tracer-Cloud/tracer-client/releases)
 
-[![Linux aarch64 Ubuntu](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/linux-aarch64-ubuntu.yml?branch=main&label=linux-aarch64-ubuntu&logo=linux)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/linux-aarch64-ubuntu.yml) [![Linux x86_64 Ubuntu](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/linux-x86_64-ubuntu.yml?branch=main&label=linux-x86_64-ubuntu&logo=linux)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/linux-x86_64-ubuntu.yml) [![Linux aarch64 Amazon Linux](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/linux-aarch64-amazon-lin.yml?branch=main&label=linux-aarch64-amazon&logo=linux)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/linux-aarch64-amazon-lin.yml) [![Linux x86_64 Amazon Linux](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/linux-x86-amazon-lin.yml?branch=main&label=linux-x86_64-amazon&logo=linux)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/linux-x86-amazon-lin.yml) [![macOS ARM64](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/macos-arm64.yml?branch=main&label=macos-arm64&logo=apple)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/macos-arm64.yml) [![macOS Intel x86](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/macos-intel-x86.yml?branch=main&label=macos-intel-x86&logo=apple)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/macos-intel-x86.yml) [![Codespaces](https://img.shields.io/github/actions/workflow/status/Tracer-Cloud/tracer-test-pipelines-bioinformatics/codespaces.yml?branch=main&label=codespaces&logo=github)](https://github.com/Tracer-Cloud/tracer-test-pipelines-bioinformatics/actions/workflows/codespaces.yml)
+
+# Reliable Nextflow Pipelines with Tracer Observability
+
+- Reliable Nextflow pipelines: Fully-tested examples that run seamlessly across all environments
+
+- Automated CI/CD: Regularly validated pipelines guarantee consistent functionality
+
+- Easy Installation: Simplified, automated installation scripts for quick setup
+
+- Fast Community Support: Open an issue for assistance, someone will try to get back to you within 24 hours
+
+- GitHub Codespaces Compatible: Effortlessly run examples directly in Codespaces 
+
+
 
 ## Quickstart Tracer Sandbox
 
@@ -17,24 +29,47 @@ Get started instantly by visiting [sandbox.tracer.cloud](https://sandbox.tracer.
 Install Tracer on your operating system (one-time installation):
 
 ```bash
-curl -sSL https://install.tracer.cloud/ | bash && source ~/.bashrc
+curl -sSL https://install.tracer.cloud/ | TRACER_USER_ID="user_2y6EAfxS4kv5mMtFKNrxRm2ZFf5" bash -s && source ~/.bashrc && source ~/.zshrc
 ```
 
-### 2. Initialize Tracer
+### 2. Navigate to the correct git file
+
+Select your preferred tool for managing software environments and dependencies
+
+
+Pixi: 
+```bash
+cd /workspaces/nextflow-test-pipelines/pipelines/codespaces/nextflow-pixi
+```
+
+Conda:
+```bash
+cd /workspaces/nextflow-test-pipelines/pipelines/codespaces/nextflow-conda
+```
+
+### 3. Initialize Tracer
 
 Launch Tracer by running: (Root privileges required)
 
 ```bash
-sudo tracer init
+tracer init
 ```
 
-### 3. Choose a Pipeline
+### 4. Run pipeline
+We have pre-installed some pipelines in the Codespaces for you to run.
 
-We provide several ready-to-use pipelines for different environments in the [pipelines](./pipelines/) directory. Navigate to the pipelines directory and follow the README instructions to choose and run a pipeline suitable for your environment.
+We would recommend to start with a simple rnaseq pipeline in Nextflow:
+```bash
+./run.sh
+```
+Other pipelines, written in Bash, Nextflow, WDL, and CWL can be found under the pipelines files
+
+Play around with the other pipelines, have fun!
+
 
 ## Monitor your Pipeline
 
-Track your pipeline's progress through the Tracer monitoring dashboard, accessible via the 'Open Grafana Dashboard' button.
+Track your pipeline's progress through the Tracer monitoring dashboard, accessible via the 'Open Grafana Dashboard' button in the Onboarding.
 
 The dashboard provides real-time insights into:
 

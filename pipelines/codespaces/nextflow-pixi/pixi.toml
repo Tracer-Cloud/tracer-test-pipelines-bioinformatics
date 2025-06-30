@@ -24,7 +24,7 @@ bwa = "*"
 
 [tasks]
 pipeline = "nextflow -log logs/nextflow.log run main.nf --outdir results"
-check-env = "echo '=== Pixi Environment Check ===' && java -version && echo 'Nextflow version:' && nextflow -v && echo 'FastQC version:' && fastqc --version && echo 'STAR version:' && STAR --version && echo 'Samtools version:' && samtools --version && echo 'BWA version:' && bwa && echo '=== Environment Ready ==='"
+check-env = "bash -c 'echo \"=== Pixi Environment Check ===\"; echo \"Java version:\"; java -version; echo \"\"; echo \"Nextflow version:\"; nextflow -v; echo \"\"; echo \"FastQC version:\"; fastqc --version; echo \"\"; echo \"STAR version:\"; STAR --version && echo \"Samtools version:\"; samtools sort --version && echo \"BWA version:\"; bwa && echo \"=== Environment Ready ===\"'"
 clean = "rm -rf results logs work test_results custom_results && rm -f .nextflow* && echo 'Cleaned up all results and logs'"
 dev = "echo '=== Development Workflow ===' && pixi run clean && pixi run check-env && pixi run pipeline && echo '=== Development Workflow Complete ==='"
 versions = "pixi run pipeline"

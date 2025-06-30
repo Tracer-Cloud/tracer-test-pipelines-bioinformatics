@@ -61,7 +61,7 @@ Pipeline logs and metrics will appear in your Tracer observability dashboard (if
 
 ```bash
 sudo su - ubuntu
-cd tracer-test-pipelines-bioinformatics
+cd nextflow-test-pipelines
 ```
 
 3. Initialize the pipeline:

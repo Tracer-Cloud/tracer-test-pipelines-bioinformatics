@@ -40,11 +40,11 @@ RUN wget -q https://github.com/nextflow-io/nextflow/releases/download/v24.04.2/n
 
 # Clone test pipelines
 WORKDIR /root
-RUN git clone https://github.com/tracer-cloud/tracer-test-pipelines-bioinformatics.git && \
-    git config --global --add safe.directory /root/tracer-test-pipelines-bioinformatics
+RUN git clone https://github.com/tracer-cloud/nextflow-test-pipelines.git && \
+    git config --global --add safe.directory /root/nextflow-test-pipelines
 
 # Initialize conda environment
-# RUN cd /root/tracer-test-pipelines-bioinformatics/pipelines/macos-arm64/nextflow-conda && \
+# RUN cd /root/nextflow-test-pipelines/pipelines/macos-arm64/nextflow-conda && \
 #     conda env create -f environment.yml && \
 #     conda clean -afy && \
 #     mkdir -p test_data results && \
@@ -58,7 +58,7 @@ ENV PATH="/root/.pixi/bin:${PATH}"
 # Auto-update on entry
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'set -e' >> /usr/local/bin/entrypoint.sh && \
-    echo 'cd /root/tracer-test-pipelines-bioinformatics && git pull || true' >> /usr/local/bin/entrypoint.sh && \
+    echo 'cd /root/nextflow-test-pipelines && git pull || true' >> /usr/local/bin/entrypoint.sh && \
     echo 'curl -fsSL https://install.tracer.cloud/ -o /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \
     echo 'head -20 /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \
     echo 'bash /tmp/install.sh' >> /usr/local/bin/entrypoint.sh && \

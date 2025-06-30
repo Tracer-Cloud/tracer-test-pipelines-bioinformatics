@@ -7,19 +7,19 @@ on:
       - "pipelines/linux-x86-amazon-linux/**"
       - ".github/workflows/linux-x86-amazon-lin.yml"
   schedule:
-    - cron: "0 11 * * *" # Daily at 11:00 UTC
+    - cron: "0 11 * * *"
 
 jobs:
   linux-x86-amazon-pixi:
     name: Pixi Pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
       - name: Install system dependencies
         run: |
           yum update -y
-          yum install -y curl wget git bash which sudo tar gzip --allowerasing
+          yum install -y wget git bash which sudo tar gzip --allowerasing
 
       - uses: actions/checkout@v4
 
@@ -60,7 +60,6 @@ jobs:
           fi
           echo "$HOME/bin" >> $GITHUB_PATH
           echo "/usr/local/bin" >> $GITHUB_PATH
-
       - name: Run tracer init
         run: |
           echo "Searching for tracer binary..."
@@ -121,14 +120,14 @@ jobs:
 
   linux-x86-amazon-conda:
     name: Conda Pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
       - name: Install system dependencies
         run: |
           yum update -y
-          yum install -y curl wget git bash which sudo bzip2 tar gzip --allowerasing
+          yum install -y wget git bash which sudo bzip2 tar gzip --allowerasing
 
       - uses: actions/checkout@v4
 
