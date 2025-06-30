@@ -46,7 +46,7 @@ jobs:
           curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
       - name: Run tracer init
         run: |
-          sudo /github/home/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Pixi
         working-directory: pipelines/linux-x86-amazon-linux/nextflow-pixi
