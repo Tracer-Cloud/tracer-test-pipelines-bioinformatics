@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TRACER_PATH: $HOME/.tracerbio/bin/tracer
+      TRACER_BIN: /root/.tracerbio/bin/tracer
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
 
       - name: Run tracer init
         run: |
-          sudo /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo $TRACER_BIN init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Install BioPython
         run: |
@@ -40,9 +41,8 @@ jobs:
 
       - name: Run OOM-inducing script
         run: |
-          python -c "a = []\ntry:\n  while True: a.append('A'*10**7)\nexcept MemoryError:\n  print('OOM triggered')"
-        continue-on-error: true
+          python -c "a = []; import time; while True: a.append('A'*10**8)"
 
       - name: Run Tracer Info
         run: |
-          sudo /root/.tracerbio/bin/tracer info
+          sudo $TRACER_BIN info
