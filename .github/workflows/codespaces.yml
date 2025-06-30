@@ -72,10 +72,18 @@ jobs:
         continue-on-error: true
         run: |
           curl -sSL https://install.tracer.cloud | sudo bash
+          # Verify tracer installation
+          if command -v tracer >/dev/null 2>&1; then
+            echo "✅ Tracer installed successfully"
+            tracer --version || echo "Tracer version check failed"
+          else
+            echo "❌ Tracer installation failed"
+            exit 1
+          fi
 
       - name: Run tracer init
         run: |
-          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev false
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Conda
         working-directory: pipelines/codespaces/nextflow-conda
