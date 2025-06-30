@@ -67,7 +67,7 @@ runs:
 
         # Run tracer info with or without sudo based on input
         if [ "${{ inputs.use_sudo }}" = "true" ]; then
-          TRACER_OUTPUT=$(sudo env "PATH=$PATH" "$TRACER_CMD" info --json)
+          TRACER_OUTPUT=$(sudo $TRACER_CMD info --json)
         else
           TRACER_OUTPUT=$("$TRACER_CMD" info --json)
         fi
