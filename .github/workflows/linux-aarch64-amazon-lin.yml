@@ -42,6 +42,9 @@ jobs:
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           pixi install || true
+      - name: Install Tracer dependencies
+        run: |
+          sudo apt-get install -y build-essential pkg-config libelf1 libelf-dev zlib1g-dev llvm clang
 
       - name: Install tracer
         continue-on-error: true
@@ -150,6 +153,10 @@ jobs:
           export PATH="$HOME/miniconda/bin:$PATH"
           conda env update -f environment-minimal.yml || true
           source "$HOME/.bashrc"
+
+      - name: Install Tracer dependencies
+        run: |
+          sudo apt-get install -y build-essential pkg-config libelf1 libelf-dev zlib1g-dev llvm clang
 
       - name: Install tracer
         continue-on-error: true
