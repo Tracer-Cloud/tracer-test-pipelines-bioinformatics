@@ -14,7 +14,7 @@ jobs:
     name: Pixi Pipeline
     runs-on: ubuntu-latest
     steps:
-      # - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       # - name: Install Pixi
       #   run: |
@@ -40,6 +40,11 @@ jobs:
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash
           echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+
+      - name: Add tracer to PATH
+        run: |
+          export PATH="/root/.tracerbio/bin:$PATH"
+          echo "PATH updated for tracer"
 
       - name: Run tracer init
         run: |
