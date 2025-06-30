@@ -40,6 +40,7 @@ jobs:
           pip install biopython numpy
 
       - name: Run OOM-inducing Python
+        continue-on-error: true
         run: |
           python3 pipelines/scripts/oom_test.py
 

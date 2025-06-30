@@ -44,7 +44,7 @@ jobs:
           curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
       - name: Run tracer init
         run: |
-          sudo /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo /github/home/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Pixi
         working-directory: pipelines/linux-x86-amazon-linux/nextflow-pixi
@@ -55,7 +55,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
-          sudo /root/.tracerbio/bin/tracer info
+          sudo /github/home/.tracerbio/bin/tracer info
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -99,7 +99,7 @@ jobs:
 
       - name: Run tracer init
         run: |
-          sudo /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo /github/home/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
       - name: Run pipeline with Conda
         working-directory: pipelines/linux-x86-amazon-linux/nextflow-conda
         run: |
@@ -109,7 +109,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
-          sudo /root/.tracerbio/bin/tracer info
+          sudo /github/home/.tracerbio/bin/tracer info
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
