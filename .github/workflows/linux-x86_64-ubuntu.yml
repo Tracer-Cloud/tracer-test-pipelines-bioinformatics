@@ -39,7 +39,9 @@ jobs:
       - name: Install tracer
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash && source ~/.bashrc
-          echo "$HOME/.tracerbio/bin" >> $GITHUB_PATH
+
+      - name: Add tracer to PATH
+        run: echo "/root/.tracerbio/bin" >> $GITHUB_PATH
 
       - name: Run tracer init
         run: |
@@ -103,7 +105,9 @@ jobs:
       - name: Install tracer
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash && source ~/.bashrc
-          echo "$HOME/.tracerbio/bin" >> $GITHUB_PATH
+
+      - name: Add tracer to PATH
+        run: echo "/root/.tracerbio/bin" >> $GITHUB_PATH
 
       - name: Run tracer init
         run: |
