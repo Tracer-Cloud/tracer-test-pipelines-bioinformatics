@@ -66,6 +66,10 @@ jobs:
           use_sudo: "true"
           binary: "${{ env.TRACER_BIO }}"
 
+      - name: Verify tracer 2
+        run: |
+          sudo /root/.tracerbio/bin/tracer info
+
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
         if: always()
