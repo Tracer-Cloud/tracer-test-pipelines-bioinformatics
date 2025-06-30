@@ -41,7 +41,7 @@ jobs:
 
       - name: Run OOM-inducing script
         run: |
-          make shared/out-of-memory-usecase/test_out_of_memory_test"
+          make shared/out-of-memory-usecase/test_out_of_memory_test
 
       - name: Run Tracer Info
         run: |
