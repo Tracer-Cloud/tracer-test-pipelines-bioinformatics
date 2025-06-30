@@ -41,7 +41,8 @@ jobs:
 
       - name: Run OOM-inducing script
         run: |
-          make -C pipelines/shared/out-of-memory-usecase test_out_of_memory_test
+          cd pipelines/shared/out-of-memory-usecase
+          make test_out_of_memory_test
 
       - name: Run Tracer Info
         run: |
