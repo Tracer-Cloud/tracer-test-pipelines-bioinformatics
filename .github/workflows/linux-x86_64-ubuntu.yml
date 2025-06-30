@@ -64,7 +64,7 @@ jobs:
           required_processes: "STAR,FastQC,salmon,samtools"
           sleep_duration: "10"
           use_sudo: "true"
-          tracer_binary: "${{ env.TRACER_BIO }}"
+          binary: "${{ env.TRACER_BIO }}"
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -134,7 +134,7 @@ jobs:
           required_processes: "STAR,FastQC,salmon,samtools"
           sleep_duration: "10"
           use_sudo: "true"
-          tracer_binary: "${{ env.TRACER_BIO }}"
+          binary: "${{ env.TRACER_BIO }}"
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4

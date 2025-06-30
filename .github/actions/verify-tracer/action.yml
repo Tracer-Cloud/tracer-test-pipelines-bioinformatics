@@ -13,6 +13,10 @@ inputs:
     description: 'Whether to use sudo when running tracer commands'
     required: false
     default: 'false'
+  binary:
+    description: 'Path to the tracer binary (if not provided, will search for it)'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -53,55 +57,19 @@ runs:
         echo "=== Waiting ${{ inputs.sleep_duration }} seconds for tracer to gather process information ==="
         sleep ${{ inputs.sleep_duration }}
 
-    - name: Find tracer binary
-      id: find_tracer
-      shell: bash
-      run: |
-        echo "Searching for tracer binary..."
-        POSSIBLE_PATHS=(
-          "$HOME/bin/tracer"
-          "$HOME/.local/bin/tracer"
-          "$HOME/.tracerbio/bin/tracer"
-          "/usr/local/bin/tracer"
-          "/opt/tracer/bin/tracer"
-        )
-        TRACER_PATH=""
-        for path in "${POSSIBLE_PATHS[@]}"; do
-          if [ -f "$path" ]; then
-            echo "✅ Found tracer at: $path"
-            TRACER_PATH="$path"
-            break
-          else
-            echo "❌ Not found at: $path"
-          fi
-        done
-        if [ -z "$TRACER_PATH" ]; then
-          echo "Searching entire system for tracer binary..."
-          FOUND_TRACER=$(find /Users/runner -name "tracer" -type f 2>/dev/null | head -1)
-          if [ -n "$FOUND_TRACER" ]; then
-            echo "✅ Found tracer at: $FOUND_TRACER"
-            TRACER_PATH="$FOUND_TRACER"
-          fi
-        fi
-        echo "tracer_path=$TRACER_PATH" >> $GITHUB_OUTPUT
-        if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-          echo "found=true" >> $GITHUB_OUTPUT
-        else
-          echo "found=false" >> $GITHUB_OUTPUT
-        fi
-
     - name: Verify tracer processes
-      if: steps.find_tracer.outputs.found == 'true'
       shell: bash
       run: |
-        TRACER_PATH="${{ steps.find_tracer.outputs.tracer_path }}"
         echo "=== Running tracer info --json ==="
-        
+
+        # Use provided binary path or default tracer command
+        TRACER_CMD="${{ inputs.binary }}"
+
         # Run tracer info with or without sudo based on input
         if [ "${{ inputs.use_sudo }}" = "true" ]; then
-          TRACER_OUTPUT=$(sudo env "PATH=$PATH" "$TRACER_PATH" info --json)
+          TRACER_OUTPUT=$(sudo env "PATH=$PATH" "$TRACER_CMD" info --json)
         else
-          TRACER_OUTPUT=$("$TRACER_PATH" info --json)
+          TRACER_OUTPUT=$("$TRACER_CMD" info --json)
         fi
         
         echo "Tracer output:"
