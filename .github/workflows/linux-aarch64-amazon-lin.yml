@@ -156,7 +156,7 @@ jobs:
 
       - name: Install Tracer dependencies
         run: |
-          sudo apt-get install -y build-essential pkg-config libelf1 libelf-dev zlib1g-dev llvm clang
+          dnf install -y gcc gcc-c++ make pkgconfig elfutils-libelf-devel zlib-devel llvm clang
 
       - name: Install tracer
         continue-on-error: true
