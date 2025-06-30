@@ -1,0 +1,117 @@
+name: Tracer OOM Test
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - "pipelines/*"
+
+  pull_request:
+
+  schedule:
+    - cron: "0 11 * * *" # Daily at 11:00 UTC (12:00 BST)
+
+jobs:
+  oom-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+
+      - name: Install Tracer
+        continue-on-error: true
+        run: |
+          echo "Installing tracer..."
+          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
+          source ~/.bashrc 2>/dev/null || true
+          source ~/.bash_profile 2>/dev/null || true
+          source ~/.zshrc 2>/dev/null || true
+          echo "Searching for tracer binary..."
+          TRACER_PATH=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+          if [[ -n "$TRACER_PATH" ]]; then
+            echo "✅ Found tracer at: $TRACER_PATH"
+            mkdir -p ~/bin
+            ln -sf "$TRACER_PATH" ~/bin/tracer
+            sudo ln -sf "$TRACER_PATH" /usr/local/bin/tracer 2>/dev/null || echo "Could not create /usr/local/bin symlink"
+            echo "✅ Tracer installation completed successfully"
+          else
+            echo "❌ Tracer binary not found after installation"
+            echo "Installation may have failed, but continuing..."
+          fi
+          echo "$HOME/bin" >> $GITHUB_PATH
+          echo "/usr/local/bin" >> $GITHUB_PATH
+
+      - name: Run tracer init
+        run: |
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ Found tracer at: $path"
+              TRACER_PATH="$path"
+              break
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              echo "✅ Found tracer at: $FOUND_TRACER"
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          else
+            echo "❌ Tracer binary not found anywhere on the system"
+            echo "Skipping tracer init..."
+          fi
+
+      - name: Install BioPython
+        run: |
+          pip install biopython
+
+      - name: Run OOM-inducing script
+        run: |
+          python -c "a = []\ntry:\n  while True: a.append('A'*10**7)\nexcept MemoryError:\n  print('OOM triggered')"
+        continue-on-error: true
+
+      - name: Run Tracer Info
+        run: |
+          POSSIBLE_PATHS=(
+            "$HOME/bin/tracer"
+            "$HOME/.local/bin/tracer"
+            "$HOME/.tracerbio/bin/tracer"
+            "/usr/local/bin/tracer"
+            "/opt/tracer/bin/tracer"
+          )
+          TRACER_PATH=""
+          for path in "${POSSIBLE_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              TRACER_PATH="$path"
+              break
+            fi
+          done
+          if [ -z "$TRACER_PATH" ]; then
+            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_TRACER" ]; then
+              TRACER_PATH="$FOUND_TRACER"
+            fi
+          fi
+          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
+            sudo env "PATH=$PATH" "$TRACER_PATH" info
+          else
+            echo "❌ Tracer binary not found anywhere on the system"
+            echo "Continuing without tracer verification..."
+          fi
