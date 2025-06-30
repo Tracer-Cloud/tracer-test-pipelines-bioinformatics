@@ -6,15 +6,16 @@
 
 # Reliable Nextflow Pipelines with Tracer Observability
 
-- Reliable Nextflow pipelines: Fully-tested examples that run seamlessly across all environments
+- Reliable Nextflow pipelines: Fully-tested examples that run seamlessly across all environments.
 
-- Automated CI/CD: Regularly validated pipelines guarantee consistent functionality
+- Automated CI/CD: Regularly validated pipelines guarantee consistent functionality.
 
-- Easy Installation: Simplified, automated installation scripts for quick setup
+- Easy Installation: Simplified, automated installation scripts for quick setup.
 
-- Fast Community Support: Open an issue for assistance—responses typically within 24 hours
+- Fast Community Support: Open an issue for assistance—responses typically within 24 hours.
 
-- Github Codespaces compatible
+- GitHub Codespaces Compatible: Effortlessly run examples directly in Codespaces 
+
 
 
 ## Quickstart Tracer Sandbox
