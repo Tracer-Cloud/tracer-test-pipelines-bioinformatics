@@ -13,6 +13,8 @@ jobs:
   codespaces-pixi-test:
     name: Pixi Pipeline Test
     runs-on: ubuntu-latest
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
       - name: Cache Pixi environment
@@ -26,60 +28,11 @@ jobs:
       - name: Install tracer
         continue-on-error: true
         run: |
-          echo "Installing tracer..."
           curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
-          source ~/.bashrc 2>/dev/null || true
-          source ~/.bash_profile 2>/dev/null || true
-          source ~/.zshrc 2>/dev/null || true
-          echo "Searching for tracer binary..."
-          TRACER_PATH=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
-          if [[ -n "$TRACER_PATH" ]]; then
-            echo "✅ Found tracer at: $TRACER_PATH"
-            mkdir -p ~/bin
-            ln -sf "$TRACER_PATH" ~/bin/tracer
-            sudo ln -sf "$TRACER_PATH" /usr/local/bin/tracer 2>/dev/null || echo "Could not create /usr/local/bin symlink"
-            echo "✅ Tracer installation completed successfully"
-          else
-            echo "❌ Tracer binary not found after installation"
-            echo "Installation may have failed, but continuing..."
-          fi
-          echo "$HOME/bin" >> $GITHUB_PATH
-          echo "/usr/local/bin" >> $GITHUB_PATH
 
       - name: Run tracer init
         run: |
-          echo "Searching for tracer binary..."
-          POSSIBLE_PATHS=(
-            "$HOME/bin/tracer"
-            "$HOME/.local/bin/tracer"
-            "$HOME/.tracerbio/bin/tracer"
-            "/usr/local/bin/tracer"
-            "/opt/tracer/bin/tracer"
-          )
-          TRACER_PATH=""
-          for path in "${POSSIBLE_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ Found tracer at: $path"
-              TRACER_PATH="$path"
-              break
-            fi
-          done
-          if [ -z "$TRACER_PATH" ]; then
-            echo "Searching entire system for tracer binary..."
-            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_TRACER" ]; then
-              echo "✅ Found tracer at: $FOUND_TRACER"
-              TRACER_PATH="$FOUND_TRACER"
-            fi
-          fi
-          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-            echo "Running tracer init with: $TRACER_PATH"
-            sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
-          else
-            echo "❌ Tracer binary not found anywhere on the system"
-            echo "This might indicate the tracer installation failed"
-            echo "Skipping tracer init..."
-          fi
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Pixi
         working-directory: pipelines/codespaces/nextflow-pixi
@@ -90,41 +43,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
-          echo "Searching for tracer binary..."
-          POSSIBLE_PATHS=(
-            "$HOME/bin/tracer"
-            "$HOME/.local/bin/tracer"
-            "$HOME/.tracerbio/bin/tracer"
-            "/usr/local/bin/tracer"
-            "/opt/tracer/bin/tracer"
-          )
-          TRACER_PATH=""
-          for path in "${POSSIBLE_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ Found tracer at: $path"
-              TRACER_PATH="$path"
-              break
-            else
-              echo "❌ Not found at: $path"
-            fi
-          done
-          if [ -z "$TRACER_PATH" ]; then
-            echo "Searching entire system for tracer binary..."
-            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_TRACER" ]; then
-              echo "✅ Found tracer at: $FOUND_TRACER"
-              TRACER_PATH="$FOUND_TRACER"
-            fi
-          fi
-          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-            echo "Running tracer info with: $TRACER_PATH"
-            sudo env "PATH=$PATH" "$TRACER_PATH" info
-          else
-            echo "❌ Tracer binary not found anywhere on the system"
-            echo "This might indicate the tracer installation failed"
-            echo "Continuing without tracer verification..."
-          fi
-
+          sudo $TRACER_BIO info
       - name: Upload pixi pipeline results
         uses: actions/upload-artifact@v4
         if: always()
@@ -152,60 +71,11 @@ jobs:
       - name: Install tracer
         continue-on-error: true
         run: |
-          echo "Installing tracer..."
           curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
-          source ~/.bashrc 2>/dev/null || true
-          source ~/.bash_profile 2>/dev/null || true
-          source ~/.zshrc 2>/dev/null || true
-          echo "Searching for tracer binary..."
-          TRACER_PATH=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
-          if [[ -n "$TRACER_PATH" ]]; then
-            echo "✅ Found tracer at: $TRACER_PATH"
-            mkdir -p ~/bin
-            ln -sf "$TRACER_PATH" ~/bin/tracer
-            sudo ln -sf "$TRACER_PATH" /usr/local/bin/tracer 2>/dev/null || echo "Could not create /usr/local/bin symlink"
-            echo "✅ Tracer installation completed successfully"
-          else
-            echo "❌ Tracer binary not found after installation"
-            echo "Installation may have failed, but continuing..."
-          fi
-          echo "$HOME/bin" >> $GITHUB_PATH
-          echo "/usr/local/bin" >> $GITHUB_PATH
 
       - name: Run tracer init
         run: |
-          echo "Searching for tracer binary..."
-          POSSIBLE_PATHS=(
-            "$HOME/bin/tracer"
-            "$HOME/.local/bin/tracer"
-            "$HOME/.tracerbio/bin/tracer"
-            "/usr/local/bin/tracer"
-            "/opt/tracer/bin/tracer"
-          )
-          TRACER_PATH=""
-          for path in "${POSSIBLE_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ Found tracer at: $path"
-              TRACER_PATH="$path"
-              break
-            fi
-          done
-          if [ -z "$TRACER_PATH" ]; then
-            echo "Searching entire system for tracer binary..."
-            FOUND_TRACER=$(find $HOME -name "tracer" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_TRACER" ]; then
-              echo "✅ Found tracer at: $FOUND_TRACER"
-              TRACER_PATH="$FOUND_TRACER"
-            fi
-          fi
-          if [ -n "$TRACER_PATH" ] && [ -f "$TRACER_PATH" ]; then
-            echo "Running tracer init with: $TRACER_PATH"
-            sudo env "PATH=$PATH" "$TRACER_PATH" init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
-          else
-            echo "❌ Tracer binary not found anywhere on the system"
-            echo "This might indicate the tracer installation failed"
-            echo "Skipping tracer init..."
-          fi
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Conda
         working-directory: pipelines/codespaces/nextflow-conda
@@ -214,20 +84,9 @@ jobs:
           echo "=== Running Codespaces Conda Pipeline ==="
           ./run.sh
 
-      - name: Check for tracer binary
-        id: tracer_check
-        run: |
-          if command -v tracer >/dev/null 2>&1; then
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "found=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Verify tracer packages
-        if: steps.tracer_check.outputs.found == 'true'
         run: |
-          tracer info
-
+          sudo $TRACER_BIO info
       - name: Upload conda pipeline results
         uses: actions/upload-artifact@v4
         if: always()
