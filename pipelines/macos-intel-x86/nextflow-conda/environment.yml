@@ -11,3 +11,5 @@ dependencies:
   - coreutils=9.1
   - bc
   - STAR=2.7.11b
+  - bedtools
+  - multiqc=1.16.0
