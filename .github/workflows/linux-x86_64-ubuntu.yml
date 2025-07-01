@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "pipelines/linux-x86-ubuntu/nextflow-pixi/**"
+      - "pipelines/linux-x86-ubuntu/nextflow-conda/**"
       - ".github/workflows/linux-x86_64-ubuntu.yml"
   schedule:
     - cron: "0 11 * * *" # Daily at 11:00 UTC
