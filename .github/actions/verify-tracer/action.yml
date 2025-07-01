@@ -1,0 +1,163 @@
+name: 'Verify Tracer Packages'
+description: 'Verifies that required processes are present in tracer info output'
+inputs:
+  required_processes:
+    description: 'Comma-separated list of required processes to check for'
+    required: true
+    default: 'STAR,FQ'
+  sleep_duration:
+    description: 'Number of seconds to wait before checking tracer info'
+    required: false
+    default: '10'
+  use_sudo:
+    description: 'Whether to use sudo when running tracer commands'
+    required: false
+    default: 'false'
+  binary:
+    description: 'Path to the tracer binary (if not provided, will search for it)'
+    required: false
+    default: ''
+  matches_name:
+    description: 'S3 bucket name to upload matches.txt to (optional - no upload if empty)'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install jq
+      shell: bash
+      run: |
+        if ! command -v jq &> /dev/null; then
+          echo "Installing jq..."
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install jq
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            # Detect which package manager is available
+            if command -v apt-get &> /dev/null; then
+              echo "Using apt-get (Debian/Ubuntu)..."
+              sudo apt-get update && sudo apt-get install -y jq
+            elif command -v yum &> /dev/null; then
+              echo "Using yum (Amazon Linux/RHEL/CentOS)..."
+              sudo yum install -y jq
+            elif command -v dnf &> /dev/null; then
+              echo "Using dnf (Fedora/newer RHEL)..."
+              sudo dnf install -y jq
+            else
+              echo "No supported package manager found (apt-get, yum, or dnf)"
+              exit 1
+            fi
+          else
+            echo "Unsupported OS: $RUNNER_OS"
+            exit 1
+          fi
+        else
+          echo "jq is already installed"
+        fi
+
+    - name: Wait for tracer to gather process information
+      shell: bash
+      run: |
+        echo "=== Waiting ${{ inputs.sleep_duration }} seconds for tracer to gather process information ==="
+        sleep ${{ inputs.sleep_duration }}
+
+    - name: Configure AWS Credentials
+      if: inputs.matches_name != ''
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Upload to S3
+      if: inputs.matches_name != ''
+      shell: bash
+      run: |
+        aws s3 cp /tmp/tracer/matches.txt s3://tracer-matching-debug/${{ inputs.matches_name }}/
+
+    - name: Verify tracer processes
+      shell: bash
+      run: |
+        echo "=== Running tracer info --json ==="
+
+        # Use provided binary path or default tracer command
+        TRACER_CMD="${{ inputs.binary }}"
+
+        # Run tracer info with or without sudo based on input
+        if [ "${{ inputs.use_sudo }}" = "true" ]; then
+          TRACER_OUTPUT=$(sudo $TRACER_CMD info --json)
+        else
+          TRACER_OUTPUT=$("$TRACER_CMD" info --json)
+        fi
+        
+        echo "Tracer output:"
+        echo "$TRACER_OUTPUT"
+        
+        echo ""
+        echo "=== Verifying required processes ==="
+        
+        # Parse the preview_processes field from the JSON output
+        PREVIEW_PROCESSES=$(echo "$TRACER_OUTPUT" | jq -r '.run.preview_processes // empty')
+        
+        if [ -z "$PREVIEW_PROCESSES" ]; then
+          echo "❌ ERROR: Could not find 'preview_processes' in tracer output"
+          echo "This might indicate the pipeline cannot find any processes at all"
+          exit 1
+        fi
+        
+        echo "Found preview_processes: $PREVIEW_PROCESSES"
+        
+        # Convert preview_processes to array (split by comma and trim whitespace)
+        IFS=',' read -ra PREVIEW_ARRAY <<< "$PREVIEW_PROCESSES"
+        PREVIEW_SET=()
+        for proc in "${PREVIEW_ARRAY[@]}"; do
+          # Trim whitespace and add to set
+          trimmed=$(echo "$proc" | xargs)
+          if [ -n "$trimmed" ]; then
+            PREVIEW_SET+=("$trimmed")
+          fi
+        done
+        
+        echo "Parsed preview processes: ${PREVIEW_SET[*]}"
+        
+        # Convert comma-separated REQUIRED_PROCESSES to array
+        IFS=',' read -ra REQUIRED_ARRAY <<< "${{ inputs.required_processes }}"
+        
+        # Check each required process (exact match, order-independent)
+        MISSING_PROCESSES=()
+        for required_process in "${REQUIRED_ARRAY[@]}"; do
+          # Trim whitespace
+          required_process=$(echo "$required_process" | xargs)
+          
+          # Check if this required process exists in the preview set
+          found=false
+          for preview_process in "${PREVIEW_SET[@]}"; do
+            if [ "$required_process" = "$preview_process" ]; then
+              found=true
+              break
+            fi
+          done
+          
+          if [ "$found" = true ]; then
+            echo "✅ Found required process: $required_process"
+          else
+            echo "❌ Missing required process: $required_process"
+            MISSING_PROCESSES+=("$required_process")
+          fi
+        done
+        
+        # Report results
+        if [ ${#MISSING_PROCESSES[@]} -eq 0 ]; then
+          echo ""
+          echo "🎉 SUCCESS: All required processes found in preview_processes"
+          echo "Required: ${{ inputs.required_processes }}"
+          echo "Found: $PREVIEW_PROCESSES"
+        else
+          echo ""
+          echo "❌ FAILURE: Missing required processes"
+          echo "Required: ${{ inputs.required_processes }}"
+          echo "Found: $PREVIEW_PROCESSES"
+          echo "Missing: $(IFS=','; echo "${MISSING_PROCESSES[*]}")"
+          exit 1
+        fi
+        
