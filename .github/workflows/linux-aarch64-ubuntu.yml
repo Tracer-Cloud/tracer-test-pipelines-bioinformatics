@@ -39,9 +39,9 @@ jobs:
           pixi install || true
 
       - name: Install tracer
-        continue-on-error: true
         run: |
-          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
+          curl -sSL https://install.tracer.cloud/ | sudo bash
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
 
       - name: Run tracer init
         run: |
@@ -99,10 +99,10 @@ jobs:
           source ~/miniconda3/etc/profile.d/conda.sh
 
       - name: Install tracer
-        continue-on-error: true
         run: |
-          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
-
+          curl -sSL https://install.tracer.cloud/ | sudo bash
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+          
       - name: Run tracer init
         run: |
           sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
