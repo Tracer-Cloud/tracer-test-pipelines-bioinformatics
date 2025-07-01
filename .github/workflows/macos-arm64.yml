@@ -62,14 +62,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: 3.12
-          miniforge-variant: Miniforge3
-          miniforge-version: latest
-
       - name: Install tracer
         continue-on-error: true
         run: |
@@ -81,7 +73,6 @@ jobs:
       - name: Run pipeline with Conda
         working-directory: pipelines/macos-arm64/nextflow-conda
         run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
           echo "=== Running Nextflow Pipeline with Conda ==="
           ./run.sh
 
