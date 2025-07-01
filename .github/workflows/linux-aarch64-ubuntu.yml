@@ -10,8 +10,7 @@ on:
     - cron: "0 11 * * *" # Daily at 11:00 UTC
 
 jobs:
-
-linux-arm64-conda:
+  linux-arm64-conda:
     name: Conda Pipeline
     runs-on: ubuntu-24.04-arm
     env:
@@ -73,8 +72,7 @@ linux-arm64-conda:
           path: |
             pipelines/linux-arm-ubuntu/nextflow-conda/results/
           retention-days: 7
-
-
+          
   linux-arm64-pixi:
     name: Pixi Pipeline
     runs-on: ubuntu-24.04-arm
@@ -140,4 +138,5 @@ linux-arm64-conda:
             pipelines/linux-arm-ubuntu/nextflow-pixi/results/
           retention-days: 7
 
-  
+
+
