@@ -19,11 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Pixi
-        run: |
-          curl -fsSL https://pixi.sh/install.sh | bash
-          echo "$HOME/.pixi/bin" >> $GITHUB_PATH
-
       - name: Cache Pixi environment
         uses: actions/cache@v4
         with:
@@ -32,12 +27,6 @@ jobs:
           key: pixi-linux-x86-${{ runner.os }}-${{ hashFiles('pipelines/linux-x86-ubuntu/nextflow-pixi/pixi.lock') }}
           restore-keys: |
             pixi-linux-x86-${{ runner.os }}-
-
-      - name: Install Pixi dependencies
-        working-directory: pipelines/linux-x86-ubuntu/nextflow-pixi
-        run: |
-          export PATH="$HOME/.pixi/bin:$PATH"
-          pixi install
 
       - name: Install tracer
         run: |
@@ -58,7 +47,7 @@ jobs:
         run: |
           export PATH="$HOME/.pixi/bin:$PATH"
           echo "=== Running Nextflow Pipeline with Pixi ==="
-          pixi run pipeline
+          ./run.sh
 
       - name: Verify tracer packages
         run: |
@@ -81,35 +70,6 @@ jobs:
       TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: 3.12
-          miniforge-variant: Miniforge3
-          miniforge-version: latest
-
-      - name: Install Nextflow
-        run: |
-          curl -s https://get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
-      - name: Install Conda environment
-        working-directory: pipelines/linux-x86-ubuntu/nextflow-conda
-        run: |
-          mamba env create -f environment.yml || conda env create -f environment.yml || true
-          source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nextflow-minimal || true
-          conda info
-
-      - name: Verify installations
-        working-directory: pipelines/linux-x86-ubuntu/nextflow-conda
-        run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nextflow-minimal || true
-          nextflow -v
-
       - name: Install tracer
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash
@@ -122,9 +82,7 @@ jobs:
       - name: Run pipeline with Conda
         working-directory: pipelines/linux-x86-ubuntu/nextflow-conda
         run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
-          conda activate nextflow-minimal || true
-          nextflow run main.nf -c nextflow.config --outdir results || true
+          ./run.sh
 
       - name: Verify tracer packages
         run: |
