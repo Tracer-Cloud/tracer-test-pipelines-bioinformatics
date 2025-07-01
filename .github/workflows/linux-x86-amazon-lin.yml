@@ -37,12 +37,6 @@ jobs:
       - name: Install tracer
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash
-          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
-
-      - name: Add tracer to PATH
-        run: |
-          export PATH="/github/home/.tracerbio/bin:$PATH"
-          echo "PATH updated for tracer"
 
       - name: Run tracer init
         run: |
@@ -51,8 +45,6 @@ jobs:
       - name: Run pipeline with Pixi
         working-directory: pipelines/linux-x86-amazon-linux/nextflow-pixi
         run: |
-          export PATH="$HOME/.pixi/bin:$PATH"
-          echo "=== Running Nextflow Pipeline with Pixi ==="
           ./run.sh
 
       - name: Verify tracer packages
