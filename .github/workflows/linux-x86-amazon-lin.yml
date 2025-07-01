@@ -17,6 +17,8 @@ jobs:
       TRACER_BIO: /github/home/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    env:
+      TRACER_BIO: /github/home/.tracerbio/bin/tracer
     steps:
       - name: Install system dependencies
         run: |
@@ -56,8 +58,12 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
-        run: |
-          sudo $TRACER_BIO info
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,FastQC,samtools sort"
+          sleep_duration: 10
+          use_sudo: true
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -75,6 +81,8 @@ jobs:
       TRACER_BIO: /github/home/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    env:
+      TRACER_BIO: /github/home/.tracerbio/bin/tracer
     steps:
       - name: Install system dependencies
         run: |
@@ -112,8 +120,12 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
-        run: |
-          sudo $TRACER_BIO info
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,FastQC,samtools sort"
+          sleep_duration: 10
+          use_sudo: true
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -123,3 +135,4 @@ jobs:
           path: |
             pipelines/linux-x86-amazon-linux/nextflow-conda/results/
           retention-days: 7
+
