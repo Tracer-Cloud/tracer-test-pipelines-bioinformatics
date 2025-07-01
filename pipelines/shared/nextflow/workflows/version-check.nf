@@ -48,7 +48,7 @@ process samtools_version {
     script:
     """
     echo "Samtools version:"
-    samtools sort --help
+    samtools sort --version || echo "Samtools not available"
     """
 }
 
