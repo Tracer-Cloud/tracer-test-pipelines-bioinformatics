@@ -37,11 +37,11 @@ jobs:
       - name: Install tracer
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash
-          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+          echo "/github/home/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
 
       - name: Add tracer to PATH
         run: |
-          export PATH="/root/.tracerbio/bin:$PATH"
+          export PATH="/github/home/.tracerbio/bin:$PATH"
           echo "PATH updated for tracer"
 
       - name: Run tracer init
@@ -91,7 +91,7 @@ jobs:
       - name: Install tracer
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash
-          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+          echo "/github/home/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
 
       - name: Run tracer init
         run: |
