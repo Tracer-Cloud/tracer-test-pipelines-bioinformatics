@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 params.outdir = params.outdir ?: "results"
-params.iterations = 5
+params.iterations = 20
 
 workflow version_check {
     // Create channel with 5 iterations
