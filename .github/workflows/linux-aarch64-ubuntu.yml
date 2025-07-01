@@ -39,9 +39,9 @@ jobs:
           pixi install || true
 
       - name: Install tracer
-        continue-on-error: true
         run: |
-          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
+          curl -sSL https://install.tracer.cloud/ | sudo bash
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
 
       - name: Run tracer init
         run: |
@@ -55,8 +55,12 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
-        run: |
-          sudo $TRACER_BIO info
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,FastQC,samtools sort"
+          sleep_duration: 10
+          use_sudo: true
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -95,10 +99,10 @@ jobs:
           source ~/miniconda3/etc/profile.d/conda.sh
 
       - name: Install tracer
-        continue-on-error: true
         run: |
-          curl -sSL https://install.tracer.cloud | bash || echo "Tracer installation failed"
-
+          curl -sSL https://install.tracer.cloud/ | sudo bash
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+          
       - name: Run tracer init
         run: |
           sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
@@ -110,8 +114,12 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
-        run: |
-          sudo $TRACER_BIO info
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,FastQC,samtools sort"
+          sleep_duration: 10
+          use_sudo: true
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -121,3 +129,4 @@ jobs:
           path: |
             pipelines/linux-arm-ubuntu/nextflow-conda/results/
           retention-days: 7
+

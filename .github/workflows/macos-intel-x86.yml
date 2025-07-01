@@ -45,8 +45,12 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
-        run: |
-          sudo $TRACER_BIO info
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,FastQC"
+          sleep_duration: 10
+          use_sudo: true
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -92,8 +96,12 @@ jobs:
           ./run.sh
 
       - name: Verify tracer packages
-        run: |
-          sudo $TRACER_BIO info
+        uses: ./.github/actions/verify-tracer
+        with:
+          required_processes: "STAR,FastQC"
+          sleep_duration: 10
+          use_sudo: true
+          binary: $TRACER_BIO
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -104,3 +112,4 @@ jobs:
             pipelines/macos-intel-x86/nextflow-conda/results/
             pipelines/macos-intel-x86/nextflow-conda/logs/
           retention-days: 7
+
