@@ -20,6 +20,8 @@ fastqc = "0.12.1"
 star = "*"
 samtools = "1.21"
 bwa = "*"
+fgbio = "*"
+
 
 
 [tasks]
