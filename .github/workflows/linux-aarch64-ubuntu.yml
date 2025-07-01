@@ -10,6 +10,71 @@ on:
     - cron: "0 11 * * *" # Daily at 11:00 UTC
 
 jobs:
+
+linux-arm64-conda:
+    name: Conda Pipeline
+    runs-on: ubuntu-24.04-arm
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.12
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+
+      - name: Install Nextflow
+        run: |
+          curl -s https://get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
+
+      - name: Install Conda environment
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
+        run: |
+          mamba env create -f environment-minimal.yml || conda env create -f environment-minimal.yml || true
+          source ~/miniconda3/etc/profile.d/conda.sh
+
+      - name: Install tracer
+        run: |
+          curl -sSL https://install.tracer.cloud/ | sudo bash
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+          
+      - name: Run tracer init
+        run: |
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+
+      - name: Run pipeline with Conda
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh
+          ./run.sh
+
+      - name: Verify tracer packages
+        uses: ./.github/actions/verify-tracer
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        with:
+          required_processes: "STAR,FastQC,samtools sort"
+          sleep_duration: 10
+          use_sudo: true
+          binary: $TRACER_BIO,
+          matches_name: "linux-arm64-conda"
+
+      - name: Upload pipeline results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conda-linux-arm64-pipeline-results
+          path: |
+            pipelines/linux-arm-ubuntu/nextflow-conda/results/
+          retention-days: 7
+
+
   linux-arm64-pixi:
     name: Pixi Pipeline
     runs-on: ubuntu-24.04-arm
@@ -75,66 +140,4 @@ jobs:
             pipelines/linux-arm-ubuntu/nextflow-pixi/results/
           retention-days: 7
 
-  linux-arm64-conda:
-    name: Conda Pipeline
-    runs-on: ubuntu-24.04-arm
-    env:
-      TRACER_BIO: /root/.tracerbio/bin/tracer
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: 3.12
-          miniforge-variant: Miniforge3
-          miniforge-version: latest
-
-      - name: Install Nextflow
-        run: |
-          curl -s https://get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
-      - name: Install Conda environment
-        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
-        run: |
-          mamba env create -f environment-minimal.yml || conda env create -f environment-minimal.yml || true
-          source ~/miniconda3/etc/profile.d/conda.sh
-
-      - name: Install tracer
-        run: |
-          curl -sSL https://install.tracer.cloud/ | sudo bash
-          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
-          
-      - name: Run tracer init
-        run: |
-          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
-
-      - name: Run pipeline with Conda
-        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
-        run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
-          ./run.sh
-
-      - name: Verify tracer packages
-        uses: ./.github/actions/verify-tracer
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        with:
-          required_processes: "STAR,FastQC,samtools sort"
-          sleep_duration: 10
-          use_sudo: true
-          binary: $TRACER_BIO,
-          matches_name: "linux-arm64-conda"
-
-      - name: Upload pipeline results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: conda-linux-arm64-pipeline-results
-          path: |
-            pipelines/linux-arm-ubuntu/nextflow-conda/results/
-          retention-days: 7
-
+  
