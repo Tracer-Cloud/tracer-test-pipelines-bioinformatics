@@ -95,7 +95,6 @@ jobs:
       - name: Run pipeline with Conda
         working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
         run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
           ./run.sh
 
       - name: Verify tracer packages
