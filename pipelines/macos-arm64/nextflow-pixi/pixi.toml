@@ -8,21 +8,19 @@ platforms = ["osx-arm64"]
 
 [dependencies]
 nextflow = ">=25.4.4,<26"
-fastqc = "0.12.1"
-star = "2.7.11b"
 coreutils = "9.1"
+bedtools = "*"
+star = "*"
+samtools = "*"
 bc = "*"
-tree = "*"
-openjdk = "17.0.11"
-python = "3.12"
+multiqc = "*"
 
 [tasks]
 
 pipeline = "nextflow -log logs/nextflow.log run main.nf"
 pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --input $1 --outdir $2"
-rnaseq = "export JAVA_OPTS='-Djdk.lang.Process.launchMechanism=posix_spawn' && export _JAVA_OPTIONS='-Djdk.lang.Process.launchMechanism=posix_spawn' && mkdir -p rnaseq_results && cd rnaseq_results && nextflow run https://github.com/nf-core/rnaseq -c ../custom.config -profile test --outdir results -resume"
 
-test = "nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --outdir test_results"
+test = "nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --iterations 20 --outdir test_results"
 
 clean = { cmd = [
     "/bin/sh",
@@ -35,16 +33,16 @@ check-env = { cmd = [
     "-c",
     """
     echo '=== Pixi Environment Check ===' && \
-    echo 'FastQC version:' && \
-    fastqc --version && \
+    echo 'bedtools version:' && \
+    bedtools --version && \
     echo 'STAR version:' && \
-    (STAR --version 2>/dev/null || echo 'STAR 2.7.11b (available)') && \
+    STAR --version && \
+    echo 'samtools version:' && \
+    samtools --version && \
+    echo 'bc version:' && \
+    bc --version && \
     echo 'Nextflow version:' && \
     nextflow -v && \
-    echo 'Java version:' && \
-    java -version && \
-    echo 'Docker version:' && \
-    (docker --version 2>/dev/null || echo 'Docker not available') && \
     echo '=== Environment Ready ==='
     """
 ]}

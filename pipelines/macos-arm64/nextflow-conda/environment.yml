@@ -5,9 +5,8 @@ channels:
   - defaults
 dependencies:
   - nextflow
-  - fastqc=0.12.1
   - coreutils=9.1
   - bc
   - STAR=2.7.11b
-  - salmon=1.10.3
-  - bash
+  - bedtools
+  - multiqc=1.16.0
