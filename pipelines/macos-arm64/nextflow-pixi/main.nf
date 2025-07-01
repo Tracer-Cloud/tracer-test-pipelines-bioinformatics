@@ -4,6 +4,7 @@ nextflow.enable.dsl = 2
 
 params.input = "*.fasta"
 params.outdir = "results"
+params.iterations = 20
 
 process STAR_VERSION {
     output:
@@ -35,7 +36,12 @@ process BEDTOOLS_SIM {
 
 workflow {
     input_ch = Channel.fromPath(params.input)
-    STAR_VERSION()
-    MULTIQC_SIM()
-    BEDTOOLS_SIM()
+    
+    // Create a range channel for 20 iterations
+    iterations = Channel.of(1..params.iterations)
+    
+    // Run each process 20 times
+    STAR_VERSION(iterations)
+    MULTIQC_SIM(iterations)
+    BEDTOOLS_SIM(iterations)
 }
