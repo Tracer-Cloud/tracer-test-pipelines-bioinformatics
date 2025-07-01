@@ -2,109 +2,59 @@
 
 nextflow.enable.dsl = 2
 
-params.input = "test_data/*.fasta"
+params.input = "*.fasta"
 params.outdir = "results"
-params.conda_env = "nextflow-minimal"
+params.iterations = 10
 
 process STAR_VERSION {
-    conda params.conda_env
+    input:
+    val iteration
     
     output:
     stdout
     
     script:
     """
-    echo "=== STAR VERSION ==="
+    echo "STAR_VERSION iteration ${iteration}"
     STAR --version
     """
 }
 
-process SALMON_VERSION {
-    conda params.conda_env
+process MULTIQC_SIM {
+    input:
+    val iteration
     
     output:
     stdout
     
     script:
     """
-    echo "=== SALMON VERSION ==="
-    salmon --version
+    echo "MULTIQC_SIM iteration ${iteration}"
+    echo "[multiqc] Simulating long run..."
+    multiqc --version
     """
 }
 
-process FASTA_STATS {
-    publishDir "${params.outdir}/fasta_stats", mode: 'copy'
-    conda params.conda_env
-    
+process BEDTOOLS_SIM {
     input:
-    path fasta_file
+    val iteration
     
     output:
-    path "*.txt"
+    stdout
     
     script:
     """
-    set -euo pipefail
-    
-    if [ ! -s "${fasta_file}" ]; then
-      echo "Input file missing or empty: ${fasta_file}" >&2
-      exit 1
-    fi
-    
-    base=\$(basename "${fasta_file}" .fasta)
-    seq_count=\$(grep -c '^>' "${fasta_file}")
-    total_length=\$(grep -v '^>' "${fasta_file}" | tr -d '\\n' | wc -c)
-    
-    # Handle division by zero
-    if [ "\$seq_count" -eq 0 ]; then
-        avg_length=0
-    else
-        avg_length=\$(echo "scale=2; \$total_length / \$seq_count" | bc -l)
-    fi
-    
-    echo "Sequences: \$seq_count" > "\${base}_stats.txt"
-    echo "Total length: \$total_length" >> "\${base}_stats.txt"
-    echo "Average length: \$avg_length" >> "\${base}_stats.txt"
-    """
-}
-
-process COUNT_SEQUENCES {
-    publishDir "${params.outdir}/counts", mode: 'copy'
-    conda params.conda_env
-    
-    input:
-    path fasta_file
-    
-    output:
-    path "*.txt"
-    
-    script:
-    """
-    set -euo pipefail
-    
-    if [ ! -s "${fasta_file}" ]; then
-      echo "Input file missing or empty: ${fasta_file}" >&2
-      exit 1
-    fi
-    
-    base=\$(basename "${fasta_file}" .fasta)
-    grep -c '^>' "${fasta_file}" > "\${base}_count.txt"
+    echo "BEDTOOLS_SIM iteration ${iteration}"
+    bedtools --version || echo "Bedtools not available"
     """
 }
 
 workflow {
-    // Create input channel
-    input_ch = Channel.fromPath(params.input, checkIfExists: true)
+    input_ch = Channel.fromPath(params.input)
     
-    // Run version checks
-    STAR_VERSION()
-    SALMON_VERSION()
+    iterations = Channel.of(1..params.iterations)
     
-    // Process FASTA files
-    FASTA_STATS(input_ch)
-    COUNT_SEQUENCES(input_ch)
-    
-    // Display version information
-    STAR_VERSION.out.view { "STAR: $it" }
-    SALMON_VERSION.out.view { "Salmon: $it" }
+    STAR_VERSION(iterations)
+    MULTIQC_SIM(iterations)
+    BEDTOOLS_SIM(iterations)
 }

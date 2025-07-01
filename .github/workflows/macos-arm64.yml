@@ -39,7 +39,7 @@ jobs:
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,FastQC,salmon"
+          required_processes: "STAR,multiqc,bedtools"
           sleep_duration: 10
           use_sudo: true
           binary: $TRACER_BIO
@@ -62,14 +62,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: 3.12
-          miniforge-variant: Miniforge3
-          miniforge-version: latest
-
       - name: Install tracer
         continue-on-error: true
         run: |
@@ -81,18 +73,16 @@ jobs:
       - name: Run pipeline with Conda
         working-directory: pipelines/macos-arm64/nextflow-conda
         run: |
-          source ~/miniconda3/etc/profile.d/conda.sh
           echo "=== Running Nextflow Pipeline with Conda ==="
           ./run.sh
 
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,FastQC,salmon"
+          required_processes: "bedtools,multiqc"
           sleep_duration: 10
           use_sudo: true
           binary: $TRACER_BIO
-
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -103,4 +93,3 @@ jobs:
             pipelines/macos-arm64/nextflow-conda/results/
             pipelines/macos-arm64/nextflow-conda/logs/
           retention-days: 7
-

@@ -17,6 +17,7 @@ else
     echo "[INFO] Swap file already exists. Skipping swap creation."
 fi
 
+
 # --- Install Miniconda if missing ---
 if [ ! -d "$CONDA_HOME" ]; then
     echo "[INFO] Installing Miniconda (ARM64)..."
@@ -32,7 +33,6 @@ fi
 export PATH="$CONDA_HOME/bin:$PATH"
 eval "$("$CONDA_HOME/bin/conda" shell.bash hook)"
 
-# --- Check if environment exists ---
 if conda info --envs | grep -q "^$ENV_NAME "; then
     echo "[INFO] Conda environment '$ENV_NAME' already exists. Skipping creation."
 else
@@ -40,12 +40,9 @@ else
     conda env create -n "$ENV_NAME" -f "$ENV_YML"
 fi
 
-# --- Activate environment ---
 conda activate "$ENV_NAME"
 
-# --- Ensure log/output dirs exist ---
 mkdir -p logs results
 
-# --- Run Nextflow pipeline ---
 echo "[INFO] Running Nextflow pipeline..."
 nextflow -log logs/nextflow.log run main.nf --outdir results
