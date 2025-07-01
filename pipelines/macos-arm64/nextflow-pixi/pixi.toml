@@ -17,10 +17,10 @@ multiqc = "*"
 
 [tasks]
 
-pipeline = "nextflow -log logs/nextflow.log run main.nf"
+pipeline = "nextflow -log logs/nextflow.log run --iterations 20 main.nf"
 pipeline-custom = "nextflow -log logs/nextflow.log run main.nf --input $1 --outdir $2"
 
-test = "nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --iterations 20 --outdir test_results"
+test = "nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --outdir test_results"
 
 clean = { cmd = [
     "/bin/sh",

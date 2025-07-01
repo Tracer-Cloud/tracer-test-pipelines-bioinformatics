@@ -61,4 +61,4 @@ EOF
 fi
 
 # Run the Nextflow pipeline
-nextflow run main.nf --input test_data/*.fasta --outdir test_results
+nextflow run main.nf --input test_data/*.fasta --iterations 20 --outdir test_results

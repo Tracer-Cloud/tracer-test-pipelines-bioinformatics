@@ -16,14 +16,6 @@ if ! command -v brew &> /dev/null; then
     eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# Install conda via Homebrew
-if ! command -v conda &> /dev/null; then
-    echo -e "${BLUE}[INFO]${NC} Installing Miniforge via Homebrew..."
-    brew install miniforge
-    conda init "$(basename "$SHELL")"
-    source ~/.zshrc 2>/dev/null || source ~/.bashrc 2>/dev/null
-fi
-
 # Install pixi via Homebrew
 if ! command -v pixi &> /dev/null; then
     echo -e "${BLUE}[INFO]${NC} Installing Pixi via Homebrew..."
