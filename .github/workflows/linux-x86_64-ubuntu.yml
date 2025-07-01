@@ -1,4 +1,4 @@
-name: Nextflow Linux x86_64 Pipelines
+name: Nextflow Linux x86_64 Ubuntu Pipelines
 
 on:
   workflow_dispatch:
@@ -76,6 +76,8 @@ jobs:
   linux-x86-conda:
     name: Conda Pipeline
     runs-on: ubuntu-latest
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
 
