@@ -39,7 +39,7 @@ jobs:
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,FastQC,salmon"
+          required_processes: "STAR,multiqc,bedtools"
           sleep_duration: 10
           use_sudo: true
           binary: $TRACER_BIO
@@ -88,11 +88,10 @@ jobs:
       - name: Verify tracer packages
         uses: ./.github/actions/verify-tracer
         with:
-          required_processes: "STAR,FastQC,salmon"
+          required_processes: "bedtools,multiqc"
           sleep_duration: 10
           use_sudo: true
           binary: $TRACER_BIO
-
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -103,4 +102,3 @@ jobs:
             pipelines/macos-arm64/nextflow-conda/results/
             pipelines/macos-arm64/nextflow-conda/logs/
           retention-days: 7
-
