@@ -1,4 +1,4 @@
-name: Nextflow Linux x86_64 Pipelines
+name: Nextflow Linux x86_64 Ubuntu Pipelines
 
 on:
   workflow_dispatch:
@@ -13,6 +13,8 @@ jobs:
   linux-x86-pixi:
     name: Pixi Pipeline
     runs-on: ubuntu-latest
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
 
@@ -48,7 +50,7 @@ jobs:
 
       - name: Run tracer init
         run: |
-          sudo /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Pixi
         working-directory: pipelines/linux-x86-ubuntu/nextflow-pixi
@@ -59,7 +61,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
-          sudo /root/.tracerbio/bin/tracer info
+          sudo $TRACER_BIO info
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -74,6 +76,8 @@ jobs:
   linux-x86-conda:
     name: Conda Pipeline
     runs-on: ubuntu-latest
+    env:
+      TRACER_BIO: /root/.tracerbio/bin/tracer
     steps:
       - uses: actions/checkout@v4
 
@@ -112,7 +116,7 @@ jobs:
 
       - name: Run tracer init
         run: |
-          sudo /root/.tracerbio/bin/tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Conda
         working-directory: pipelines/linux-x86-ubuntu/nextflow-conda
@@ -123,7 +127,7 @@ jobs:
 
       - name: Verify tracer packages
         run: |
-          sudo /root/.tracerbio/bin/tracer info
+          sudo $TRACER_BIO info
 
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
