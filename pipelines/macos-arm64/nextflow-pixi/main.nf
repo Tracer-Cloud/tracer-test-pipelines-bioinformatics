@@ -7,29 +7,44 @@ params.outdir = "results"
 params.iterations = 20
 
 process STAR_VERSION {
+    input:
+    val iteration
+    
     output:
     stdout
+    
     script:
     """
+    echo "STAR_VERSION iteration ${iteration}"
     STAR --version
     """
 }
 
 process MULTIQC_SIM {
+    input:
+    val iteration
+    
     output:
     stdout
+    
     script:
     """
+    echo "MULTIQC_SIM iteration ${iteration}"
     echo "[multiqc] Simulating long run..."
     multiqc --version
     """
 }
 
 process BEDTOOLS_SIM {
+    input:
+    val iteration
+    
     output:
     stdout
+    
     script:
     """
+    echo "BEDTOOLS_SIM iteration ${iteration}"
     bedtools --version || echo "Bedtools not available"
     """
 }
