@@ -17,8 +17,6 @@ jobs:
       TRACER_BIO: /github/home/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
-    env:
-      TRACER_BIO: /github/home/.tracerbio/bin/tracer
     steps:
       - name: Install system dependencies
         run: |
@@ -81,8 +79,6 @@ jobs:
       TRACER_BIO: /github/home/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
-    env:
-      TRACER_BIO: /github/home/.tracerbio/bin/tracer
     steps:
       - name: Install system dependencies
         run: |
@@ -135,4 +131,3 @@ jobs:
           path: |
             pipelines/linux-x86-amazon-linux/nextflow-conda/results/
           retention-days: 7
-
