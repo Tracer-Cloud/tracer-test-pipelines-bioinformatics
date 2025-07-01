@@ -1,4 +1,4 @@
-name: Nextflow Linux x86_64 Pipelines
+name: Nextflow Linux x86_64 Ubuntu Pipelines
 
 on:
   workflow_dispatch:
