@@ -63,7 +63,7 @@ echo -e "${BLUE}[INFO]${NC} Activating conda environment and running Nextflow pi
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate nextflow-minimal
 
-if nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --iterations 20 --outdir test_results; then
+if nextflow -log logs/nextflow.log run main.nf --input test_data/*.fasta --iterations 10 --outdir test_results; then
     echo -e "${GREEN}[SUCCESS]${NC} Pipeline completed! Results in: test_results/"
     echo -e "${BLUE}[INFO]${NC} Logs available in: logs/nextflow.log"
 else
