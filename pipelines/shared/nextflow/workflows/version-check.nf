@@ -48,7 +48,7 @@ process samtools_version {
     script:
     """
     echo "Samtools version:"
-    samtools sort --version
+    samtools sort --help
     """
 }
 
