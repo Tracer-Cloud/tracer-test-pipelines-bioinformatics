@@ -1,0 +1,12 @@
+name: linux-arm-ubuntu-minimal
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - nextflow>=24.10.0
+  - openjdk=17
+  - fastqc=0.12.1
+  - star=2.7.11b
+  - samtools=1.21
