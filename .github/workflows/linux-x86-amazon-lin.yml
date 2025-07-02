@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          yum update -y
+          sudo yum update -y --nogpgcheck
           yum install -y wget git bash which sudo tar gzip --allowerasing
 
       - uses: actions/checkout@v4
@@ -74,7 +74,7 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          yum update -y
+          sudo yum update -y --nogpgcheck
           yum install -y wget git bash which sudo bzip2 tar gzip --allowerasing
 
       - uses: actions/checkout@v4
