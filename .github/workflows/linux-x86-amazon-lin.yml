@@ -19,8 +19,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          sudo yum update -y --nogpgcheck
-          sudo yum install -y wget git bash which sudo tar gzip curl unzip
+          yum update -y
+          yum install -y wget git bash which sudo tar gzip --allowerasing
 
       - uses: actions/checkout@v4
 
@@ -74,8 +74,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          sudo yum update -y --nogpgcheck
-          sudo yum install -y wget git bash which sudo bzip2 tar gzip curl unzip
+          yum update -y
+          yum install -y wget git bash which sudo tar gzip --allowerasing
 
       - uses: actions/checkout@v4
 
