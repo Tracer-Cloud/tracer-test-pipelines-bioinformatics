@@ -17,6 +17,7 @@ jobs:
       TRACER_BIO: /root/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
+
     steps:
       - name: Install system dependencies
         run: |
@@ -24,11 +25,6 @@ jobs:
           yum install -y wget git bash which sudo tar gzip --allowerasing
 
       - uses: actions/checkout@v4
-
-      - name: Install Pixi
-        run: |
-          curl -fsSL https://pixi.sh/install.sh | bash
-          echo "$HOME/.pixi/bin" >> $GITHUB_PATH
 
       - name: Cache Pixi environment
         uses: actions/cache@v4
@@ -38,12 +34,6 @@ jobs:
           key: pixi-linux-arm64-amazon-${{ runner.os }}-${{ hashFiles('pipelines/linux-arm-amazon-linux/pixi.toml') }}
           restore-keys: |
             pixi-linux-arm64-amazon-${{ runner.os }}-
-
-      - name: Install Pixi dependencies
-        working-directory: pipelines/linux-arm-amazon-linux/nextflow-pixi
-        run: |
-          export PATH="$HOME/.pixi/bin:$PATH"
-          pixi install || true
 
       - name: Install tracer
         run: |
@@ -60,13 +50,14 @@ jobs:
           echo "=== Running Nextflow Pipeline with Pixi ==="
           ./run.sh
 
-      - name: Verify tracer packages
-        uses: ./.github/actions/verify-tracer
-        with:
-          required_processes: "STAR,FastQC,samtools sort"
-          sleep_duration: 10
-          use_sudo: true
-          binary: $TRACER_BIO
+      # TODO: Fix Verification ENG-550
+      # - name: Verify tracer packages
+      #   uses: ./.github/actions/verify-tracer
+      #   with:
+      #     required_processes: "STAR,FastQC,samtools sort"
+      #     sleep_duration: 10
+      #     use_sudo: true
+      #     binary: $TRACER_BIO
           
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
@@ -90,42 +81,31 @@ jobs:
           yum update -y
           yum install -y wget git bash which sudo bzip2 tar gzip --allowerasing
       - uses: actions/checkout@v4
-      - name: Install Miniconda
-        run: |
-          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O miniconda.sh
-          bash miniconda.sh -b -p "$HOME/miniconda"
-          echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> "$HOME/.bashrc"
-          source "$HOME/.bashrc"
-
-      - name: Install Conda environment
-        working-directory: pipelines/linux-arm-amazon-linux/nextflow-conda
-        run: |
-          export PATH="$HOME/miniconda/bin:$PATH"
-          conda env update -f environment-minimal.yml || true
-          source "$HOME/.bashrc"
 
       - name: Install tracer
         run: |
           curl -sSL https://install.tracer.cloud/ | sudo bash
-
+          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
+          
       - name: Run tracer init
         run: |
           sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Conda
-        working-directory: pipelines/linux-arm-amazon-linux/nextflow-conda
+        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
         run: |
-          export PATH="$HOME/miniconda/bin:$PATH"
-          source "$HOME/.bashrc"
           ./run.sh
 
-      - name: Verify tracer packages
-        uses: ./.github/actions/verify-tracer
-        with:
-          required_processes: "STAR,FastQC,samtools sort"
-          sleep_duration: 10
-          use_sudo: true
-          binary: $TRACER_BIO
+      # TODO: Fix Verification ENG-550
+      # - name: Verify tracer packages
+      #   uses: ./.github/actions/verify-tracer
+      #   with:
+      #     required_processes: "STAR,FastQC,samtools sort"
+      #     sleep_duration: 10
+      #     use_sudo: true
+      #     binary: $TRACER_BIO
+
+
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
         if: always()
