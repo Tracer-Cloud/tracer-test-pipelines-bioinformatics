@@ -19,8 +19,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          yum update -y
-          yum install -y wget git bash which sudo tar gzip --allowerasing
+          sudo yum update -y --nogpgcheck
+          sudo yum install -y wget git bash which sudo tar gzip
 
       - name: Checkout repository
         run: |
@@ -59,6 +59,9 @@ jobs:
           paths: |
             pipelines/linux-x86-amazon-linux/nextflow-pixi/results
             pipelines/linux-x86-amazon-linux/nextflow-pixi/logs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   linux-x86-amazon-conda:
     name: Conda Pipeline
@@ -70,8 +73,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          yum update -y
-          yum install -y wget git bash which sudo tar gzip --allowerasing
+          sudo yum update -y --nogpgcheck
+          sudo yum install -y wget git bash which sudo tar gzip
 
       - name: Checkout repository
         run: |
@@ -111,3 +114,6 @@ jobs:
           paths: |
             pipelines/linux-x86-amazon-linux/nextflow-conda/results
             pipelines/linux-x86-amazon-linux/nextflow-conda/logs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

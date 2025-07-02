@@ -15,6 +15,13 @@ env:
 runs:
   using: 'composite'
   steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
     - name: Upload artifacts to S3
       shell: bash
       run: |
