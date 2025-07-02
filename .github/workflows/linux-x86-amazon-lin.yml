@@ -9,9 +9,6 @@ on:
   schedule:
     - cron: "0 11 * * *"
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
 jobs:
   linux-x86-amazon-pixi:
     name: Pixi Pipeline
@@ -25,10 +22,10 @@ jobs:
           sudo yum update -y --nogpgcheck
           sudo yum install -y wget git bash which sudo tar gzip curl unzip
 
-      - name: Install Node.js 20
+      - name: Install Node.js 18
         run: |
-          # Install Node.js 20 from NodeSource repository
-          curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+          # Install Node.js 18 (compatible with Amazon Linux 2 GLIBC 2.26)
+          curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
           sudo yum install -y nodejs
           node --version
           npm --version
@@ -88,10 +85,10 @@ jobs:
           sudo yum update -y --nogpgcheck
           sudo yum install -y wget git bash which sudo bzip2 tar gzip curl unzip
 
-      - name: Install Node.js 20
+      - name: Install Node.js 18
         run: |
-          # Install Node.js 20 from NodeSource repository
-          curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+          # Install Node.js 18 (compatible with Amazon Linux 2 GLIBC 2.26)
+          curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
           sudo yum install -y nodejs
           node --version
           npm --version
