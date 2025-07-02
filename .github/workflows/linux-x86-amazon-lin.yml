@@ -25,10 +25,18 @@ jobs:
           sudo yum update -y --nogpgcheck
           sudo yum install -y wget git bash which sudo tar gzip curl unzip
 
-      - uses: actions/checkout@v3
+      - name: Install Node.js 20
+        run: |
+          # Install Node.js 20 from NodeSource repository
+          curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+          sudo yum install -y nodejs
+          node --version
+          npm --version
+
+      - uses: actions/checkout@v4
 
       - name: Cache Pixi environment
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             pipelines/linux-x86-amazon-linux/.pixi
@@ -58,7 +66,7 @@ jobs:
           binary: $TRACER_BIO
 
       - name: Upload pipeline results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: pixi-linux-x86-amazon-pipeline-results
@@ -80,7 +88,15 @@ jobs:
           sudo yum update -y --nogpgcheck
           sudo yum install -y wget git bash which sudo bzip2 tar gzip curl unzip
 
-      - uses: actions/checkout@v3
+      - name: Install Node.js 20
+        run: |
+          # Install Node.js 20 from NodeSource repository
+          curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+          sudo yum install -y nodejs
+          node --version
+          npm --version
+
+      - uses: actions/checkout@v4
 
       - name: Install tracer
         run: |
@@ -106,7 +122,7 @@ jobs:
           binary: $TRACER_BIO
 
       - name: Upload pipeline results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: conda-linux-x86-amazon-pipeline-results
