@@ -73,7 +73,7 @@ runs:
       if: inputs.matches_name != ''
       shell: bash
       run: |
-        aws s3 cp /tmp/tracer/matches.txt s3://tracer-matching-debug/${{ inputs.matches_name }}/
+        aws s3 cp /tmp/tracer/matches.txt s3://github-nxf-test-pipelines/actions/${{ inputs.matches_name }}/
 
     - name: Verify tracer processes
       shell: bash
@@ -160,4 +160,3 @@ runs:
           echo "Missing: $(IFS=','; echo "${MISSING_PROCESSES[*]}")"
           exit 1
         fi
-        
