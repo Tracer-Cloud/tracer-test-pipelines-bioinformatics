@@ -101,7 +101,7 @@ jobs:
         working-directory: pipelines/linux-arm-amazon-linux/nextflow-conda
         run: |
           export PATH="$HOME/miniconda/bin:$PATH"
-          conda env update -f environment-minimal.yml || true
+          conda env update -f environment.yml || true
           source "$HOME/.bashrc"
 
       - name: Install tracer
