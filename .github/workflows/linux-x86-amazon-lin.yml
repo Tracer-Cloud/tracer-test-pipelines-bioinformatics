@@ -22,16 +22,11 @@ jobs:
           yum update -y
           yum install -y wget git bash which sudo tar gzip --allowerasing
 
-      - uses: actions/checkout@v4
-
-      - name: Cache Pixi environment
-        uses: actions/cache@v4
-        with:
-          path: |
-            pipelines/linux-x86-amazon-linux/.pixi
-          key: pixi-linux-x86-amazon-${{ runner.os }}-${{ hashFiles('pipelines/linux-x86-amazon-linux/pixi.toml') }}
-          restore-keys: |
-            pixi-linux-x86-amazon-${{ runner.os }}-
+      - name: Checkout repository
+        run: |
+          # Clone the repository (public repo, no auth needed)
+          git clone https://github.com/${{ github.repository }}.git .
+          git checkout ${{ github.sha }}
 
       - name: Install tracer
         run: |
@@ -54,15 +49,16 @@ jobs:
           use_sudo: true
           binary: $TRACER_BIO
 
-      - name: Upload pipeline results
-        uses: actions/upload-artifact@v4
+
+      - name: Upload pipeline results to S3
         if: always()
+        uses: ./.github/actions/s3-upload-amazon
         with:
-          name: pixi-linux-x86-amazon-pipeline-results
-          path: |
-            pipelines/linux-x86-amazon-ubuntu/nextflow-pixi/results/
-            pipelines/linux-x86-amazon-ubuntu/nextflow-pixi/logs/
-          retention-days: 7
+          artifact_name: pixi-pipeline-results
+          platform: linux-x86-amazon
+          paths: |
+            pipelines/linux-x86-amazon-linux/nextflow-pixi/results
+            pipelines/linux-x86-amazon-linux/nextflow-pixi/logs
 
   linux-x86-amazon-conda:
     name: Conda Pipeline
@@ -77,7 +73,11 @@ jobs:
           yum update -y
           yum install -y wget git bash which sudo tar gzip --allowerasing
 
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        run: |
+          # Clone the repository (public repo, no auth needed)
+          git clone https://github.com/${{ github.repository }}.git .
+          git checkout ${{ github.sha }}
 
       - name: Install tracer
         run: |
@@ -102,11 +102,12 @@ jobs:
           use_sudo: true
           binary: $TRACER_BIO
 
-      - name: Upload pipeline results
-        uses: actions/upload-artifact@v4
+      - name: Upload pipeline results to S3
         if: always()
+        uses: ./.github/actions/s3-upload-amazon
         with:
-          name: conda-linux-x86-amazon-pipeline-results
-          path: |
-            pipelines/linux-x86-amazon-linux/nextflow-conda/results/
-          retention-days: 7
+          artifact_name: conda-pipeline-results
+          platform: linux-x86-amazon
+          paths: |
+            pipelines/linux-x86-amazon-linux/nextflow-conda/results
+            pipelines/linux-x86-amazon-linux/nextflow-conda/logs

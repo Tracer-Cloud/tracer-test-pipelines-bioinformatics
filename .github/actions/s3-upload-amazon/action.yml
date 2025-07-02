@@ -1,0 +1,90 @@
+name: 'S3 Upload for Amazon Linux'
+description: 'Upload pipeline results to S3 for Amazon Linux environments'
+inputs:
+  artifact_name:
+    description: 'Name for the artifact'
+    required: true
+  paths:
+    description: 'Paths to upload (newline separated)'
+    required: true
+  platform:
+    description: 'Platform identifier (e.g., linux-x86-amazon)'
+    required: true
+env:
+  S3_BUCKET: github-nxf-test-pipelines
+runs:
+  using: 'composite'
+  steps:
+    - name: Upload artifacts to S3
+      shell: bash
+      run: |
+        # Get branch name for directory structure
+        BRANCH_NAME="${{ github.ref_name }}"
+        # Sanitize branch name for S3 path (replace special chars with dashes)
+        BRANCH_PATH=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9._-]/-/g')
+
+        # Create artifact name without timestamp (will override)
+        ARTIFACT_NAME="${{ inputs.artifact_name }}-${{ inputs.platform }}"
+
+        echo "Branch: $BRANCH_NAME"
+        echo "S3 Path: $BRANCH_PATH"
+        echo "Artifact: $ARTIFACT_NAME"
+        
+        # Create temporary directory for artifacts
+        TEMP_DIR="/tmp/artifacts-$$"
+        mkdir -p "$TEMP_DIR"
+        
+        # Process each path
+        FOUND_FILES=false
+        while IFS= read -r path; do
+          # Skip empty lines
+          [ -z "$path" ] && continue
+          
+          echo "Processing path: $path"
+          
+          if [ -d "$path" ]; then
+            echo "📁 Found directory: $path"
+            # Copy directory structure
+            DIRNAME=$(basename "$path")
+            cp -r "$path" "$TEMP_DIR/$DIRNAME"
+            FOUND_FILES=true
+          elif [ -f "$path" ]; then
+            echo "📄 Found file: $path"
+            # Copy file
+            FILENAME=$(basename "$path")
+            cp "$path" "$TEMP_DIR/$FILENAME"
+            FOUND_FILES=true
+          else
+            echo "⚠️  Path not found: $path"
+          fi
+        done <<< "${{ inputs.paths }}"
+        
+        # Create and upload archive if we found files
+        if [ "$FOUND_FILES" = "true" ]; then
+          echo "📦 Creating archive..."
+          cd "$TEMP_DIR"
+          tar -czf "$ARTIFACT_NAME.tar.gz" .
+
+          # Upload to S3 with branch-based directory structure
+          S3_PATH="s3://$S3_BUCKET/$BRANCH_PATH/$ARTIFACT_NAME.tar.gz"
+
+          echo "⬆️  Uploading to S3..."
+          aws s3 cp "$ARTIFACT_NAME.tar.gz" "$S3_PATH"
+
+          # Get file size for reporting
+          FILE_SIZE=$(du -h "$ARTIFACT_NAME.tar.gz" | cut -f1)
+
+          echo "✅ Upload complete!"
+          echo "📊 Artifact: $ARTIFACT_NAME.tar.gz ($FILE_SIZE)"
+          echo "🔗 Location: $S3_PATH"
+
+          # Output for other steps
+          echo "artifact_name=$ARTIFACT_NAME.tar.gz" >> $GITHUB_OUTPUT
+          echo "s3_url=$S3_PATH" >> $GITHUB_OUTPUT
+        else
+          echo "❌ No files found to upload"
+          exit 1
+        fi
+        
+        # Cleanup
+        rm -rf "$TEMP_DIR"
