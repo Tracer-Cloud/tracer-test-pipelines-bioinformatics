@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: "0 11 * * *"
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 jobs:
   linux-x86-amazon-pixi:
     name: Pixi Pipeline
@@ -20,7 +23,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo yum update -y --nogpgcheck
-          yum install -y wget git bash which sudo tar gzip
+          sudo yum install -y wget git bash which sudo tar gzip curl unzip
 
       - uses: actions/checkout@v4
 
@@ -75,7 +78,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo yum update -y --nogpgcheck
-          yum install -y wget git bash which sudo bzip2 tar gzip
+          sudo yum install -y wget git bash which sudo bzip2 tar gzip curl unzip
 
       - uses: actions/checkout@v4
 
