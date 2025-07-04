@@ -70,6 +70,7 @@ jobs:
           --user-operator github-actions \
           --pipeline-type nextflow \
           --is-dev true
+
       - name: Run Nextflow Conda Minimal Pipeline
         working-directory: pipelines/codespaces/nextflow-conda
         run: |

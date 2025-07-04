@@ -16,6 +16,7 @@ runs:
   steps:
     - name: "Install Tracer Client"
       shell: bash
+      continue-on-error: true
       run: |
         set -e
 
