@@ -29,8 +29,6 @@ jobs:
           echo "$HOME/.pixi/bin" >> $GITHUB_PATH
       - name: Install Tracer Client
         uses: ./.github/actions/tracer-client
-        with:
-          tracer_user_id: ${{ secrets.TRACER_USER_ID }}
 
       - name: Run tracer init
         run: |
