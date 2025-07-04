@@ -34,16 +34,21 @@ runs:
         fi
         curl -sSL https://install.tracer.cloud/ | bash
 
-        # Add Tracer to PATH if not already present
+        # Add Tracer to PATH in shell config for future logins
         if ! grep -q 'export PATH="$PATH:$HOME/.tracerbio/bin"' "$SHELL_RC"; then
           echo 'export PATH="$PATH:$HOME/.tracerbio/bin"' >> "$SHELL_RC"
         fi
 
-        # Export PATH for current session
-        export PATH="$PATH:$HOME/.tracerbio/bin"
+        # Add Tracer to PATH for all subsequent workflow steps
+        echo "$HOME/.tracerbio/bin" >> $GITHUB_PATH
+
+        # Source the shell config to refresh PATH for current session
+        source "$SHELL_RC"
+
+        # Also refresh PATH for current session in case shell is non-interactive
+        export PATH="$HOME/.tracerbio/bin:$PATH"
 
     - name: "Verify Tracer Client"
       shell: bash
       run: |
-        export PATH="$PATH:$HOME/.tracerbio/bin"
         tracer info
