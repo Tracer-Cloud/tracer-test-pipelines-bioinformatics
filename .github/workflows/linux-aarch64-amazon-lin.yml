@@ -13,18 +13,45 @@ jobs:
   linux-arm64-amazon-pixi:
     name: Pixi Pipeline
     runs-on: ubuntu-24.04-arm
-    env:
-      TRACER_BIO: /root/.tracerbio/bin/tracer
-    container:
-      image: public.ecr.aws/amazonlinux/amazonlinux:2023
-
     steps:
-      - name: Install system dependencies
-        run: |
-          yum update -y
-          yum install -y wget git bash which sudo tar gzip --allowerasing
-
       - uses: actions/checkout@v4
+
+      - name: Run pipeline in Amazon Linux Docker container
+        run: |
+          docker run -d --rm \
+            --name tracer \
+            --privileged \                     # needed for eBPF + keeps capability for yum later
+            --pid=host \                       # share host PID namespace
+            -v /lib/modules:/lib/modules:ro \  # kernel headers for kmods
+            -v /usr/src:/usr/src:ro \          # extra kernel sources
+            -v /sys/kernel/debug:/sys/kernel/debug:rw \
+            -v /sys/kernel/btf/vmlinux:/sys/kernel/btf/vmlinux:ro \
+            -v "${{ github.workspace }}":/workspace \  # CI checkout
+            -w /workspace \
+            -e TRACER_BIO=/root/.tracerbio/bin/tracer \
+            -e GITHUB_WORKSPACE=/workspace \
+            -e GITHUB_SHA="${{ github.sha }}" \
+            -e GITHUB_REF_NAME="${{ github.ref_name }}" \
+            public.ecr.aws/amazonlinux/amazonlinux:2023 \
+            bash -c "
+              # Install system dependencies
+              yum update -y
+              yum install -y wget git bash which sudo tar gzip curl --allowerasing
+
+              # Install tracer
+              curl -sSL https://install.tracer.cloud/ | sudo bash
+
+              # Run tracer init
+              sudo \$TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+
+              # Run pipeline with Pixi
+              cd pipelines/linux-arm-amazon-linux/nextflow-pixi
+              export PATH=\"\$HOME/.pixi/bin:\$PATH\"
+              echo '=== Running Nextflow Pipeline with Pixi ==='
+              ./run.sh
+                # Verify tracer packages
+              sudo \$TRACER_BIO info
+            "
 
       - name: Cache Pixi environment
         uses: actions/cache@v4
@@ -34,21 +61,6 @@ jobs:
           key: pixi-linux-arm64-amazon-${{ runner.os }}-${{ hashFiles('pipelines/linux-arm-amazon-linux/pixi.toml') }}
           restore-keys: |
             pixi-linux-arm64-amazon-${{ runner.os }}-
-
-      - name: Install tracer
-        run: |
-          curl -sSL https://install.tracer.cloud/ | sudo bash
-
-      - name: Run tracer init
-        run: |
-          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
-
-      - name: Run pipeline with Pixi
-        working-directory: pipelines/linux-arm-amazon-linux/nextflow-pixi
-        run: |
-          export PATH="$HOME/.pixi/bin:$PATH"
-          echo "=== Running Nextflow Pipeline with Pixi ==="
-          ./run.sh
 
       # TODO: Fix Verification ENG-550
       # - name: Verify tracer packages
@@ -66,6 +78,7 @@ jobs:
           name: pixi-linux-arm64-amazon-pipeline-results
           path: |
             pipelines/linux-arm-amazon-linux/nextflow-pixi/results/
+            pipelines/linux-arm-amazon-linux/nextflow-pixi/logs/
           retention-days: 7
 
   linux-arm64-amazon-conda:
@@ -73,28 +86,46 @@ jobs:
     runs-on: ubuntu-24.04-arm
     env:
       TRACER_BIO: /root/.tracerbio/bin/tracer
-    container:
-      image: public.ecr.aws/amazonlinux/amazonlinux:2023
+
     steps:
-      - name: Install system dependencies
-        run: |
-          yum update -y
-          yum install -y wget git bash which sudo bzip2 tar gzip --allowerasing
       - uses: actions/checkout@v4
 
-      - name: Install tracer
+      - name: Run pipeline in Amazon Linux Docker container
         run: |
-          curl -sSL https://install.tracer.cloud/ | sudo bash
-          echo "/root/.tracerbio/bin" | sudo tee -a $GITHUB_PATH
-          
-      - name: Run tracer init
-        run: |
-          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          docker run -d --rm \
+            --name tracer \
+            --privileged \                     # needed for eBPF + keeps capability for yum later
+            --pid=host \                       # share host PID namespace
+            -v /lib/modules:/lib/modules:ro \  # kernel headers for kmods
+            -v /usr/src:/usr/src:ro \          # extra kernel sources
+            -v /sys/kernel/debug:/sys/kernel/debug:rw \
+            -v /sys/kernel/btf/vmlinux:/sys/kernel/btf/vmlinux:ro \
+            -v "${{ github.workspace }}":/workspace \  # CI checkout
+            -w /workspace \
+            -e TRACER_BIO=/root/.tracerbio/bin/tracer \
+            -e GITHUB_WORKSPACE=/workspace \
+            -e GITHUB_SHA="${{ github.sha }}" \
+            -e GITHUB_REF_NAME="${{ github.ref_name }}" \
+            public.ecr.aws/amazonlinux/amazonlinux:2023 \
+            bash -c "
+              # Install system dependencies
+              yum update -y
+              yum install -y wget git bash which sudo bzip2 tar gzip curl --allowerasing
 
-      - name: Run pipeline with Conda
-        working-directory: pipelines/linux-arm-ubuntu/nextflow-conda
-        run: |
-          ./run.sh
+              # Install tracer
+              curl -sSL https://install.tracer.cloud/ | sudo bash
+              echo '/root/.tracerbio/bin' | sudo tee -a \$GITHUB_PATH
+
+              # Run tracer init
+              sudo \$TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+
+              # Run pipeline with Conda
+              cd pipelines/linux-arm-amazon-linux/nextflow-conda
+              ./run.sh
+
+              # Verify tracer packages
+              sudo \$TRACER_BIO info
+            "
 
       # TODO: Fix Verification ENG-550
       # - name: Verify tracer packages
@@ -113,5 +144,6 @@ jobs:
           name: conda-linux-arm64-amazon-pipeline-results
           path: |
             pipelines/linux-arm-amazon-linux/nextflow-conda/results/
+            pipelines/linux-arm-amazon-linux/nextflow-conda/logs/
           retention-days: 7
 
