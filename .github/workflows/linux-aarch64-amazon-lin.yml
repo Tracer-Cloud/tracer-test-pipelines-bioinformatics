@@ -13,8 +13,6 @@ jobs:
   linux-arm64-amazon-pixi:
     name: Pixi Pipeline
     runs-on: ubuntu-24.04-arm
-    env:
-      TRACER_BIO: /root/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
@@ -45,13 +43,14 @@ jobs:
           export PATH="$HOME/.pixi/bin:$PATH"
           pixi install || true
 
-      - name: Install tracer
-        run: |
-          curl -sSL https://install.tracer.cloud/ | sudo bash
+      - name: Install Tracer Client
+        uses: ./.github/actions/tracer-client
+        with:
+          tracer_user_id: ${{ secrets.TRACER_USER_ID }}
 
       - name: Run tracer init
         run: |
-          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Pixi
         working-directory: pipelines/linux-arm-amazon-linux/nextflow-pixi
@@ -66,8 +65,8 @@ jobs:
           required_processes: "STAR,FastQC,samtools sort"
           sleep_duration: 10
           use_sudo: true
-          binary: $TRACER_BIO
-          
+          binary: tracer
+
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
         if: always()
@@ -80,8 +79,6 @@ jobs:
   linux-arm64-amazon-conda:
     name: Conda Pipeline
     runs-on: ubuntu-24.04-arm
-    env:
-      TRACER_BIO: /root/.tracerbio/bin/tracer
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
@@ -104,13 +101,14 @@ jobs:
           conda env update -f environment-minimal.yml || true
           source "$HOME/.bashrc"
 
-      - name: Install tracer
-        run: |
-          curl -sSL https://install.tracer.cloud/ | sudo bash
+      - name: Install Tracer Client
+        uses: ./.github/actions/tracer-client
+        with:
+          tracer_user_id: ${{ secrets.TRACER_USER_ID }}
 
       - name: Run tracer init
         run: |
-          sudo $TRACER_BIO init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
+          tracer init --pipeline-name github-actions --environment github-actions --user-operator github-actions --pipeline-type nextflow --is-dev true
 
       - name: Run pipeline with Conda
         working-directory: pipelines/linux-arm-amazon-linux/nextflow-conda
@@ -125,7 +123,7 @@ jobs:
           required_processes: "STAR,FastQC,samtools sort"
           sleep_duration: 10
           use_sudo: true
-          binary: $TRACER_BIO
+          binary: tracer
       - name: Upload pipeline results
         uses: actions/upload-artifact@v4
         if: always()
@@ -134,4 +132,3 @@ jobs:
           path: |
             pipelines/linux-arm-amazon-linux/nextflow-conda/results/
           retention-days: 7
-

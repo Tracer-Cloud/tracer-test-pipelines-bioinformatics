@@ -1,0 +1,51 @@
+name: "Install Tracer Client"
+author: "Vaibhav Upreti"
+description: "Installs the Tracer Client"
+
+branding:
+  color: "blue"
+  icon: "activity"
+
+inputs:
+  tracer_user_id:
+    description: "Tracer User ID"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Install Tracer Client"
+      shell: bash
+      run: |
+        set -e
+        # Determine shell config file based on $SHELL
+        case "$SHELL" in
+          */zsh)
+            SHELL_RC="$HOME/.zshrc"
+            ;;
+          */bash)
+            SHELL_RC="$HOME/.bashrc"
+            ;;
+          *)
+            # Default to bashrc if unknown
+            SHELL_RC="$HOME/.bashrc"
+            ;;
+        esac
+
+        # Install Tracer Client with or without user ID
+        if [ -n "${{ inputs.tracer_user_id }}" ]; then
+          TRACER_USER_ID="${{ inputs.tracer_user_id }}" sh -c 'curl -sSL https://install.tracer.cloud/ | bash'
+        else
+          sh -c 'curl -sSL https://install.tracer.cloud/ | bash'
+        fi
+
+        # Ensure Tracer bin is in PATH in the shell config (idempotent)
+        grep -qxF 'export PATH="$PATH:$HOME/.tracerbio/bin"' "$SHELL_RC" || echo 'export PATH="$PATH:$HOME/.tracerbio/bin"' >> "$SHELL_RC"
+
+        # Source the shell config for this session
+        . "$SHELL_RC"
+
+    - name: "Verify Tracer Client"
+      shell: bash
+      run: |
+        tracer info
